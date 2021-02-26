@@ -14,7 +14,7 @@ class App extends React.Component<AppProps, AppState> {
 	}
 
 	render(): JSX.Element {
-		return <div></div>
+		return <div>MainPage!</div>
 	}
 	
 }

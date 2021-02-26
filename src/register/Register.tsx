@@ -14,7 +14,7 @@ class Register extends React.Component<RegisterProps, RegisterState> {
 	}
 
 	render(): JSX.Element {
-		return <div></div>
+		return <div>Register</div>
 	}
 	
 }

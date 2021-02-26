@@ -14,7 +14,7 @@ class Login extends React.Component<LoginProps, LoginState> {
 	}
 
 	render(): JSX.Element {
-		return <div></div>
+		return <div>Login</div>
 	}
 	
 }
