@@ -1,0 +1,103 @@
+@import 'colors';
+
+.card {
+  background-color: white;
+  width: 30vw;
+  padding: 1vw;
+  margin-left: 34vw;
+  margin-right: 34vw;
+  margin-top: 2vw;
+  margin-bottom: 2vw;
+}
+
+.btn {
+    color:#444;
+    border:1px solid #CCC;
+    background:#DDD;
+    box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+    cursor:pointer;
+    vertical-align:middle;
+    padding: 5px;
+    text-align: center;
+    user-select: none;
+    display: inline-block;
+}
+
+.root {
+  text-align: center;
+}
+
+.title {
+  color: $white;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea,
+html input[type="button"],
+input[type="reset"],
+input[type="submit"],
+button[disabled],
+html input[disabled],
+button::-moz-focus-inner,
+input::-moz-focus-inner,
+input[type="checkbox"],
+input[type="radio"],
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button,
+input[type="search"],
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  border: none;
+  background-image: none;
+  background-color: transparent;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  font-size: 100%;
+  outline: none;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+button:focus,
+input:focus,
+optgroup:focus,
+select:focus,
+textarea:focus,
+html input[type="button"]:focus,
+input[type="reset"]:focus,
+input[type="submit"]:focus,
+button[disabled]:focus,
+html input[disabled]:focus,
+button::-moz-focus-inner:focus,
+input::-moz-focus-inner:focus,
+input[type="checkbox"]:focus,
+input[type="radio"]:focus,
+input[type="number"]::-webkit-inner-spin-button:focus,
+input[type="number"]::-webkit-outer-spin-button:focus,
+input[type="search"]:focus,
+input[type="search"]::-webkit-search-cancel-button:focus,
+input[type="search"]::-webkit-search-decoration:focus {
+  outline: none;
+}
+
+.body {
+  background: $base-color;
+  background: linear-gradient(
+    90deg,
+    $base-color 0%,
+    $base-color-lighter 100%
+  );
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serifd;
+
+  font-size: 150%;
+}
+
+ul {
+  list-style-type: none;
+}
