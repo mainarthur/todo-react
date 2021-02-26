@@ -4,7 +4,8 @@
     "start": "./scripts/start.sh",
     "server": "ts-node server/index.ts",
     "webpack": "webpack",
-    "dev": "./scripts/dev.sh"
+    "dev": "./scripts/dev.sh",
+    "test": "jest"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.13.5",
