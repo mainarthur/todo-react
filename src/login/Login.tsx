@@ -25,16 +25,29 @@ class Login extends React.Component<LoginProps, LoginState> {
 			email: "",
 			password: ""
 		}
+
+		this.onLoginButtonClick = this.onLoginButtonClick.bind(this)
+		this.onEmailChange = this.onEmailChange.bind(this)
+		this.onPasswordChange = this.onPasswordChange.bind(this)
+	}
+
+	onLoginButtonClick(ev: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+		const { email, password } = this.state
+	}
+
+	onEmailChange(ev: React.ChangeEvent<HTMLInputElement>) {
+		this.setState({email: ev.target.value})
+	}
+
+	onPasswordChange(ev: React.ChangeEvent<HTMLInputElement>) {
+		this.setState({password: ev.target.value})
 	}
 
 	render(): JSX.Element {
 		return <Card>
-			<TextField className="login__email" id="email" placeholder="Email" onChange={(ev) => this.setState({email: ev.target.value})}/>
-			<TextField className="login__password" id="password" placeholder="Password" onChange={(ev) => this.setState({password: ev.target.value})}/>
-			<Button className="login__button" onClick={() => {
-				localStorage.setItem("access_token", "123")
-				history.push("/")
-			}}>Login</Button>
+			<TextField className="login__email" id="email" placeholder="Email" onChange={this.onEmailChange}/>
+			<TextField className="login__password" id="password" placeholder="Password" onChange={this.onPasswordChange}/>
+			<Button className="login__button" onClick={this.onLoginButtonClick}>Login</Button>
 		</Card>
 	}
 
