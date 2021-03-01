@@ -6,20 +6,17 @@ type Props = {
 	id?: string
 }
 
-type State = {
 
-}
-
-class Button extends React.Component<Props, State> {
+class Button extends React.Component<Props> {
 	constructor(props: Props | Readonly<Props>) {
 		super(props)
 	}
 
 	render(): JSX.Element {
-		const { className, children, ...rest } = this.props
+		const { className, children, id } = this.props
 
 
-		return <div {...rest} className={className ? `${className} btn` : "btn"}>{children}</div>
+		return <div {...{id}} className={className ? `${className} btn` : "btn"}>{children}</div>
 	}
 
 }

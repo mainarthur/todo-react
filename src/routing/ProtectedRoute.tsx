@@ -19,7 +19,7 @@ class ProtectedRoute extends React.Component<ProtectedRouteProps> {
 		console.log(Component)
 
 		if (location.pathname === path) {
-			return condition ? (<Component />) : <Redirect to={redirectPath} />
+			return condition ? <Component /> : <Redirect to={redirectPath} />
 		} else {
 			return <></>
 		}
