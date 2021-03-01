@@ -6,6 +6,8 @@ type Props = {
 	type?: string
 	id: string
 	placeholder: string
+	errorText?: string
+	invalid?: boolean 
 	onChange?(ev: React.ChangeEvent<HTMLInputElement>): void
 	value?: string
 }
@@ -27,7 +29,7 @@ class TextField extends React.Component<Props, State> {
 	}
 
 	render(): JSX.Element {
-		const { id, type, placeholder, className, onChange, value } = this.props
+		const { id, type, placeholder, className, onChange, value, errorText, invalid } = this.props
 		let { animation } = this.state
 
 		if(value === "" && this.#prevValue !== "" && animation === "_maximizing") {
@@ -42,6 +44,7 @@ class TextField extends React.Component<Props, State> {
 				<label htmlFor={id}>{placeholder}</label>
 				<div className="textfield__border"><div className={"textfield__border_animated" + (animation  ? ` textfield__border${animation}` : "")}></div></div>
 			</div>
+			{errorText && <label className={"textfield__label_error" + (invalid ? " textfield__label_error-visible" : "")}>{errorText}</label>}
 		</div>
 	}
 

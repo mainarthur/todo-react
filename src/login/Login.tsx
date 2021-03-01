@@ -3,6 +3,7 @@ import Button from "../common/Button";
 import Card from "../common/Card";
 import TextField from "../common/TextField";
 import { history } from "../routing/RouterContext";
+import { isValidEmail, isValidPassword } from "../utils";
 import "./Login.scss"
 
 type LoginProps = {
@@ -12,6 +13,8 @@ type LoginProps = {
 type LoginState = {
 	email: string
 	password: string
+	invalidEmail: boolean
+	invalidPassword: boolean
 }
 
 class Login extends React.Component<LoginProps, LoginState> {
@@ -23,7 +26,9 @@ class Login extends React.Component<LoginProps, LoginState> {
 
 		this.state = {
 			email: "",
-			password: ""
+			password: "",
+			invalidEmail: false,
+			invalidPassword: false
 		}
 
 		this.onLoginButtonClick = this.onLoginButtonClick.bind(this)
@@ -32,7 +37,30 @@ class Login extends React.Component<LoginProps, LoginState> {
 	}
 
 	onLoginButtonClick(ev: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-		const { email, password } = this.state
+		let { email, password, invalidEmail, invalidPassword } = this.state
+
+		email = email.trim()
+		password = password.trim()
+
+		if(!isValidEmail(email)) {
+			this.setState({
+				invalidEmail:true
+			})
+		} else if(invalidEmail) {
+			this.setState({
+				invalidEmail: false
+			})
+		}
+
+		if(!isValidPassword(password)) {
+			this.setState({
+				invalidPassword:true
+			})
+		} else if(invalidEmail) {
+			this.setState({
+				invalidPassword: false
+			})
+		}
 	}
 
 	onEmailChange(ev: React.ChangeEvent<HTMLInputElement>) {
@@ -45,8 +73,8 @@ class Login extends React.Component<LoginProps, LoginState> {
 
 	render(): JSX.Element {
 		return <Card>
-			<TextField className="login__email" id="email" placeholder="Email" onChange={this.onEmailChange}/>
-			<TextField className="login__password" id="password" placeholder="Password" onChange={this.onPasswordChange}/>
+			<TextField className="login__email" id="email" placeholder="Email" invalid={this.state.invalidEmail} errorText="Ivalid email format" onChange={this.onEmailChange}/>
+			<TextField className="login__password" id="password" placeholder="Password" invalid={this.state.invalidPassword} errorText="Password is too weak" onChange={this.onPasswordChange}/>
 			<Button className="login__button" onClick={this.onLoginButtonClick}>Login</Button>
 		</Card>
 	}
