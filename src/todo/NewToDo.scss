@@ -3,6 +3,7 @@
 .new-todo {
   &__btn {
     &-add {
+      margin-left: 1vw;
       display: inline-block;
       background-color: $white;
       width: 6vw;

@@ -1,0 +1,32 @@
+@import "../common/colors";
+
+.todos {
+    &__btn {
+      position: relative;
+      right: 0;
+      top: 0;
+      color: $base-color;
+      background-color: white;
+  
+      &:focus {
+        outline: none;
+      }
+  
+      &:hover {
+        color: $base-color-lighter;
+      }
+  
+      &:active {
+        color: $secondary-color;
+      }
+  
+      width: 30%;
+    }
+  
+    &_center {
+      background-color: $white;
+      text-align: center;
+    }
+  
+    text-align: left;
+  }

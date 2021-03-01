@@ -12,5 +12,5 @@ ReactDOM.render(
 		<ProtectedRoute path="/login" redirectPath="/" condition={localStorage.getItem("access_token") == null} component={Login}/>
 		<ProtectedRoute path="/register" redirectPath="/" condition={localStorage.getItem("access_token") == null} component={Register}/>
 	</Router>,
-	document.getElementById("root")
+	document.querySelector(".root")
 );

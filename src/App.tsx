@@ -2,6 +2,7 @@ import * as React from "react";
 import Card from "./common/Card"
 import "./App.scss"
 import NewToDo from "./todo/NewToDo";
+import ToDoList from "./todo/ToDoList";
 
 type AppProps = {
 
@@ -17,15 +18,15 @@ class App extends React.Component<AppProps, AppState> {
     }
 
     render(): JSX.Element {
-        return (<div>
+        return <>
             <h1 className="title">TO-DO LIST</h1>
             <Card>
                 <NewToDo />
-            </Card> 
-            <Card id="todos-card">
-                
             </Card>
-        </div>)
+            <Card id="todos-card">
+                <ToDoList />
+            </Card>
+        </>
     }
 
 }
