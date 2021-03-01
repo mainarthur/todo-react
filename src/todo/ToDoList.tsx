@@ -1,6 +1,5 @@
 import * as React from "react";
 import Button from "../common/Button";
-import Redirect from "../routing/Redirect";
 import { history } from "../routing/RouterContext";
 import "./ToDoList.scss"
 
