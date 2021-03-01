@@ -21,6 +21,9 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
 				<Button className="todos__btn todos__btn-clear">CLEAR ALL</Button>
 				<Button className="todos__btn todos__btn-logout">LOGOUT</Button>
 			</div>
+			<ul className="todo-list">
+				
+			</ul>
 		</div>
 		
 	}

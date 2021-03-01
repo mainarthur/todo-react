@@ -1,4 +1,5 @@
 import * as React from "react";
+import { RouterContext, history } from "./RouterContext"
 
 type Props = {
 	to: string
@@ -6,13 +7,18 @@ type Props = {
 
 
 class Redirect extends React.Component<Props> {
+	static contextType = RouterContext
 	constructor(props: Props | Readonly<Props>) {
 		super(props)
 	}
 
 	render(): JSX.Element {
-		location.href = this.props.to
+		const { to } = this.props
+		const { route } = this.context
 
+		if(route.path !== to) {
+			history.push(to)
+		}
 
 		return <></>
 	}
