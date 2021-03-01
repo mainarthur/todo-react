@@ -1,0 +1,12 @@
+.login {
+    &__{
+        &email, &password, &button {
+            width: 100%;
+        }
+
+        &button {
+            margin-top: 3vw;
+            display: block
+        }
+    }
+}

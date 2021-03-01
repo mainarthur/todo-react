@@ -3,6 +3,7 @@ import Card from "./common/Card"
 import "./App.scss"
 import NewToDo from "./todo/NewToDo";
 import ToDoList from "./todo/ToDoList";
+import { history } from "./routing/RouterContext";
 
 type AppProps = {
 
@@ -15,11 +16,13 @@ type AppState = {
 class App extends React.Component<AppProps, AppState> {
     constructor(props: AppProps | Readonly<AppProps>) {
         super(props)
+        if(!localStorage.getItem("access_token")) {
+            history.push("/login")
+        }
     }
 
     render(): JSX.Element {
         return <>
-            <h1 className="title">TO-DO LIST</h1>
             <Card>
                 <NewToDo />
             </Card>

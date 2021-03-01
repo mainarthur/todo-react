@@ -25,28 +25,25 @@ class Router extends React.Component<Props, State> {
 	routes: string[];
 	unlisten: () => void;
 	constructor(props: Props | Readonly<Props>) {
-		super(props);
-		// Convert our routes into an array for easy 404 checking
-		this.routes = Object.keys(props.routes).map((key) => props.routes[key].path);
-		// Listen for path changes from the history API
-		this.unlisten = history.listen(this.handleRouteChange);
-		// Define the initial RouterContext value
+		super(props)
+		this.routes = Object.keys(props.routes).map((key) => props.routes[key].path)
+		this.unlisten = history.listen(this.handleRouteChange)
 		this.state = {
 			route: locationToRoute(history.location),
-		};
+		}
 	}
 	componentWillUnmount() {
-		this.unlisten();
+		this.unlisten()
 	}
 
 	handleRouteChange = (update: Update<object>) => {
-		const route = locationToRoute(update.location);
-		this.setState({ route: route });
+		const route = locationToRoute(update.location)
+		this.setState({ route: route })
 	}
 	render() {
-		const { children, NotFound } = this.props;
-		const { route } = this.state;
-		const routerContextValue = { route };
+		const { children, NotFound } = this.props
+		const { route } = this.state
+		const routerContextValue = { route }
 		const is404 = this.routes.indexOf(route.path) === -1;
 		return (
 			<RouterContext.Provider value={routerContextValue}>

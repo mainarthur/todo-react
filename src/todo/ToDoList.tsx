@@ -1,5 +1,7 @@
 import * as React from "react";
 import Button from "../common/Button";
+import Redirect from "../routing/Redirect";
+import { history } from "../routing/RouterContext";
 import "./ToDoList.scss"
 
 type ToDoListProps = {
@@ -19,10 +21,13 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
 		return <div className="todos">
 			<div className="todos_center">
 				<Button className="todos__btn todos__btn-clear">CLEAR ALL</Button>
-				<Button className="todos__btn todos__btn-logout">LOGOUT</Button>
+				<Button className="todos__btn todos__btn-logout" onClick={() => {
+					localStorage.clear()
+					return history.push("/login")
+				}}>LOGOUT</Button>
 			</div>
 			<ul className="todo-list">
-				
+
 			</ul>
 		</div>
 		
