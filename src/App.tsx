@@ -27,7 +27,7 @@ class App extends React.Component<AppProps, AppState> {
                         <Button id="add-todo" className="new-task__btn-add">ADD</Button>
                     </form>
                 </div>
-            </Card>
+            </Card> 
             <Card id="todos-card">
                 <div className="todos">
                     <div className="todos_center">
