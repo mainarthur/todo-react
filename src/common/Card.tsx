@@ -1,21 +1,24 @@
 import * as React from "react";
+import "./Card.scss"
 
-type CardProps = {
+type Props = {
+	id?: string
+}
+
+type State = {
 
 }
 
-type CardState = {
-
-}
-
-class Card extends React.Component<CardProps, CardState> {
-	constructor(props: CardProps | Readonly<CardProps>) {
+class Card extends React.Component<Props, State> {
+	constructor(props: Props | Readonly<Props>) {
 		super(props)
 	}
 
 	render(): JSX.Element {
-		return <div></div>
+		const { children, ...rest } = this.props
+		
+		return <div className="card" {...rest}>{children}</div>
 	}
-	
+
 }
 export default Card

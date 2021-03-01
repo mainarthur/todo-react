@@ -1,15 +1,15 @@
 echo "import * as React from \"react\";
 
-type $1Props = {
+type Props = {
 
 }
 
-type $1State = {
+type State = {
 
 }
 
-class $1 extends React.Component<$1Props, $1State> {
-	constructor(props: $1Props | Readonly<$1Props>) {
+class $1 extends React.Component<Props, State> {
+	constructor(props: Props | Readonly<Props>) {
 		super(props)
 	}
 
