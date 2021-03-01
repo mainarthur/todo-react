@@ -6,7 +6,7 @@
         "outDir": "static/build",
         "preserveConstEnums": true,
         "removeComments": true,
-        "target": "ES5"
+        "target": "ES2015"
     },
     "exclude": [
         "node_modules"

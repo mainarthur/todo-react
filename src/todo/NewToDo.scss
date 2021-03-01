@@ -1,0 +1,31 @@
+@import "../common/colors";
+
+.new-todo {
+  &__btn {
+    &-add {
+      display: inline-block;
+      background-color: $white;
+      width: 6vw;
+      height: 100%;
+      color: $secondary-color;
+      font-weight: bold;
+    }
+
+    &-add:hover {
+      color: $base-color-lighter;
+    }
+
+    &-add:active {
+      color: $base-color;
+    }
+
+    &-add:focus {
+      outline: none;
+    }
+  }
+  &__form {
+    margin: auto;
+  }
+
+  display: flex;
+}

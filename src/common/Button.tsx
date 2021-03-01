@@ -4,6 +4,7 @@ import "./Button.scss"
 type Props = {
 	className?: string
 	id?: string
+	onClick?(event: React.MouseEvent<HTMLDivElement, MouseEvent>): void
 }
 
 
@@ -13,10 +14,10 @@ class Button extends React.Component<Props> {
 	}
 
 	render(): JSX.Element {
-		const { className, children, id } = this.props
+		const { className, children, id, onClick } = this.props
 
 
-		return <div {...{id}} className={className ? `${className} btn` : "btn"}>{children}</div>
+		return <div {...{id, onClick}} className={className ? `${className} btn` : "btn"}>{children}</div>
 	}
 
 }
