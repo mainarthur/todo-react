@@ -52,16 +52,16 @@ export const api = async <T extends Response, B>(opts: Request<B>): Promise<T | 
 
 export const refreshTokens = async (): Promise<boolean> => {
     const authResponse = await api<AuthResponse, RefreshTokenBody>({
-        endpoint: "/auth/refresh-tokens",
+        endpoint: "/auth/refresh-token",
         method: "POST",
         body: {
             refresh_token: localStorage.getItem("refresh_token")
         }
     })
 
-    if (authResponse instanceof AuthResponse && authResponse.status) {
-        localStorage.setItem("access_token", authResponse.access_token)
-        localStorage.setItem("refresh_token", authResponse.refresh_token)
+    if (authResponse.status) {
+        localStorage.setItem("access_token", (authResponse as AuthResponse).access_token)
+        localStorage.setItem("refresh_token", (authResponse as AuthResponse).refresh_token)
 
         return true
     }

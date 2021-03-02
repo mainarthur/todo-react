@@ -1,24 +1,24 @@
 import * as React from "react"
 import Button from "../common/Button"
+import { ToDo } from "../models/ToDo"
 
 type Props = {
-	text: string
-	done?: boolean
-	id?: string
+	toDo: ToDo
 }
 
 type State = {
 
 }
 
-class ToDo extends React.Component<Props, State> {
+class ToDoElement extends React.Component<Props, State> {
 	constructor(props: Props | Readonly<Props>) {
 		super(props)
 		
 	}
 
 	render(): JSX.Element {
-		const { done, text } = this.props 
+		const { toDo } = this.props 
+		const { text, done } = toDo
 
 		return <li className="todo">
 			<input className="todo__checkbox" type="checkbox" checked={done}/>
@@ -29,4 +29,4 @@ class ToDo extends React.Component<Props, State> {
 	}
 	
 }
-export default ToDo
+export default ToDoElement

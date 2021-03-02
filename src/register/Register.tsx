@@ -92,7 +92,7 @@ class Register extends React.Component<RegisterProps, RegisterState> {
 
 		if (authResponse.status) {
 			
-			localStorage.setItem("acceess_token", (authResponse as AuthResponse).access_token)
+			localStorage.setItem("access_token", (authResponse as AuthResponse).access_token)
 			localStorage.setItem("refresh_token", (authResponse as AuthResponse).refresh_token)
 
 			history.push("/")

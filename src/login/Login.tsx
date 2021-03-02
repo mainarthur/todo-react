@@ -39,7 +39,6 @@ class Login extends React.Component<LoginProps, LoginState> {
 
 	componentDidMount() {
 		if (localStorage.getItem("access_token")) {
-			console.log("123")
 			history.push("/")
 		}
 	}
@@ -83,7 +82,7 @@ class Login extends React.Component<LoginProps, LoginState> {
 
 		if (authResponse.status) {
 			
-			localStorage.setItem("acceess_token", (authResponse as AuthResponse).access_token)
+			localStorage.setItem("access_token", (authResponse as AuthResponse).access_token)
 			localStorage.setItem("refresh_token", (authResponse as AuthResponse).refresh_token)
 
 			if (serverError) {
