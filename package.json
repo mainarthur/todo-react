@@ -1,10 +1,10 @@
 {
   "name": "todo-react",
   "scripts": {
-    "start": "./scripts/start.sh",
-    "server": "http-server-spa ./static ",
+    "start": "npm run webpack; npm run server",
+    "server": "npx servor ./static index.html 3000 --reload --browser",
     "webpack": "webpack",
-    "dev": "./scripts/dev.sh",
+    "dev": "nodemon --watch src/ -e ts,tsx,js,jsx,scss,css,sass --exec npm run webpack",
     "test": "jest"
   },
   "devDependencies": {

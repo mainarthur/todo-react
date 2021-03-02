@@ -51,7 +51,7 @@ export const api = async <T extends Response, B>(opts: Request<B>): Promise<T | 
 }
 
 export const refreshTokens = async (): Promise<boolean> => {
-    const tokens = await api<AuthResponse, RefreshTokenBody>({
+    const authResponse = await api<AuthResponse, RefreshTokenBody>({
         endpoint: "/auth/refresh-tokens",
         method: "POST",
         body: {
@@ -59,9 +59,9 @@ export const refreshTokens = async (): Promise<boolean> => {
         }
     })
 
-    if (tokens instanceof AuthResponse && tokens.status) {
-        localStorage.setItem("access_token", tokens.access_token)
-        localStorage.setItem("refresh_token", tokens.refresh_token)
+    if (authResponse instanceof AuthResponse && authResponse.status) {
+        localStorage.setItem("access_token", authResponse.access_token)
+        localStorage.setItem("refresh_token", authResponse.refresh_token)
 
         return true
     }

@@ -16,7 +16,7 @@ type AppState = {
 class App extends React.Component<AppProps, AppState> {
     constructor(props: AppProps | Readonly<AppProps>) {
         super(props)
-        if(!localStorage.getItem("access_token")) {
+        if(localStorage.getItem("access_token") != null) {
             history.push("/login")
         }
     }
