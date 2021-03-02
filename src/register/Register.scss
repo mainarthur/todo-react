@@ -1,0 +1,35 @@
+@import "../common/colors";
+
+.register {
+  &__ {
+    &email,
+    &password,
+    &name,
+    &button {
+      width: 100%;
+    }
+
+    &button {
+      padding-top: 1vw;
+      padding-bottom: 1vw;
+      width: 100%;
+      border-radius: 5px;
+      color: $white;
+      background-color: $secondary-color;
+      margin-top: 3vw;
+      display: block;
+
+      &:hover {
+        background-color: $base-color-lighter;
+      }
+  
+      &:active {
+        background-color: $base-color;
+      }
+    }
+
+    &error-label {
+        display: block;
+    }
+  }
+}

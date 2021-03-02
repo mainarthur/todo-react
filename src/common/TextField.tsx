@@ -1,5 +1,5 @@
-import * as React from "react";
-import ErrorLabel from "./ErrorLabel";
+import * as React from "react"
+import ErrorLabel from "./ErrorLabel"
 import "./TextField.scss"
 
 type Props = {

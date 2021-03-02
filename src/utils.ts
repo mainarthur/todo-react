@@ -6,7 +6,7 @@ export function uuidv4(): string {
         let r: number = (Math.random() * 16) | 0
         let v: number = c == "x" ? r : (r & 0x3) | 0x8
         return v.toString(16)
-    });
+    })
 }
 
 export function isValidEmail(email: string): boolean {

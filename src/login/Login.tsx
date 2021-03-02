@@ -1,14 +1,14 @@
-import * as React from "react";
-import api from "../api/api";
-import { LoginBody } from "../api/bodies/LoginBody";
-import { AuthResponse } from "../api/responses/AuthResponse";
-import Button from "../common/Button";
-import Card from "../common/Card";
-import ErrorLabel from "../common/ErrorLabel";
-import TextField from "../common/TextField";
-import Link from "../routing/Link";
-import { history } from "../routing/RouterContext";
-import { isValidEmail, isValidPassword } from "../utils";
+import * as React from "react"
+import api from "../api/api"
+import { LoginBody } from "../api/bodies/LoginBody"
+import { AuthResponse } from "../api/responses/AuthResponse"
+import Button from "../common/Button"
+import Card from "../common/Card"
+import ErrorLabel from "../common/ErrorLabel"
+import TextField from "../common/TextField"
+import Link from "../routing/Link"
+import { history } from "../routing/RouterContext"
+import { isValidEmail, isValidPassword } from "../utils"
 import "./Login.scss"
 
 type LoginProps = {

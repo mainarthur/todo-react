@@ -1,8 +1,6 @@
-import * as React from "react";
+import * as React from "react"
 import { history, RouterContext, locationToRoute } from "./RouterContext"
-import Route from "./Route";
-import Link from "./Link";
-import { Location, Update } from "history";
+import { Update } from "history"
 
 type Props = {
 	routes: {
@@ -22,8 +20,8 @@ type State = {
 }
 
 class Router extends React.Component<Props, State> {
-	routes: string[];
-	unlisten: () => void;
+	routes: string[]
+	unlisten: () => void
 	constructor(props: Props | Readonly<Props>) {
 		super(props)
 		this.routes = Object.keys(props.routes).map((key) => props.routes[key].path)
@@ -44,12 +42,12 @@ class Router extends React.Component<Props, State> {
 		const { children, NotFound } = this.props
 		const { route } = this.state
 		const routerContextValue = { route }
-		const is404 = this.routes.indexOf(route.path) === -1;
+		const is404 = this.routes.indexOf(route.path) === -1
 		return (
 			<RouterContext.Provider value={routerContextValue}>
 				{is404 ? <NotFound /> : children}
 			</RouterContext.Provider>
-		);
+		)
 	}
 }
 

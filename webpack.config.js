@@ -1,4 +1,4 @@
-var path = require("path");
+var path = require("path")
 
 var config = {
   entry: ["./src/index.tsx"],
@@ -23,6 +23,6 @@ var config = {
       }
     ]
   }
-};
+}
 
-module.exports = config;
+module.exports = config

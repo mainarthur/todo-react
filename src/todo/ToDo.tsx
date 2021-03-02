@@ -1,5 +1,5 @@
-import * as React from "react";
-import Button from "../common/Button";
+import * as React from "react"
+import Button from "../common/Button"
 
 type Props = {
 	text: string

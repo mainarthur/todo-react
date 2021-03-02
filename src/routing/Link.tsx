@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from "react"
 import { RouterContext, history } from "./RouterContext"
 
 type Props = {
@@ -10,7 +10,7 @@ type Props = {
 export default class Link extends React.Component<Props> {
     static contextType = RouterContext
     render() {
-        const { to, onClick, children, className } = this.props;
+        const { to, onClick, children, className } = this.props
         const { route } = this.context
 
         return <a href={to} {...{ className }} onClick={(ev) => {

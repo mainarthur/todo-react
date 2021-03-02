@@ -1,9 +1,9 @@
-import * as React from "react";
+import * as React from "react"
 import Card from "./common/Card"
 import "./App.scss"
-import NewToDo from "./todo/NewToDo";
-import ToDoList from "./todo/ToDoList";
-import { history } from "./routing/RouterContext";
+import NewToDo from "./todo/NewToDo"
+import ToDoList from "./todo/ToDoList"
+import { history } from "./routing/RouterContext"
 
 type AppProps = {
 

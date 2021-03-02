@@ -1,4 +1,4 @@
-echo "import * as React from \"react\";
+echo "import * as React from \"react\"
 
 type Props = {
 

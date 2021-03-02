@@ -1,6 +1,6 @@
-import * as React from "react";
-import Button from "../common/Button";
-import { history } from "../routing/RouterContext";
+import * as React from "react"
+import Button from "../common/Button"
+import { history } from "../routing/RouterContext"
 import "./ToDoList.scss"
 
 type ToDoListProps = {

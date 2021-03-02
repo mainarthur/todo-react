@@ -1,6 +1,6 @@
-import * as React from "react";
-import Button from "../common/Button";
-import TextField from "../common/TextField";
+import * as React from "react"
+import Button from "../common/Button"
+import TextField from "../common/TextField"
 import "./NewToDo.scss"
 
 type Props = {
