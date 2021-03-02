@@ -28,12 +28,16 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
 		this.loadTodos(props.user)
 	}
 
+	async componentDidUpdate(prevProps: ToDoListProps) {
+		if (this.props.user?._id != prevProps.user?._id) {
+			await this.loadTodos(this.props.user)
+		}
+	}
 
 	async loadTodos(user: User) {
 		if (user) {
 			const db = await connectDB(`todo-${user._id}`)
-			const transaction = db.transaction(defaultStoreName, "readwrite")
-			const store = transaction.objectStore(defaultStoreName)
+
 			try {
 				const todos = await api<ToDoListResponse, {}>({
 					endpoint: `/todo${localStorage.getItem("lastUpdate") ? `?from=${localStorage.getItem("lastUpdate")}` : ""}`
@@ -56,12 +60,20 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
 							maxLastUpdate = Math.max(maxLastUpdate, toDo.lastUpdate)
 						}
 
-						store.put(toDo)
+						const transaction = db.transaction(defaultStoreName, "readwrite")
+						const store = transaction.objectStore(defaultStoreName)
+						if (!toDo.deleted) {
+							store.put(toDo)
+						} else {
+							store.delete(toDo._id)
+						}
 					})
 
 					localStorage.setItem("lastUpdate", `${maxLastUpdate}`)
 				}
 
+				const transaction = db.transaction(defaultStoreName, "readwrite")
+				const store = transaction.objectStore(defaultStoreName)
 				const todosRequest = store.getAll()
 				todosRequest.addEventListener("success", () => {
 					this.setState({
@@ -74,6 +86,21 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
 		}
 	}
 
+	onToDoDeleted(toDoId: string) {
+		this.setState({
+			todos: this.state.todos.filter(toDo => toDo._id !== toDoId)
+		})
+	}
+
+
+	onToDoStatusChanged(toDoId: string, newStatus: boolean) {
+		const { todos } = this.state
+		const newTodos = [...todos]
+		const todoIndex = newTodos.findIndex((t) => t._id === toDoId)
+		newTodos[todoIndex].done = newStatus
+
+		this.setState({ todos: newTodos })
+	}
 
 
 	render(): JSX.Element {
@@ -86,7 +113,11 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
 				}}>LOGOUT</Button>
 			</div>
 			<ul className="todo-list">
-				{this.state.todos.map(toDo => <ToDoElement {...{toDo}}/>)}
+				{this.state.todos.map(toDo => <ToDoElement
+					key={toDo._id}
+					id={toDo._id} text={toDo.text}
+					done={toDo.done} onDelete={(toDoId: string) => this.onToDoDeleted(toDoId)}
+					onStatusChange={(id, newStatus) => this.onToDoStatusChanged(id, newStatus)} />)}
 			</ul>
 		</div>
 
