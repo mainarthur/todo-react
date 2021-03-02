@@ -1,5 +1,5 @@
 import * as React from "react"
-import api from "../api/api"
+import { api } from "../api/api"
 import { LoginBody } from "../api/bodies/LoginBody"
 import { AuthResponse } from "../api/responses/AuthResponse"
 import Button from "../common/Button"
@@ -26,9 +26,9 @@ type LoginState = {
 class Login extends React.Component<LoginProps, LoginState> {
 	constructor(props: LoginProps | Readonly<LoginProps>) {
 		super(props)
-        if(localStorage.getItem("access_token")) {
-            history.push("/")
-        }
+		if (localStorage.getItem("access_token")) {
+			history.push("/")
+		}
 
 		this.state = {
 			email: "",
@@ -46,21 +46,21 @@ class Login extends React.Component<LoginProps, LoginState> {
 		email = email.trim()
 		password = password.trim()
 
-		if(!isValidEmail(email)) {
+		if (!isValidEmail(email)) {
 			return this.setState({
-				invalidEmail:true
+				invalidEmail: true
 			})
-		} else if(invalidEmail) {
+		} else if (invalidEmail) {
 			this.setState({
 				invalidEmail: false
 			})
 		}
 
-		if(!isValidPassword(password)) {
+		if (!isValidPassword(password)) {
 			return this.setState({
-				invalidPassword:true
+				invalidPassword: true
 			})
-		} else if(invalidEmail) {
+		} else if (invalidEmail) {
 			this.setState({
 				invalidPassword: false
 			})
@@ -73,9 +73,9 @@ class Login extends React.Component<LoginProps, LoginState> {
 				email, password
 			}
 		})
-		
 
-		if(loginResponse instanceof AuthResponse && loginResponse.status) {
+
+		if (loginResponse instanceof AuthResponse && loginResponse.status) {
 			localStorage.setItem("acceess_token", loginResponse.access_token)
 			localStorage.setItem("refresh_token", loginResponse.refresh_token)
 
@@ -90,17 +90,17 @@ class Login extends React.Component<LoginProps, LoginState> {
 	}
 
 	onEmailChange(ev: React.ChangeEvent<HTMLInputElement>) {
-		this.setState({email: ev.target.value})
+		this.setState({ email: ev.target.value })
 	}
 
 	onPasswordChange(ev: React.ChangeEvent<HTMLInputElement>) {
-		this.setState({password: ev.target.value})
+		this.setState({ password: ev.target.value })
 	}
 
 	render(): JSX.Element {
 		return <Card>
-			<TextField className="login__email" id="email" placeholder="Email" invalid={this.state.invalidEmail} errorText="Ivalid email format" onChange={(ev) => this.onEmailChange(ev)}/>
-			<TextField className="login__password" id="password" placeholder="Password" invalid={this.state.invalidPassword} errorText="Password is too weak" onChange={(ev) => this.onPasswordChange(ev)}/>
+			<TextField className="login__email" id="email" placeholder="Email" invalid={this.state.invalidEmail} errorText="Ivalid email format" onChange={(ev) => this.onEmailChange(ev)} />
+			<TextField className="login__password" id="password" placeholder="Password" invalid={this.state.invalidPassword} errorText="Password is too weak" onChange={(ev) => this.onPasswordChange(ev)} />
 			<Button className="login__button" onClick={(ev) => this.onLoginButtonClick(ev)}>Login</Button>
 			<ErrorLabel className="login__error-label" invalid={this.state.serverError}>Login Problem: invalid email or password</ErrorLabel>
 			<p><Link to="/register">Register</Link> if you don't have an account yet.</p>
