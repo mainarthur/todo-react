@@ -8,8 +8,6 @@ type Props = {
 };
 
 export default class Link extends React.Component<Props> {
-  static contextType = RouterContext;
-
   render() {
     const {
       to, onClick, children, className,
@@ -39,3 +37,5 @@ export default class Link extends React.Component<Props> {
     );
   }
 }
+
+Link.contextType = RouterContext;

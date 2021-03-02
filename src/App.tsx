@@ -8,16 +8,12 @@ import UserResponse from './api/responses/UserResponse';
 import { api } from './api/api';
 import User from './models/User';
 
-type AppProps = {
-
-};
-
 type AppState = {
   user: User
 };
 
-class App extends React.Component<AppProps, AppState> {
-  constructor(props: AppProps | Readonly<AppProps>) {
+class App extends React.Component<{}, AppState> {
+  constructor(props: {} | Readonly<{}>) {
     super(props);
     if (localStorage.getItem('access_token') == null) {
       history.push('/login');

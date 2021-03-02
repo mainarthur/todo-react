@@ -11,8 +11,7 @@ export function connectDB(name: string,
 
       db.addEventListener('versionchange', () => {
         db.close();
-        // eslint-disable-next-line no-restricted-globals
-        location.reload();
+        window.location.reload();
       });
 
       res(db);

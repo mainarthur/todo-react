@@ -5,9 +5,7 @@ type Props = {
   path: string
 };
 
-export default class Route extends React.Component<Props> {
-  static contextType = RouterContext;
-
+export default class Route extends React.PureComponent<Props> {
   render() {
     const { path, children } = this.props;
     const { route } = this.context;
@@ -17,3 +15,5 @@ export default class Route extends React.Component<Props> {
     return <>{children}</>;
   }
 }
+
+Route.contextType = RouterContext;

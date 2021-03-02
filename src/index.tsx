@@ -5,7 +5,7 @@ import Login from './login/Login';
 import Register from './register/Register';
 import Router from './routing/Router';
 import Route from './routing/Route';
-import { routes } from './routing/config';
+import routes from './routing/config';
 import NotFound from './common/NotFound';
 
 ReactDOM.render(

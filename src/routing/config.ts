@@ -1,4 +1,4 @@
-export const routes = {
+export default {
   home: {
     path: '/',
   },
