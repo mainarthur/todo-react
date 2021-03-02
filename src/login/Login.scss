@@ -26,5 +26,9 @@
         background-color: $base-color;
       }
     }
+
+    &error-label {
+        display: block;
+    }
   }
 }

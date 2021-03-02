@@ -13,7 +13,7 @@ export default class Link extends React.Component<Props> {
         const { to, onClick, children, className } = this.props;
         const { route } = this.context
 
-        return <a {...{ className }} onClick={(ev) => {
+        return <a href={to} {...{ className }} onClick={(ev) => {
             ev.preventDefault()
 
             if (onClick) {

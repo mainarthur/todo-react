@@ -3,6 +3,7 @@ import "./ErrorLabel.scss"
 
 type Props = {
 	invalid?: boolean
+	className? : string
 }
 
 type State = {
@@ -15,8 +16,8 @@ class ErrorLabel extends React.Component<Props, State> {
 	}
 
 	render(): JSX.Element {
-		const { invalid } = this.props
-		return <label className={"error-label" + (invalid ? " error-label_visible" : "")}>{this.props.children}</label>
+		const { invalid, className } = this.props
+		return <label className={"error-label" + (invalid ? " error-label_visible" : "") + (className ? ` ${className}` : "")}>{this.props.children}</label>
 	}
 	
 }
