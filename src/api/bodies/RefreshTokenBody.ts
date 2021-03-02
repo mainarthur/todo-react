@@ -1,3 +1,3 @@
-export interface RefreshTokenBody {
-    refresh_token: string
+export default interface RefreshTokenBody {
+  refresh_token: string
 }

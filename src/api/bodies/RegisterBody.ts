@@ -1,5 +1,5 @@
-export interface RegisterBody {
-    email: string
-    password: string
-    name: string
+export default interface RegisterBody {
+  email: string
+  password: string
+  name: string
 }

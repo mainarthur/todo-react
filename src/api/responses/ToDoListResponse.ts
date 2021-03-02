@@ -1,6 +1,6 @@
-import { ToDo } from "../../models/ToDo";
-import Response from "../Response";
+import ToDo from '../../models/ToDo';
+import Response from '../Response';
 
-export class ToDoListResponse extends Response {
-    results: ToDo[]
+export default class ToDoListResponse extends Response {
+  results: ToDo[];
 }

@@ -1,133 +1,162 @@
-import * as React from "react"
-import { api } from "../api/api"
-import { ToDoListResponse } from "../api/responses/ToDoListResponse"
-import Button from "../common/Button"
-import { connectDB, defaultStoreName } from "../indexeddb/connect"
-import { ToDo } from "../models/ToDo"
-import { User } from "../models/User"
-import { history } from "../routing/RouterContext"
-import ToDoElement from "./ToDoElement"
-import "./ToDoList.scss"
+import * as React from 'react';
+import { api } from '../api/api';
+import ToDoListResponse from '../api/responses/ToDoListResponse';
+import Button from '../common/Button';
+import { connectDB, defaultStoreName } from '../indexeddb/connect';
+import ToDo from '../models/ToDo';
+import User from '../models/User';
+import { history } from '../routing/RouterContext';
+import ToDoElement from './ToDoElement';
+import './ToDoList.scss';
 
 type ToDoListProps = {
-	user: User
-}
+  user: User;
+};
 
 type ToDoListState = {
-	todos: ToDo[]
-}
+  todos: ToDo[];
+};
 
 class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
-	constructor(props: ToDoListProps | Readonly<ToDoListProps>) {
-		super(props)
+  constructor(props: ToDoListProps | Readonly<ToDoListProps>) {
+    super(props);
 
-		this.state = {
-			todos: []
-		}
+    this.state = {
+      todos: [],
+    };
 
-		this.loadTodos(props.user)
-	}
+    this.loadTodos(props.user);
+  }
 
-	async componentDidUpdate(prevProps: ToDoListProps) {
-		if (this.props.user?._id != prevProps.user?._id) {
-			await this.loadTodos(this.props.user)
-		}
-	}
+  async componentDidMount() {
+    await api({
+      endpoint: '/user',
+    });
+  }
 
-	async loadTodos(user: User) {
-		if (user) {
-			const db = await connectDB(`todo-${user._id}`)
+  async componentDidUpdate(prevProps: ToDoListProps) {
+    const { user, user: { _id: currentUserId } } = this.props;
+    const { user: { _id: prevUserId } } = prevProps;
 
-			try {
-				const todos = await api<ToDoListResponse, {}>({
-					endpoint: `/todo${localStorage.getItem("lastUpdate") ? `?from=${localStorage.getItem("lastUpdate")}` : ""}`
-				})
+    if (currentUserId !== prevUserId) {
+      await this.loadTodos(user);
+    }
+  }
 
-				console.log(todos)
+  onToDoDeleted(toDoId: string) {
+    const { todos } = this.state;
+    const newTodos = todos.filter((t) => {
+      const { _id: tId } = t;
 
+      return tId !== toDoId;
+    });
 
+    this.setState({
+      todos: newTodos,
+    });
+  }
 
-				if (todos.status) {
-					let maxLastUpdate = 0
-					let currentLastUpdate: number = parseInt(localStorage.getItem("lastUpdate"))
+  onToDoStatusChanged(toDoId: string, newStatus: boolean) {
+    const { todos } = this.state;
+    const newTodos = [...todos];
+    const todoIndex = newTodos.findIndex((t) => {
+      const { _id: tId } = t;
 
-					if (!isNaN(currentLastUpdate)) {
-						maxLastUpdate = Math.max(currentLastUpdate, maxLastUpdate)
-					}
+      return tId === toDoId;
+    });
+    newTodos[todoIndex].done = newStatus;
 
-					(todos as ToDoListResponse).results.forEach((toDo: ToDo) => {
-						if (toDo.lastUpdate) {
-							maxLastUpdate = Math.max(maxLastUpdate, toDo.lastUpdate)
-						}
+    this.setState({ todos: newTodos });
+  }
 
-						const transaction = db.transaction(defaultStoreName, "readwrite")
-						const store = transaction.objectStore(defaultStoreName)
-						if (!toDo.deleted) {
-							store.put(toDo)
-						} else {
-							store.delete(toDo._id)
-						}
-					})
+  async loadTodos(user: User) {
+    const { _id: userId } = user;
 
-					localStorage.setItem("lastUpdate", `${maxLastUpdate}`)
-				}
+    if (user) {
+      const db = await connectDB(`todo-${userId}`);
 
-				const transaction = db.transaction(defaultStoreName, "readwrite")
-				const store = transaction.objectStore(defaultStoreName)
-				const todosRequest = store.getAll()
-				todosRequest.addEventListener("success", () => {
-					this.setState({
-						todos: todosRequest.result
-					})
-				})
-			} catch (err) {
-				console.log(err)
-			}
-		}
-	}
+      try {
+        const todos = await api<ToDoListResponse, {}>({
+          endpoint: `/todo${localStorage.getItem('lastUpdate') ? `?from=${localStorage.getItem('lastUpdate')}` : ''}`,
+        });
 
-	onToDoDeleted(toDoId: string) {
-		this.setState({
-			todos: this.state.todos.filter(toDo => toDo._id !== toDoId)
-		})
-	}
+        if (todos.status) {
+          let maxLastUpdate = 0;
+          const currentLastUpdate: number = parseInt(localStorage.getItem('lastUpdate'), 10);
 
+          if (!Number.isNaN(currentLastUpdate)) {
+            maxLastUpdate = Math.max(currentLastUpdate, maxLastUpdate);
+          }
 
-	onToDoStatusChanged(toDoId: string, newStatus: boolean) {
-		const { todos } = this.state
-		const newTodos = [...todos]
-		const todoIndex = newTodos.findIndex((t) => t._id === toDoId)
-		newTodos[todoIndex].done = newStatus
+          (todos as ToDoListResponse).results.forEach((toDo: ToDo) => {
+            const { _id: toDoId } = toDo;
 
-		this.setState({ todos: newTodos })
-	}
+            if (toDo.lastUpdate) {
+              maxLastUpdate = Math.max(maxLastUpdate, toDo.lastUpdate);
+            }
 
+            const transaction = db.transaction(defaultStoreName, 'readwrite');
+            const store = transaction.objectStore(defaultStoreName);
+            if (!toDo.deleted) {
+              store.put(toDo);
+            } else {
+              store.delete(toDoId);
+            }
+          });
 
-	render(): JSX.Element {
-		return <div className="todos">
-			<div className="todos_center">
-				<Button className="todos__btn todos__btn-clear">CLEAR ALL</Button>
-				<Button className="todos__btn todos__btn-logout" onClick={() => {
-					localStorage.clear()
-					return history.push("/login")
-				}}>LOGOUT</Button>
-			</div>
-			<ul className="todo-list">
-				{this.state.todos.map(toDo => <ToDoElement
-					key={toDo._id}
-					id={toDo._id} text={toDo.text}
-					done={toDo.done} onDelete={(toDoId: string) => this.onToDoDeleted(toDoId)}
-					onStatusChange={(id, newStatus) => this.onToDoStatusChanged(id, newStatus)} />)}
-			</ul>
-		</div>
+          localStorage.setItem('lastUpdate', `${maxLastUpdate}`);
+        }
 
-	}
+        const transaction = db.transaction(defaultStoreName, 'readwrite');
+        const store = transaction.objectStore(defaultStoreName);
+        const todosRequest = store.getAll();
+        todosRequest.addEventListener('success', () => {
+          this.setState({
+            todos: todosRequest.result,
+          });
+        });
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.log(err);
+      }
+    }
+  }
 
-	async componentDidMount() {
-		await api({
-			endpoint: "/user"
-		})
-	}
+  render(): JSX.Element {
+    const { todos } = this.state;
 
+    return (
+      <div className="todos">
+        <div className="todos_center">
+          <Button className="todos__btn todos__btn-clear">CLEAR ALL</Button>
+          <Button
+            className="todos__btn todos__btn-logout"
+            onClick={() => {
+              localStorage.clear();
+              return history.push('/login');
+            }}
+          >
+            LOGOUT
+          </Button>
+        </div>
+        <ul className="todo-list">
+          {todos.map((toDo) => {
+            const { _id: tId } = toDo;
+
+            return (
+              <ToDoElement
+                key={tId}
+                id={tId}
+                text={toDo.text}
+                done={toDo.done}
+                onDelete={(toDoId: string) => this.onToDoDeleted(toDoId)}
+                onStatusChange={(id, newStatus) => this.onToDoStatusChanged(id, newStatus)}
+              />
+            );
+          })}
+        </ul>
+      </div>
+    );
+  }
 }
-export default ToDoList
+export default ToDoList;

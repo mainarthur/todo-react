@@ -1,30 +1,41 @@
-import * as React from "react"
-import { RouterContext, history } from "./RouterContext"
+import * as React from 'react';
+import { RouterContext, history } from './RouterContext';
 
 type Props = {
-    to: string
-    onClick?(ev: React.MouseEvent<HTMLAnchorElement, MouseEvent>): void,
-    className?: string
-}
+  to: string
+  onClick?(ev: React.MouseEvent<HTMLAnchorElement, MouseEvent>): void,
+  className?: string
+};
 
 export default class Link extends React.Component<Props> {
-    static contextType = RouterContext
-    render() {
-        const { to, onClick, children, className } = this.props
-        const { route } = this.context
+  static contextType = RouterContext;
 
-        return <a href={to} {...{ className }} onClick={(ev) => {
-            ev.preventDefault()
+  render() {
+    const {
+      to, onClick, children, className,
+    } = this.props;
+    const { route } = this.context;
 
-            if (onClick) {
-                onClick(ev)
-            }
+    return (
+      <a
+        href={to}
+        {...{ className }}
+        onClick={(ev) => {
+          ev.preventDefault();
 
-            if (route.path === to) {
-                return
-            }
+          if (onClick) {
+            onClick(ev);
+          }
 
-            history.push(to)
-        }}>{children}</a>
-    }
+          if (route.path === to) {
+            return;
+          }
+
+          history.push(to);
+        }}
+      >
+        {children}
+      </a>
+    );
+  }
 }

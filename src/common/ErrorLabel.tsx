@@ -1,24 +1,25 @@
-import * as React from "react"
-import "./ErrorLabel.scss"
+import * as React from 'react';
+import './ErrorLabel.scss';
 
 type Props = {
-	invalid?: boolean
-	className? : string
+  invalid?: boolean;
+  className?: string;
+  htmlFor?: string;
+};
+
+class ErrorLabel extends React.PureComponent<Props> {
+  render(): JSX.Element {
+    const {
+      invalid, className, htmlFor, children,
+    } = this.props;
+    return (
+      <label
+        htmlFor={htmlFor}
+        className={`error-label${invalid ? ' error-label_visible' : ''}${className ? ` ${className}` : ''}`}
+      >
+        {children}
+      </label>
+    );
+  }
 }
-
-type State = {
-
-}
-
-class ErrorLabel extends React.Component<Props, State> {
-	constructor(props: Props | Readonly<Props>) {
-		super(props)
-	}
-
-	render(): JSX.Element {
-		const { invalid, className } = this.props
-		return <label className={"error-label" + (invalid ? " error-label_visible" : "") + (className ? ` ${className}` : "")}>{this.props.children}</label>
-	}
-	
-}
-export default ErrorLabel
+export default ErrorLabel;

@@ -1,8 +1,7 @@
-import Response from "../Response";
+import Response from '../Response';
 
-export class AuthResponse extends Response {
-    access_token: string
-    refresh_token: string
+export default class AuthResponse extends Response {
+  access_token: string;
+
+  refresh_token: string;
 }
-
-

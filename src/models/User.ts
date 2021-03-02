@@ -1,7 +1,7 @@
+export default class User {
+  _id: string;
 
+  name: string;
 
-export class User {
-    _id: string
-    name: string
-    email: string
+  email: string;
 }

@@ -1,4 +1,5 @@
 export default class Response {
-    status: boolean
-    error?: any
+  status: boolean;
+
+  error?: any;
 }
