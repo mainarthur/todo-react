@@ -1,4 +1,5 @@
 import * as React from "react";
+import "./ErrorLabel.scss"
 
 type Props = {
 	invalid?: boolean
@@ -14,7 +15,8 @@ class ErrorLabel extends React.Component<Props, State> {
 	}
 
 	render(): JSX.Element {
-		return <label className={}>{this.props.children}</label>
+		const { invalid } = this.props
+		return <label className={"error-label" + (invalid ? " error-label_visible" : "")}>{this.props.children}</label>
 	}
 	
 }

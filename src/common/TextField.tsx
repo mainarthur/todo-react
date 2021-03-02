@@ -1,4 +1,5 @@
 import * as React from "react";
+import ErrorLabel from "./ErrorLabel";
 import "./TextField.scss"
 
 type Props = {
@@ -44,7 +45,7 @@ class TextField extends React.Component<Props, State> {
 				<label htmlFor={id}>{placeholder}</label>
 				<div className="textfield__border"><div className={"textfield__border_animated" + (animation  ? ` textfield__border${animation}` : "")}></div></div>
 			</div>
-			{errorText && <label className={"textfield__label_error" + (invalid ? " textfield__label_error-visible" : "")}>{errorText}</label>}
+			{ errorText && <ErrorLabel invalid={invalid}>{errorText}</ErrorLabel>}
 		</div>
 	}
 

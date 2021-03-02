@@ -1,0 +1,15 @@
+@import "colors";
+
+.error-label {
+  &_visible {
+    transition: opacity 1s linear;
+    opacity: 1;
+  }
+
+  opacity: 0;
+  padding: 3px;
+  color: $base-color;
+  font-weight: 300;
+  font-size: large;
+  margin-top: 1px;
+}

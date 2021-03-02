@@ -1,6 +1,7 @@
 import * as React from "react";
 import Button from "../common/Button";
 import Card from "../common/Card";
+import ErrorLabel from "../common/ErrorLabel";
 import TextField from "../common/TextField";
 import { history } from "../routing/RouterContext";
 import { isValidEmail, isValidPassword } from "../utils";
@@ -15,6 +16,7 @@ type LoginState = {
 	password: string
 	invalidEmail: boolean
 	invalidPassword: boolean
+	serverError: false
 }
 
 class Login extends React.Component<LoginProps, LoginState> {
@@ -28,7 +30,8 @@ class Login extends React.Component<LoginProps, LoginState> {
 			email: "",
 			password: "",
 			invalidEmail: false,
-			invalidPassword: false
+			invalidPassword: false,
+			serverError: false,
 		}
 
 		this.onLoginButtonClick = this.onLoginButtonClick.bind(this)
@@ -76,6 +79,7 @@ class Login extends React.Component<LoginProps, LoginState> {
 			<TextField className="login__email" id="email" placeholder="Email" invalid={this.state.invalidEmail} errorText="Ivalid email format" onChange={this.onEmailChange}/>
 			<TextField className="login__password" id="password" placeholder="Password" invalid={this.state.invalidPassword} errorText="Password is too weak" onChange={this.onPasswordChange}/>
 			<Button className="login__button" onClick={this.onLoginButtonClick}>Login</Button>
+			<ErrorLabel invalid={this.state.serverError}>Login Problem: invalid email or password</ErrorLabel>
 		</Card>
 	}
 
