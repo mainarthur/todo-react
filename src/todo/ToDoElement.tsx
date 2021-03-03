@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Button from '../common/Button';
+import './ToDoElement.scss';
 
 type Props = {
   id: string;
@@ -35,7 +36,6 @@ class ToDoElement extends React.Component<Props, State> {
       <li className="todo">
         <input className="todo__checkbox" type="checkbox" checked={done} onChange={(ev) => this.onCheckBoxChange(ev)} />
         <span className="todo__text">{text}</span>
-        )
         <span className="todo_centered-horizontally"><Button onClick={() => this.onDeleteButtonClick()} className="todo__btn-delete">X</Button></span>
         <hr className="todo__divider" />
       </li>

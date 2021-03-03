@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { api } from '../api/api';
+import DeleteResponse from '../api/responses/DeleteResponse';
 import ToDoListResponse from '../api/responses/ToDoListResponse';
 import Button from '../common/Button';
 import { connectDB, defaultStoreName } from '../indexeddb/connect';
@@ -40,18 +41,25 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
   }
 
   async componentDidUpdate(prevProps: ToDoListProps) {
-    Console.log(prevProps);
-    if (prevProps.user) {
-      const { user, user: { _id: currentUserId } } = this.props;
-      const { user: { _id: prevUserId } } = prevProps;
+    const { user, user: { _id: currentUserId } } = this.props;
+    let { user: prevUser } = prevProps;
 
-      if (currentUserId !== prevUserId) {
-        await this.loadTodos(user);
-      }
+    if (!prevUser) {
+      prevUser = {
+        _id: '',
+        name: '',
+        email: '',
+      };
+    }
+
+    const { _id: prevUserId } = prevUser;
+
+    if (currentUserId !== prevUserId) {
+      await this.loadTodos(user);
     }
   }
 
-  onToDoDeleted(toDoId: string) {
+  async onToDoDeleted(toDoId: string) {
     const { todos } = this.state;
     const newTodos = todos.filter((t) => {
       const { _id: tId } = t;
@@ -59,12 +67,21 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
       return tId !== toDoId;
     });
 
+    try {
+      await api<DeleteResponse, {}>({
+        endpoint: `/todo/${toDoId}`,
+        method: 'DELETE',
+      });
+    } catch (err) {
+      Console.err(err);
+    }
+
     this.setState({
       todos: newTodos,
     });
   }
 
-  onToDoStatusChanged(toDoId: string, newStatus: boolean) {
+  async onToDoStatusChanged(toDoId: string, newStatus: boolean) {
     const { todos } = this.state;
     const newTodos = [...todos];
     const todoIndex = newTodos.findIndex((t) => {
@@ -78,15 +95,15 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
   }
 
   async loadTodos(user: User) {
-    const { _id: userId } = user;
-
     if (user) {
+      const { _id: userId } = user;
       const db = await connectDB(`todo-${userId}`);
-
       try {
         const todos = await api<ToDoListResponse, {}>({
           endpoint: `/todo${localStorage.getItem('lastUpdate') ? `?from=${localStorage.getItem('lastUpdate')}` : ''}`,
         });
+
+        Console.log(todos);
 
         if (todos.status) {
           let maxLastUpdate = 0;
@@ -114,7 +131,9 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
 
           localStorage.setItem('lastUpdate', `${maxLastUpdate}`);
         }
-
+      } catch (err) {
+        Console.log(err);
+      } finally {
         const transaction = db.transaction(defaultStoreName, 'readwrite');
         const store = transaction.objectStore(defaultStoreName);
         const todosRequest = store.getAll();
@@ -123,8 +142,6 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
             todos: todosRequest.result,
           });
         });
-      } catch (err) {
-        Console.log(err);
       }
     }
   }
