@@ -218,7 +218,7 @@ class App extends React.Component<{}, AppState> {
         Console.log(err);
       } finally {
         const transaction = db.transaction(defaultStoreName, 'readwrite');
-        const store = transaction.objectStore(defaultStoreName);
+        const store = transaction.objectStore(defaultStoreName).index('position');
         const todosRequest = store.getAll();
         todosRequest.addEventListener('success', () => {
           this.setState({
