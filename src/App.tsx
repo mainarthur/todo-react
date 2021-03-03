@@ -11,7 +11,7 @@ import Console from './logging/Console';
 import ToDo from './models/ToDo';
 import { connectDB, defaultStoreName } from './indexeddb/connect';
 import ToDoListResponse from './api/responses/ToDoListResponse';
-import UpdateToDoResponse from './api/responses/UpdateResponseResponse';
+import UpdateToDoResponse from './api/responses/UpdateToDoResponse';
 import UpdateToDoBody from './api/bodies/UpdateToDoBody';
 import DeleteResponse from './api/responses/DeleteResponse';
 
@@ -116,6 +116,58 @@ class App extends React.Component<{}, AppState> {
     this.setState({ todos: newTodos });
   }
 
+  async onToDoPositionChanged(id: string, nextId: string, prevId: string) {
+    const { todos } = this.state;
+    const newTodos = [...todos];
+    const todoIndex = newTodos.findIndex((t) => {
+      const { _id: tId } = t;
+
+      return tId === id;
+    });
+
+    const prevTodo = newTodos.find((t) => {
+      const { _id: tId } = t;
+
+      return tId === prevId;
+    });
+
+    const nextTodo = newTodos.find((t) => {
+      const { _id: tId } = t;
+
+      return tId === nextId;
+    });
+
+    if (prevTodo || nextTodo) {
+      let newPosition = 0;
+      if (!prevTodo) {
+        newPosition = nextTodo.position / 2;
+      } else if (!nextTodo) {
+        newPosition = prevTodo.position + 1;
+      } else {
+        newPosition = (prevTodo.position + nextTodo.position) / 2;
+      }
+
+      newTodos[todoIndex].position = newPosition;
+
+      try {
+        await api<UpdateToDoResponse, UpdateToDoBody>({
+          endpoint: '/todo',
+          method: 'PATCH',
+          body: {
+            _id: id,
+            text: newTodos[todoIndex].text,
+            done: newTodos[todoIndex].done,
+            position: newTodos[todoIndex].position,
+          },
+        });
+      } catch (err) {
+        Console.err(err);
+      }
+
+      this.setState({ todos: newTodos });
+    }
+  }
+
   onNewToDo(toDo: ToDo) {
     const { todos } = this.state;
     const newTodos = [...todos];
@@ -191,6 +243,9 @@ class App extends React.Component<{}, AppState> {
             onToDoDeleted={(toDoId: string) => this.onToDoDeleted(toDoId)}
             onToDoStatusChanged={(toDoId: string, newStatus: boolean) => {
               this.onToDoStatusChanged(toDoId, newStatus);
+            }}
+            onToDoPositionChange={(id: string, nextId: string, prevId: string) => {
+              this.onToDoPositionChanged(id, nextId, prevId);
             }}
           />
         </Card>

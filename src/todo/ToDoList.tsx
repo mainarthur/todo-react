@@ -2,6 +2,7 @@ import * as React from 'react';
 import Button from '../common/Button';
 import ToDo from '../models/ToDo';
 import { history } from '../routing/RouterContext';
+import ClassNames from './ClassNames';
 import ToDoElement from './ToDoElement';
 import './ToDoList.scss';
 
@@ -9,6 +10,7 @@ type ToDoListProps = {
   todos: ToDo[];
   onToDoDeleted(toDoId: string): void;
   onToDoStatusChanged(toDoId: string, newStatus: boolean): void;
+  onToDoPositionChange(id: string, nextId: string, prevId: string): void;
 };
 
 type ToDoListState = {
@@ -16,7 +18,12 @@ type ToDoListState = {
 
 class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
   render(): JSX.Element {
-    const { todos, onToDoDeleted, onToDoStatusChanged } = this.props;
+    const {
+      todos,
+      onToDoDeleted,
+      onToDoStatusChanged,
+      onToDoPositionChange,
+    } = this.props;
 
     return (
       <div className="todos">
@@ -36,7 +43,7 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
             LOGOUT
           </Button>
         </div>
-        <ul className="todo-list">
+        <ul className={ClassNames.TODOLIST_CLASSNAME}>
           {todos.map((toDo) => {
             const { _id: tId } = toDo;
 
@@ -48,11 +55,12 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
                 done={toDo.done}
                 onDelete={(toDoId: string) => onToDoDeleted(toDoId)}
                 onStatusChange={(id, newStatus) => onToDoStatusChanged(id, newStatus)}
+                onPositionChange={(id, nextId, prevId) => onToDoPositionChange(id, nextId, prevId)}
               />
             );
           })}
         </ul>
-        <div className="todos__bottom-dnd" />
+        <div className={ClassNames.BOTTOM_DROPABLE} />
       </div>
     );
   }
