@@ -3,6 +3,8 @@ import { api } from '../api/api';
 import NewToDoBody from '../api/bodies/NewToDoBody';
 import NewToDoResponse from '../api/responses/NewToDoResponse';
 import Button from '../common/Button';
+import Card from '../common/Card';
+import ErrorLabel from '../common/ErrorLabel';
 import TextField from '../common/TextField';
 import ToDo from '../models/ToDo';
 import './NewToDo.scss';
@@ -17,12 +19,19 @@ type State = {
 };
 
 class NewToDo extends React.Component<Props, State> {
+  timerId: number;
+
   constructor(props: Props | Readonly<Props>) {
     super(props);
     this.state = {
       textFieldValue: '',
       invalidText: false,
     };
+  }
+
+  onFormSubmit(ev: React.FormEvent<HTMLFormElement>) {
+    ev.preventDefault();
+    this.onButtonClick();
   }
 
   async onButtonClick() {
@@ -32,6 +41,17 @@ class NewToDo extends React.Component<Props, State> {
     const toDoText = textFieldValue.trim();
 
     if (toDoText === '') {
+      clearTimeout(this.timerId);
+
+      this.timerId = window.setTimeout(() => {
+        const { invalidText } = this.state;
+        if (invalidText) {
+          this.setState({
+            invalidText: false,
+          });
+        }
+      }, 5000);
+
       return this.setState({
         invalidText: true,
       });
@@ -51,7 +71,22 @@ class NewToDo extends React.Component<Props, State> {
       onNewToDo((toDoResponse as NewToDoResponse).result);
     }
 
-    return null;
+    return true;
+  }
+
+  onTextChange(newText: string) {
+    if (newText !== '') {
+      const { invalidText } = this.state;
+
+      if (invalidText) {
+        this.setState({
+          invalidText: false,
+        });
+      }
+    }
+    this.setState({
+      textFieldValue: newText,
+    });
   }
 
   render(): JSX.Element {
@@ -59,20 +94,31 @@ class NewToDo extends React.Component<Props, State> {
 
     return (
       <div className="new-todo">
-        <form className="new-todo__form" id="main-form">
+        <ErrorLabel className="new-todo__error-label" invalid={invalidText}>
+          <Card>
+            Text is required
+          </Card>
+        </ErrorLabel>
+        <form
+          className="new-todo__form"
+          id="main-form"
+          onSubmit={(ev) => this.onFormSubmit(ev)}
+        >
           <TextField
             className="new-todo__input"
             type="text"
             id="todo-text"
-            placeholder="NEW TODO"
-            errorText="Text is required"
-            invalid={invalidText}
+            placeholder="NEW TODO TEXT"
             value={textFieldValue}
-            onChange={(ev) => this.setState({
-              textFieldValue: ev.target.value,
-            })}
+            onChange={(ev) => this.onTextChange(ev.target.value)}
           />
-          <Button id="add-todo" className="new-todo__btn-add" onClick={() => this.onButtonClick()}>ADD</Button>
+          <Button
+            id="add-todo"
+            className="new-todo__btn-add"
+            onClick={() => this.onButtonClick()}
+          >
+            ADD
+          </Button>
         </form>
       </div>
     );
