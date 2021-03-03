@@ -41,7 +41,6 @@ export const api = async <T extends Response, B>(opts: Request<B>): Promise<T | 
       },
     });
     if (res.status === 401) {
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       if (await refreshTokens()) {
         return await api(opts);
       }
@@ -61,7 +60,7 @@ export const refreshTokens = async (): Promise<boolean> => {
     method: 'POST',
     body: {
       refresh_token: localStorage.getItem('refresh_token'),
-    },
+    }, 
   });
 
   if (authResponse.status) {

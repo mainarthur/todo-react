@@ -1,0 +1,6 @@
+{
+  "eslint.workingDirectories": [
+    "./{PATH_TO_CLIENT}"
+  ],
+  "editor.formatOnSave": true
+}

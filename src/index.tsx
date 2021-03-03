@@ -20,7 +20,6 @@ ReactDOM.render(
     <Route path={routes.register.path}>
       <Register />
     </Route>
-
   </Router>,
   document.querySelector('.root'),
 );
