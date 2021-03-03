@@ -16,7 +16,7 @@ class Console {
       },
       body: JSON.stringify({
         level: type,
-        log: args.length > 1 ? args.map((e) => JSON.stringify(e)).join(' ') : JSON.stringify(args[0]),
+        log: args.length > 1 ? args.map((e) => (e instanceof Error ? `${e.name}: ${e.message}\n${e.stack}` : JSON.stringify(e))).join(' ') : JSON.stringify(args[0]),
       }),
     });
   }

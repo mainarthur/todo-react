@@ -28,12 +28,9 @@ async function call<B>(opts: Request<B>): Promise<globalThis.Response> {
     headers.Authorization = `Bearer ${localStorage.getItem('access_token')}`;
   }
 
-  const controller = new AbortController();
-
   try {
     const res = await fetch(`${API_URL}${url}`, {
       method: method.toUpperCase(),
-      signal: controller.signal,
       body: typeof body === 'object' ? JSON.stringify(body) : undefined,
       mode: 'cors',
       headers: {
@@ -46,8 +43,6 @@ async function call<B>(opts: Request<B>): Promise<globalThis.Response> {
   } catch (err) {
     Console.err(err);
     throw err;
-  } finally {
-    controller.abort();
   }
 }
 

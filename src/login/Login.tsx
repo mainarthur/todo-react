@@ -12,11 +12,11 @@ import { isValidEmail, isValidPassword } from '../utils';
 import './Login.scss';
 
 type LoginState = {
-  email: string
-  password: string
-  invalidEmail: boolean
-  invalidPassword: boolean
-  serverError: boolean
+  email: string;
+  password: string;
+  invalidEmail: boolean;
+  invalidPassword: boolean;
+  serverError: boolean;
 };
 
 class Login extends React.Component<{}, LoginState> {
