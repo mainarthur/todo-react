@@ -1,3 +1,4 @@
+import Console from '../logging/Console';
 import { history } from '../routing/RouterContext';
 import RefreshTokenBody from './bodies/RefreshTokenBody';
 import Request from './Request';
@@ -48,6 +49,7 @@ export const api = async <T extends Response, B>(opts: Request<B>): Promise<T | 
     }
     return await res.json();
   } catch (err) {
+    Console.err(err);
     return { error: err, status: false };
   } finally {
     controller.abort();
@@ -60,7 +62,7 @@ export const refreshTokens = async (): Promise<boolean> => {
     method: 'POST',
     body: {
       refresh_token: localStorage.getItem('refresh_token'),
-    }, 
+    },
   });
 
   if (authResponse.status) {

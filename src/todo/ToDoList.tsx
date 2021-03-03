@@ -1,7 +1,9 @@
 import * as React from 'react';
 import { api } from '../api/api';
+import UpdateToDoBody from '../api/bodies/UpdateToDoBody';
 import DeleteResponse from '../api/responses/DeleteResponse';
 import ToDoListResponse from '../api/responses/ToDoListResponse';
+import UpdateToDoResponse from '../api/responses/UpdateResponseResponse';
 import Button from '../common/Button';
 import { connectDB, defaultStoreName } from '../indexeddb/connect';
 import Console from '../logging/Console';
@@ -91,6 +93,21 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
     });
     newTodos[todoIndex].done = newStatus;
 
+    try {
+      await api<UpdateToDoResponse, UpdateToDoBody>({
+        endpoint: '/todo',
+        method: 'PATCH',
+        body: {
+          _id: toDoId,
+          text: newTodos[todoIndex].text,
+          done: newTodos[todoIndex].done,
+          position: newTodos[todoIndex].position,
+        },
+      });
+    } catch (err) {
+      Console.err(err);
+    }
+
     this.setState({ todos: newTodos });
   }
 
@@ -152,7 +169,11 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
     return (
       <div className="todos">
         <div className="todos_center">
-          <Button className="todos__btn todos__btn-clear">CLEAR ALL</Button>
+          <Button
+            className="todos__btn todos__btn-clear"
+          >
+            CLEAR ALL
+          </Button>
           <Button
             className="todos__btn todos__btn-logout"
             onClick={() => {
@@ -179,6 +200,7 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
             );
           })}
         </ul>
+        <div className="buttom-dnd" />
       </div>
     );
   }

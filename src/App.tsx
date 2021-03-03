@@ -47,7 +47,7 @@ class App extends React.Component<{}, AppState> {
         }
       }
     } catch (err) {
-      Console.log(err);
+      Console.err(err);
     }
   }
 
