@@ -40,11 +40,14 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
   }
 
   async componentDidUpdate(prevProps: ToDoListProps) {
-    const { user, user: { _id: currentUserId } } = this.props;
-    const { user: { _id: prevUserId } } = prevProps;
+    Console.log(prevProps);
+    if (prevProps.user) {
+      const { user, user: { _id: currentUserId } } = this.props;
+      const { user: { _id: prevUserId } } = prevProps;
 
-    if (currentUserId !== prevUserId) {
-      await this.loadTodos(user);
+      if (currentUserId !== prevUserId) {
+        await this.loadTodos(user);
+      }
     }
   }
 

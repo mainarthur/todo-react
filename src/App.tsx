@@ -5,7 +5,7 @@ import NewToDo from './todo/NewToDo';
 import ToDoList from './todo/ToDoList';
 import { history } from './routing/RouterContext';
 import UserResponse from './api/responses/UserResponse';
-import { api } from './api/api';
+import { api, refreshTokens } from './api/api';
 import User from './models/User';
 import Console from './logging/Console';
 
@@ -26,22 +26,28 @@ class App extends React.Component<{}, AppState> {
   }
 
   async componentDidMount() {
-    const { user: userFromState } = this.state;
+    try {
+      await refreshTokens();
 
-    if (!userFromState) {
-      const user = await api<UserResponse, {}>({
-        endpoint: '/user',
-      });
+      const { user: userFromState } = this.state;
 
-      if (user.status) {
-        this.setState({
-          user: (user as UserResponse).result,
+      if (!userFromState) {
+        const user = await api<UserResponse, {}>({
+          endpoint: '/user',
         });
-      } else if (userFromState) {
-        this.setState({
-          user: null,
-        });
+
+        if (user.status) {
+          this.setState({
+            user: (user as UserResponse).result,
+          });
+        } else if (userFromState) {
+          this.setState({
+            user: null,
+          });
+        }
       }
+    } catch (err) {
+      Console.log(err);
     }
   }
 
