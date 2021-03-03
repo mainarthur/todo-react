@@ -7,7 +7,7 @@ import AuthResponse from './responses/AuthResponse';
 
 const API_URL: string = 'http://api.todolist.local';
 
-export const api = async <T extends Response, B>(opts: Request<B>): Promise<T | Response> => {
+async function call<B>(opts: Request<B>): Promise<globalThis.Response> {
   let {
     method, headers,
   } = opts;
@@ -41,23 +41,18 @@ export const api = async <T extends Response, B>(opts: Request<B>): Promise<T | 
         ...headers,
       },
     });
-    if (res.status === 401) {
-      if (await refreshTokens()) {
-        return await api(opts);
-      }
-      return { error: 'tokens error', status: false };
-    }
-    return await res.json();
+
+    return res;
   } catch (err) {
     Console.err(err);
-    return { error: err, status: false };
+    throw err;
   } finally {
     controller.abort();
   }
-};
+}
 
 export const refreshTokens = async (): Promise<boolean> => {
-  const authResponse = await api<AuthResponse, RefreshTokenBody>({
+  const authResponse = await call<RefreshTokenBody>({
     endpoint: '/auth/refresh-token',
     method: 'POST',
     body: {
@@ -65,9 +60,11 @@ export const refreshTokens = async (): Promise<boolean> => {
     },
   });
 
-  if (authResponse.status) {
-    localStorage.setItem('access_token', (authResponse as AuthResponse).access_token);
-    localStorage.setItem('refresh_token', (authResponse as AuthResponse).refresh_token);
+  if (authResponse.status === 200) {
+    const authData = await authResponse.json();
+
+    localStorage.setItem('access_token', (authData as AuthResponse).access_token);
+    localStorage.setItem('refresh_token', (authData as AuthResponse).refresh_token);
 
     return true;
   }
@@ -76,4 +73,21 @@ export const refreshTokens = async (): Promise<boolean> => {
   history.push('/login');
 
   return false;
+};
+
+export const api = async <T extends Response, B>(opts: Request<B>): Promise<T | Response> => {
+  try {
+    const response = await call<B>(opts);
+
+    if (response.status === 401) {
+      if (await refreshTokens()) {
+        return await api<T, B>(opts);
+      }
+      return { error: 'tokens error', status: false };
+    }
+    return await response.json();
+  } catch (err) {
+    Console.err(err);
+    return { error: err, status: false };
+  }
 };
