@@ -7,9 +7,10 @@ import { history } from './routing/RouterContext';
 import UserResponse from './api/responses/UserResponse';
 import { api } from './api/api';
 import User from './models/User';
+import Console from './logging/Console';
 
 type AppState = {
-  user: User
+  user: User;
 };
 
 class App extends React.Component<{}, AppState> {
@@ -18,6 +19,10 @@ class App extends React.Component<{}, AppState> {
     if (localStorage.getItem('access_token') == null) {
       history.push('/login');
     }
+
+    this.state = {
+      user: null,
+    };
   }
 
   async componentDidMount() {

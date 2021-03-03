@@ -3,6 +3,7 @@ import { api } from '../api/api';
 import ToDoListResponse from '../api/responses/ToDoListResponse';
 import Button from '../common/Button';
 import { connectDB, defaultStoreName } from '../indexeddb/connect';
+import Console from '../logging/Console';
 import ToDo from '../models/ToDo';
 import User from '../models/User';
 import { history } from '../routing/RouterContext';
@@ -25,7 +26,11 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
       todos: [],
     };
 
-    this.loadTodos(props.user);
+    const { user } = props;
+
+    if (user) {
+      this.loadTodos(user);
+    }
   }
 
   async componentDidMount() {
@@ -116,8 +121,7 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
           });
         });
       } catch (err) {
-        // eslint-disable-next-line no-console
-        console.log(err);
+        Console.log(err);
       }
     }
   }
