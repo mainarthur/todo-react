@@ -1,4 +1,4 @@
-import { Actions, AuthMethod } from '../constants';
+import { AuthAction, AuthMethod } from '../constants';
 import AuthActions from '../types/authTypes';
 
 export type RegisterState = {
@@ -25,31 +25,31 @@ export default function registerReducer(state = initialState, action: AuthAction
   if (action.method === AuthMethod.REGISTRATION) {
     const newState = { ...state };
     switch (action.type) {
-      case Actions.CHANGE_EMAIL:
+      case AuthAction.CHANGE_EMAIL:
         newState.email = action.payload;
 
         return newState;
-      case Actions.CHANGE_PASSWORD:
+      case AuthAction.CHANGE_PASSWORD:
         newState.password = action.payload;
 
         return newState;
-      case Actions.CHANGE_NAME:
+      case AuthAction.CHANGE_NAME:
         newState.name = action.payload;
 
         return newState;
-      case Actions.TOGGLE_EMAIL_VALIDATION:
+      case AuthAction.TOGGLE_EMAIL_VALIDATION:
         newState.invalidEmail = !newState.invalidEmail;
 
         return newState;
-      case Actions.TOGGLE_PASSWORD_VALIDATION:
+      case AuthAction.TOGGLE_PASSWORD_VALIDATION:
         newState.invalidPassword = !newState.invalidPassword;
 
         return newState;
-      case Actions.TOGGLE_NAME_VALIDATION:
+      case AuthAction.TOGGLE_NAME_VALIDATION:
         newState.invalidName = !newState.invalidName;
 
         return newState;
-      case Actions.TOGGLE_SERVER_ERROR:
+      case AuthAction.TOGGLE_SERVER_ERROR:
         newState.serverError = !newState.serverError;
 
         return newState;

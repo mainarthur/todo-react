@@ -1,4 +1,4 @@
-import { Actions, AuthMethod } from '../constants';
+import { AuthAction, AuthMethod } from '../constants';
 import AuthActions from '../types/authTypes';
 
 export type LoginState = {
@@ -21,23 +21,23 @@ export default function loginReducer(state = initialState, action: AuthActions):
   if (action.method === AuthMethod.LOGIN) {
     const newState = { ...state };
     switch (action.type) {
-      case Actions.CHANGE_EMAIL:
+      case AuthAction.CHANGE_EMAIL:
         newState.email = action.payload;
 
         return newState;
-      case Actions.CHANGE_PASSWORD:
+      case AuthAction.CHANGE_PASSWORD:
         newState.password = action.payload;
 
         return newState;
-      case Actions.TOGGLE_EMAIL_VALIDATION:
+      case AuthAction.TOGGLE_EMAIL_VALIDATION:
         newState.invalidEmail = !newState.invalidEmail;
 
         return newState;
-      case Actions.TOGGLE_PASSWORD_VALIDATION:
+      case AuthAction.TOGGLE_PASSWORD_VALIDATION:
         newState.invalidPassword = !newState.invalidPassword;
 
         return newState;
-      case Actions.TOGGLE_SERVER_ERROR:
+      case AuthAction.TOGGLE_SERVER_ERROR:
         newState.serverError = !newState.serverError;
 
         return newState;

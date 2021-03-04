@@ -9,13 +9,8 @@ import TextField from '../common/TextField';
 import ToDo from '../models/ToDo';
 import './NewToDo.scss';
 
-type Props = {
+type OwnProps = {
   onNewToDo(toDo: ToDo): void;
-};
-
-type State = {
-  textFieldValue: string;
-  invalidText: boolean;
 };
 
 class NewToDo extends React.Component<Props, State> {

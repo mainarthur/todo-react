@@ -1,4 +1,4 @@
-import { Actions, AuthMethod } from '../constants';
+import { AuthAction, AuthMethod } from '../constants';
 import {
   ChangeEmailAction,
   ChangeNameAction,
@@ -11,7 +11,7 @@ import {
 
 export const changeEmailAction = (newEmail: string, method: AuthMethod): ChangeEmailAction => ({
   method,
-  type: Actions.CHANGE_EMAIL,
+  type: AuthAction.CHANGE_EMAIL,
   payload: newEmail,
 });
 
@@ -20,34 +20,34 @@ export const changePasswordAction = (
   method: AuthMethod,
 ): ChangePasswordAction => ({
   method,
-  type: Actions.CHANGE_PASSWORD,
+  type: AuthAction.CHANGE_PASSWORD,
   payload: newPassword,
 });
 
 export const changeNameAction = (newName: string, method: AuthMethod): ChangeNameAction => ({
   method,
-  type: Actions.CHANGE_NAME,
+  type: AuthAction.CHANGE_NAME,
   payload: newName,
 });
 
 export const toggleEmailValidationAction = (method: AuthMethod): ToggleEmailValidationAction => ({
   method,
-  type: Actions.TOGGLE_EMAIL_VALIDATION,
+  type: AuthAction.TOGGLE_EMAIL_VALIDATION,
 });
 
 export const togglePasswordValidationAction = (
   method: AuthMethod,
 ): TogglePasswordValidationAction => ({
   method,
-  type: Actions.TOGGLE_PASSWORD_VALIDATION,
+  type: AuthAction.TOGGLE_PASSWORD_VALIDATION,
 });
 
 export const toggleNameValidationAction = (method: AuthMethod): ToggleNameValidationAction => ({
   method,
-  type: Actions.TOGGLE_NAME_VALIDATION,
+  type: AuthAction.TOGGLE_NAME_VALIDATION,
 });
 
 export const toggleServerErrorAction = (method: AuthMethod): ToggleServerErrorAction => ({
   method,
-  type: Actions.TOGGLE_SERVER_ERROR,
+  type: AuthAction.TOGGLE_SERVER_ERROR,
 });
