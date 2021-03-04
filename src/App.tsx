@@ -239,7 +239,7 @@ class App extends React.Component<{}, AppState> {
         </Card>
         <Card id="todos-card">
           <ToDoList
-            {...{ todos }}
+            todos={todos}
             onToDoDeleted={(toDoId: string) => this.onToDoDeleted(toDoId)}
             onToDoStatusChanged={(toDoId: string, newStatus: boolean) => {
               this.onToDoStatusChanged(toDoId, newStatus);

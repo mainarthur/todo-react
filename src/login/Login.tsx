@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { api } from '../api/api';
 import LoginBody from '../api/bodies/LoginBody';
 import AuthResponse from '../api/responses/AuthResponse';
@@ -6,68 +7,86 @@ import Button from '../common/Button';
 import Card from '../common/Card';
 import ErrorLabel from '../common/ErrorLabel';
 import TextField from '../common/TextField';
+import { AuthMethod } from '../redux/constants';
+import { RootState } from '../redux/reducers';
+import {
+  changeEmailAction,
+  changePasswordAction,
+  toggleEmailValidationAction,
+  togglePasswordValidationAction,
+  toggleServerErrorAction,
+} from '../redux/actions/authActions';
 import Link from '../routing/Link';
 import { history } from '../routing/RouterContext';
 import { isValidEmail, isValidPassword } from '../utils';
 import './Login.scss';
 
-type LoginState = {
+interface LoginStateProps {
   email: string;
   password: string;
   invalidEmail: boolean;
   invalidPassword: boolean;
   serverError: boolean;
-};
+}
 
-class Login extends React.Component<{}, LoginState> {
-  constructor(props: {} | Readonly<{}>) {
-    super(props);
+interface DispatchProps {
+  changeEmail: typeof changeEmailAction;
+  changePassword: typeof changePasswordAction;
+  toggleEmailValidation: typeof toggleEmailValidationAction;
+  togglePasswordValidation: typeof togglePasswordValidationAction;
+  toggleSeverError: typeof toggleServerErrorAction;
+}
 
-    this.state = {
-      email: '',
-      password: '',
-      invalidEmail: false,
-      invalidPassword: false,
-      serverError: false,
-    };
-  }
+const mapState = (state: RootState): LoginStateProps => ({ ...state.login });
 
+const mapDispatch = () => ({
+  changeEmail: changeEmailAction,
+  changePassword: changePasswordAction,
+  toggleEmailValidation: toggleEmailValidationAction,
+  togglePasswordValidation: togglePasswordValidationAction,
+  toggleSeverError: toggleServerErrorAction,
+});
+
+type Props = LoginStateProps & DispatchProps;
+
+class Login extends React.Component<Props> {
   componentDidMount() {
     if (localStorage.getItem('access_token')) {
       history.push('/');
     }
   }
 
-  async onLoginButtonClick(): Promise<void> {
-    let {
-      email, password,
-    } = this.state;
-
+  onLoginButtonClick = async (): Promise<void> => {
     const {
-      invalidEmail, invalidPassword, serverError,
-    } = this.state;
+      invalidEmail,
+      invalidPassword,
+      serverError,
+      email: propEmail,
+      password: propPassword,
+      toggleEmailValidation,
+      togglePasswordValidation,
+      toggleSeverError,
+    } = this.props;
 
-    email = email.trim();
-    password = password.trim();
+    const email = propEmail.trim();
+    const password = propPassword.trim();
 
     if (!isValidEmail(email)) {
-      return this.setState({
-        invalidEmail: true,
-      });
+      if (!invalidEmail) {
+        toggleEmailValidation(AuthMethod.LOGIN);
+      }
+      return;
     } if (invalidEmail) {
-      this.setState({
-        invalidEmail: false,
-      });
+      toggleEmailValidation(AuthMethod.LOGIN);
     }
 
     if (!isValidPassword(password)) {
-      return this.setState({
-        invalidPassword: true,
-      });
+      if (!invalidPassword) {
+        togglePasswordValidation(AuthMethod.LOGIN);
+      }
+      return;
     } if (invalidPassword) {
-      this.setState({
-        invalidPassword: false,
-      });
+      togglePasswordValidation(AuthMethod.LOGIN);
     }
 
     const authResponse = await api<AuthResponse, LoginBody>({
@@ -83,37 +102,60 @@ class Login extends React.Component<{}, LoginState> {
       localStorage.setItem('refresh_token', (authResponse as AuthResponse).refresh_token);
 
       if (serverError) {
-        this.setState({
-          serverError: false,
-        });
+        toggleSeverError(AuthMethod.LOGIN);
       }
       history.push('/');
-    } else {
-      this.setState({
-        serverError: true,
-      });
+    } else if (!serverError) {
+      toggleSeverError(AuthMethod.LOGIN);
     }
+  };
 
-    return null;
-  }
+  onEmailChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    const { changeEmail } = this.props;
 
-  onEmailChange(ev: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ email: ev.target.value });
-  }
+    changeEmail(ev.target.value, AuthMethod.LOGIN);
+  };
 
-  onPasswordChange(ev: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ password: ev.target.value });
-  }
+  onPasswordChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    const { changePassword } = this.props;
+
+    changePassword(ev.target.value, AuthMethod.LOGIN);
+  };
 
   render(): JSX.Element {
-    const { invalidEmail, invalidPassword, serverError } = this.state;
+    const { invalidEmail, invalidPassword, serverError } = this.props;
 
     return (
       <Card>
-        <TextField className="login__email" id="email" placeholder="Email" invalid={invalidEmail} errorText="Ivalid email format" onChange={(ev) => this.onEmailChange(ev)} />
-        <TextField className="login__password" type="password" id="password" placeholder="Password" invalid={invalidPassword} errorText="Password is too weak" onChange={(ev) => this.onPasswordChange(ev)} />
-        <Button className="login__button" onClick={() => this.onLoginButtonClick()}>Login</Button>
-        <ErrorLabel className="login__error-label" invalid={serverError}>Login Problem: invalid email or password</ErrorLabel>
+        <TextField
+          className="login__email"
+          id="email"
+          placeholder="Email"
+          invalid={invalidEmail}
+          errorText="Ivalid email format"
+          onChange={this.onEmailChange}
+        />
+        <TextField
+          className="login__password"
+          type="password"
+          id="password"
+          placeholder="Password"
+          invalid={invalidPassword}
+          errorText="Password is too weak"
+          onChange={this.onPasswordChange}
+        />
+        <Button
+          className="login__button"
+          onClick={this.onLoginButtonClick}
+        >
+          Login
+        </Button>
+        <ErrorLabel
+          className="login__error-label"
+          invalid={serverError}
+        >
+          Login Problem: invalid email or password
+        </ErrorLabel>
         <p>
           <Link to="/register">Register </Link>
           if you don&apos;t have an account yet.
@@ -122,4 +164,4 @@ class Login extends React.Component<{}, LoginState> {
     );
   }
 }
-export default Login;
+export default connect<LoginStateProps, DispatchProps>(mapState, mapDispatch())(Login);

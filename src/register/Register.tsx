@@ -12,13 +12,13 @@ import { isValidEmail, isValidName, isValidPassword } from '../utils';
 import './Register.scss';
 
 type RegisterState = {
-  email: string
-  password: string
-  name: string
-  invalidEmail: boolean
-  invalidName: boolean
-  invalidPassword: boolean
-  serverError: boolean
+  email: string;
+  password: string;
+  name: string;
+  invalidEmail: boolean;
+  invalidName: boolean;
+  invalidPassword: boolean;
+  serverError: boolean;
 };
 
 class Register extends React.Component<{}, RegisterState> {
@@ -39,18 +39,20 @@ class Register extends React.Component<{}, RegisterState> {
     };
   }
 
-  async onRegisterButtonClick(): Promise<void> {
-    let {
-      email, password, name,
-    } = this.state;
-
+  onRegisterButtonClick = async (): Promise<void> => {
     const {
-      invalidName, invalidEmail, invalidPassword, serverError,
+      invalidName,
+      invalidEmail,
+      invalidPassword,
+      serverError,
+      email: stateEmail,
+      password: statePassword,
+      name: stateName,
     } = this.state;
 
-    email = email.trim();
-    name = name.trim();
-    password = password.trim();
+    const email = stateEmail.trim();
+    const name = stateName.trim();
+    const password = statePassword.trim();
 
     if (!isValidEmail(email)) {
       return this.setState({
@@ -107,25 +109,25 @@ class Register extends React.Component<{}, RegisterState> {
     }
 
     return null;
-  }
+  };
 
-  onPasswordChange(ev: React.ChangeEvent<HTMLInputElement>): void {
+  onPasswordChange = (ev: React.ChangeEvent<HTMLInputElement>): void => {
     this.setState({
       password: ev.target.value,
     });
-  }
+  };
 
-  onNameChange(ev: React.ChangeEvent<HTMLInputElement>): void {
+  onNameChange = (ev: React.ChangeEvent<HTMLInputElement>): void => {
     this.setState({
       name: ev.target.value,
     });
-  }
+  };
 
-  onEmailChange(ev: React.ChangeEvent<HTMLInputElement>): void {
+  onEmailChange = (ev: React.ChangeEvent<HTMLInputElement>): void => {
     this.setState({
       email: ev.target.value,
     });
-  }
+  };
 
   render(): JSX.Element {
     const {
@@ -134,11 +136,43 @@ class Register extends React.Component<{}, RegisterState> {
 
     return (
       <Card>
-        <TextField className="register__email" id="email" placeholder="Email" invalid={invalidEmail} errorText="Ivalid email format" onChange={(ev) => this.onEmailChange(ev)} />
-        <TextField className="register__name" id="name" placeholder="Name" invalid={invalidName} errorText="Ivalid name format" onChange={(ev) => this.onNameChange(ev)} />
-        <TextField className="register__password" type="password" id="password" placeholder="Password" invalid={invalidPassword} errorText="Password is too weak" onChange={(ev) => this.onPasswordChange(ev)} />
-        <Button className="register__button" onClick={() => this.onRegisterButtonClick()}>Register</Button>
-        <ErrorLabel className="register__error-label" invalid={serverError}>Register Problem: try to use another email</ErrorLabel>
+        <TextField
+          className="register__email"
+          id="email"
+          placeholder="Email"
+          invalid={invalidEmail}
+          errorText="Ivalid email format"
+          onChange={this.onEmailChange}
+        />
+        <TextField
+          className="register__name"
+          id="name"
+          placeholder="Name"
+          invalid={invalidName}
+          errorText="Ivalid name format"
+          onChange={this.onNameChange}
+        />
+        <TextField
+          className="register__password"
+          type="password"
+          id="password"
+          placeholder="Password"
+          invalid={invalidPassword}
+          errorText="Password is too weak"
+          onChange={this.onPasswordChange}
+        />
+        <Button
+          className="register__button"
+          onClick={this.onRegisterButtonClick}
+        >
+          Register
+        </Button>
+        <ErrorLabel
+          className="register__error-label"
+          invalid={serverError}
+        >
+          Register Problem: try to use another email
+        </ErrorLabel>
         <p>
           Already have an account?
           <Link to="/login">Login</Link>

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { createContext } from 'react';
 import { createBrowserHistory, Location } from 'history';
 import * as qs from 'querystringify';
 
@@ -12,6 +12,6 @@ export function locationToRoute(location: Location<object>) {
   };
 }
 
-export const RouterContext = React.createContext({
+export const RouterContext = createContext({
   route: locationToRoute(history.location),
 });
