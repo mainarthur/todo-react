@@ -1,7 +1,7 @@
 import { Actions, AuthMethod } from '../constants';
 import AuthActions from '../types/authTypes';
 
-type LoginState = {
+export type LoginState = {
   email: string;
   password: string;
   invalidEmail: boolean;

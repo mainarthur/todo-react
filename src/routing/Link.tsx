@@ -8,7 +8,7 @@ type Props = {
 };
 
 export default class Link extends React.Component<Props> {
-  onAnchorClick(ev: React.MouseEvent<HTMLAnchorElement, MouseEvent>) {
+  onAnchorClick = (ev: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
     const { onClick, to } = this.props;
     const { route } = this.context;
 
@@ -23,7 +23,7 @@ export default class Link extends React.Component<Props> {
     }
 
     history.push(to);
-  }
+  };
 
   render() {
     const {
