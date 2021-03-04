@@ -1,11 +1,15 @@
 import { TextFieldAction } from '../constants';
-import { AddTextFieldAction, ToggleAnimationAction } from '../types/textFieldTypes';
+import { AddTextFieldAction, SetAnimationAction } from '../types/textFieldTypes';
 
-export const ddTextFieldAction = (id: string): AddTextFieldAction => ({
+export const addTextFieldAction = (id: string): AddTextFieldAction => ({
   type: TextFieldAction.ADD_TEXTFIELD,
   payload: id,
 });
 
-export const toggleAnimationAction = (): ToggleAnimationAction => ({
-  type: TextFieldAction.TOGGLE_ANIMATION,
+export const toggleAnimationAction = (id: string, animation: string): SetAnimationAction => ({
+  type: TextFieldAction.SET_ANIMATION,
+  payload: {
+    id,
+    animation,
+  },
 });

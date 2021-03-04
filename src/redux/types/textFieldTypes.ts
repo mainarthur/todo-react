@@ -5,10 +5,14 @@ export interface AddTextFieldAction {
   payload: string;
 }
 
-export interface ToggleAnimationAction {
-  type: TextFieldAction.TOGGLE_ANIMATION;
+export interface SetAnimationAction {
+  type: TextFieldAction.SET_ANIMATION;
+  payload: {
+    animation: string,
+    id: string;
+  };
 }
 
-type TextFieldActions = AddTextFieldAction | ToggleAnimationAction;
+type TextFieldActions = AddTextFieldAction | SetAnimationAction;
 
 export default TextFieldActions;

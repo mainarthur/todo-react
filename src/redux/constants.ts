@@ -20,5 +20,5 @@ export enum NewToDoAction {
 
 export enum TextFieldAction {
   ADD_TEXTFIELD = 'TextFieldAction.ADD_TEXTFIELD',
-  TOGGLE_ANIMATION = 'TextFieldAction.TOGGLE_ANIMATION',
+  SET_ANIMATION = 'TextFieldAction.SET_ANIMATION',
 }
