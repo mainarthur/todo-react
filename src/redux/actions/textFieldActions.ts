@@ -6,7 +6,7 @@ export const addTextFieldAction = (id: string): AddTextFieldAction => ({
   payload: id,
 });
 
-export const toggleAnimationAction = (id: string, animation: string): SetAnimationAction => ({
+export const setAnimationAction = (id: string, animation: string): SetAnimationAction => ({
   type: TextFieldAction.SET_ANIMATION,
   payload: {
     id,

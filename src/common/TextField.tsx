@@ -1,8 +1,15 @@
 import * as React from 'react';
+import { addTextFieldAction, setAnimationAction } from '../redux/actions/textFieldActions';
+import { TextFieldState } from '../redux/reducers/textFieldReducer';
 import ErrorLabel from './ErrorLabel';
 import './TextField.scss';
 
-type Props = {
+interface DispatchProps {
+  addTextField: typeof addTextFieldAction;
+  setAnimation: typeof setAnimationAction;
+}
+
+type OwnProps = {
   className?: string;
   type?: string;
   id: string;
@@ -13,18 +20,15 @@ type Props = {
   value?: string;
 };
 
-type State = {
-  animation: string;
-};
+type Props = TextFieldState & OwnProps & DispatchProps;
 
-class TextField extends React.Component<Props, State> {
+class TextField extends React.Component<Props> {
   #prevValue: string = '';
 
   constructor(props: Props | Readonly<Props>) {
     super(props);
-    this.state = {
-      animation: '',
-    };
+
+    props.addTextField(props.id);
   }
 
   onInputFocus = () => {
@@ -43,7 +47,7 @@ class TextField extends React.Component<Props, State> {
     const {
       id, type, placeholder, className, onChange, value, errorText, invalid,
     } = this.props;
-    let { animation } = this.state;
+    let { animation } = this.props;
 
     if (value === '' && this.#prevValue !== '' && animation === '_maximizing') {
       animation = '_minimizing';
