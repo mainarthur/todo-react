@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { api } from '../api/api';
 import NewToDoBody from '../api/bodies/NewToDoBody';
 import NewToDoResponse from '../api/responses/NewToDoResponse';
@@ -7,22 +8,24 @@ import Card from '../common/Card';
 import ErrorLabel from '../common/ErrorLabel';
 import TextField from '../common/TextField';
 import ToDo from '../models/ToDo';
+import { changeNewToDoTextAction, toggleTextErrorAction } from '../redux/actions/newToDoActions';
+import { RootState } from '../redux/reducers';
+import { NewToDoState } from '../redux/reducers/newToDoReducer';
 import './NewToDo.scss';
+
+interface DispatchProps {
+  changeText: typeof changeNewToDoTextAction;
+  toggleTextError: typeof toggleTextErrorAction;
+}
 
 type OwnProps = {
   onNewToDo(toDo: ToDo): void;
 };
 
-class NewToDo extends React.Component<Props, State> {
-  timerId: number;
+type Props = NewToDoState & DispatchProps & OwnProps;
 
-  constructor(props: Props | Readonly<Props>) {
-    super(props);
-    this.state = {
-      textFieldValue: '',
-      invalidText: false,
-    };
-  }
+class NewToDo extends React.Component<Props> {
+  timerId: number;
 
   onFormSubmit = (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
@@ -30,8 +33,13 @@ class NewToDo extends React.Component<Props, State> {
   };
 
   onButtonClick = async () => {
-    const { onNewToDo } = this.props;
-    const { textFieldValue } = this.state;
+    const {
+      onNewToDo,
+      textFieldValue,
+      invalidText,
+      toggleTextError,
+      changeText,
+    } = this.props;
 
     const toDoText = textFieldValue.trim();
 
@@ -39,20 +47,22 @@ class NewToDo extends React.Component<Props, State> {
       clearTimeout(this.timerId);
 
       this.timerId = window.setTimeout(() => {
-        const { invalidText } = this.state;
-        if (invalidText) {
-          this.setState({
-            invalidText: false,
-          });
+        const {
+          invalidText: invalidTextAtUpdate,
+          toggleTextError: toggleTextErrorAtUpdate,
+        } = this.props;
+        if (invalidTextAtUpdate) {
+          toggleTextErrorAtUpdate();
         }
       }, 5000);
 
-      return this.setState({
-        invalidText: true,
-      });
+      return !invalidText && toggleTextError();
     }
 
-    this.setState({ textFieldValue: '', invalidText: false });
+    changeText('');
+    if (invalidText) {
+      toggleTextError();
+    }
 
     const toDoResponse = await api<NewToDoResponse, NewToDoBody>({
       endpoint: '/todo',
@@ -71,23 +81,18 @@ class NewToDo extends React.Component<Props, State> {
 
   onTextChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     const newText = ev.target.value;
+    const { invalidText, toggleTextError, changeText } = this.props;
 
     if (newText !== '') {
-      const { invalidText } = this.state;
-
       if (invalidText) {
-        this.setState({
-          invalidText: false,
-        });
+        toggleTextError();
       }
     }
-    this.setState({
-      textFieldValue: newText,
-    });
+    changeText(newText);
   };
 
   render(): JSX.Element {
-    const { textFieldValue, invalidText } = this.state;
+    const { textFieldValue, invalidText } = this.props;
 
     return (
       <div className="new-todo">
@@ -124,4 +129,13 @@ class NewToDo extends React.Component<Props, State> {
     );
   }
 }
-export default NewToDo;
+
+const mapStateToProps = (state: RootState): NewToDoState => ({ ...state.newToDo });
+
+const mapDispatchToProps: DispatchProps = {
+  changeText: changeNewToDoTextAction,
+  toggleTextError: toggleTextErrorAction,
+};
+
+export default connect<NewToDoState, DispatchProps, OwnProps>(mapStateToProps,
+  mapDispatchToProps)(NewToDo);

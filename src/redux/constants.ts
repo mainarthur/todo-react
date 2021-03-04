@@ -1,4 +1,4 @@
-enum AuthAction {
+export enum AuthAction {
   CHANGE_EMAIL = 'AuthAction.CHANGE_EMAIL',
   CHANGE_PASSWORD = 'AuthAction.CHANGE_PASSWORD',
   CHANGE_NAME = 'AuthAction.CHANGE_NAME',
@@ -8,14 +8,17 @@ enum AuthAction {
   TOGGLE_NAME_VALIDATION = 'AuthAction.TOGGLE_NAME_VALIDATION',
 }
 
-enum AuthMethod {
+export enum AuthMethod {
   LOGIN = 'AuthMethod.LOGIN',
   REGISTRATION = 'AuthMethod.REGISTRATION',
 }
 
-enum NewToDoAction {
+export enum NewToDoAction {
   CHANGE_TEXT = 'NewToDoAction.CHANGE_TEXT',
   TOGGLE_TEXT_ERROR = 'NewToDoAction.TOGGLE_TEXT_ERROR',
 }
 
-export { AuthAction, AuthMethod, NewToDoAction };
+export enum TextFieldAction {
+  ADD_TEXTFIELD = 'TextFieldAction.ADD_TEXTFIELD',
+  TOGGLE_ANIMATION = 'TextFieldAction.TOGGLE_ANIMATION',
+}
