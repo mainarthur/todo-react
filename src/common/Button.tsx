@@ -2,21 +2,21 @@ import * as React from 'react';
 import './Button.scss';
 
 type Props = {
-  className?: string
-  id?: string
+  className?: string;
+  id?: string;
   onClick?(event: React.MouseEvent<HTMLDivElement, MouseEvent> |
-  React.KeyboardEvent<HTMLDivElement>): void
+    React.KeyboardEvent<HTMLDivElement>): void;
 };
 
 class Button extends React.Component<Props> {
-  onDivClicked(ev:React.MouseEvent<HTMLDivElement, MouseEvent> |
-  React.KeyboardEvent<HTMLDivElement>) {
+  onDivClicked = (ev: React.MouseEvent<HTMLDivElement, MouseEvent> |
+    React.KeyboardEvent<HTMLDivElement>) => {
     const {
       onClick,
     } = this.props;
 
     onClick(ev);
-  }
+  };
 
   render(): JSX.Element {
     const {
@@ -28,8 +28,8 @@ class Button extends React.Component<Props> {
         id={id}
         role="button"
         tabIndex={0}
-        onClick={(ev) => this.onDivClicked(ev)}
-        onKeyDown={(ev) => this.onDivClicked(ev)}
+        onClick={this.onDivClicked}
+        onKeyDown={this.onDivClicked}
         className={className ? `${className} btn` : 'btn'}
       >
         {children}

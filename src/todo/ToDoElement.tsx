@@ -19,18 +19,18 @@ type State = {
 };
 
 class ToDoElement extends React.Component<Props, State> {
-  onDeleteButtonClick(): void {
+  onDeleteButtonClick = (): void => {
     const { id, onDelete } = this.props;
     onDelete(id);
-  }
+  };
 
-  onCheckBoxChange(ev: React.ChangeEvent<HTMLInputElement>): void {
+  onCheckBoxChange = (ev: React.ChangeEvent<HTMLInputElement>): void => {
     const { id, onStatusChange } = this.props;
 
     onStatusChange(id, ev.target.checked);
-  }
+  };
 
-  onMouseDown(ev: React.MouseEvent<HTMLLIElement, MouseEvent>) {
+  onMouseDown = (ev: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
     const { onPositionChange } = this.props;
 
     let currentDropable: Element;
@@ -160,7 +160,7 @@ class ToDoElement extends React.Component<Props, State> {
 
     window.document.addEventListener('mousemove', onMouseMove);
     target.addEventListener('mouseup', onMouseUp);
-  }
+  };
 
   render(): JSX.Element {
     const {
@@ -173,11 +173,25 @@ class ToDoElement extends React.Component<Props, State> {
         role="option"
         aria-selected="false"
         className="todo"
-        onMouseDown={(ev) => this.onMouseDown(ev)}
+        onMouseDown={this.onMouseDown}
       >
-        <input className={ClassNames.CHECKBOX_CLASSNAME} type="checkbox" checked={done} onChange={(ev) => this.onCheckBoxChange(ev)} />
-        <span className="todo__text">{text}</span>
-        <span className="todo_centered-horizontally"><Button onClick={() => this.onDeleteButtonClick()} className={ClassNames.DELETE_CLASSNAME}>X</Button></span>
+        <input
+          className={ClassNames.CHECKBOX_CLASSNAME}
+          type="checkbox"
+          checked={done}
+          onChange={this.onCheckBoxChange}
+        />
+        <span className="todo__text">
+          {text}
+        </span>
+        <span className="todo_centered-horizontally">
+          <Button
+            onClick={this.onDeleteButtonClick}
+            className={ClassNames.DELETE_CLASSNAME}
+          >
+            X
+          </Button>
+        </span>
         <hr className="todo__divider" />
       </li>
     );

@@ -27,17 +27,17 @@ class TextField extends React.Component<Props, State> {
     };
   }
 
-  onInputFocus() {
+  onInputFocus = () => {
     this.setState({ animation: '_maximizing' });
-  }
+  };
 
-  onInputBlur(ev: React.FocusEvent<HTMLInputElement>) {
+  onInputBlur = (ev: React.FocusEvent<HTMLInputElement>) => {
     const { target: { value } } = ev;
 
     if (value === '') {
       this.setState({ animation: '_minimizing' });
     }
-  }
+  };
 
   render(): JSX.Element {
     const {
@@ -52,18 +52,28 @@ class TextField extends React.Component<Props, State> {
     this.#prevValue = value;
 
     return (
-      <div className={className ? `textfield ${className}` : 'textfield'}>
+      <div
+        className={className ? `textfield ${className}` : 'textfield'}
+      >
         <div className="textfield__floating">
           <input
             className="textfield__input"
-            onFocus={() => this.onInputFocus()}
-            onBlur={(e) => this.onInputBlur(e)}
-            {...{
-              onChange, id, type, value, placeholder,
-            }}
+            onFocus={this.onInputFocus}
+            onBlur={this.onInputBlur}
+            onChange={onChange}
+            id={id}
+            type={type}
+            value={value}
+            placeholder={placeholder}
           />
-          <label htmlFor={id}>{placeholder}</label>
-          <div className="textfield__border"><div className={`textfield__border_animated${animation ? ` textfield__border${animation}` : ''}`} /></div>
+          <label htmlFor={id}>
+            {placeholder}
+          </label>
+          <div className="textfield__border">
+            <div
+              className={`textfield__border_animated${animation ? ` textfield__border${animation}` : ''}`}
+            />
+          </div>
         </div>
         { errorText && <ErrorLabel invalid={invalid}>{errorText}</ErrorLabel>}
       </div>

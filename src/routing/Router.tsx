@@ -5,18 +5,18 @@ import { history, RouterContext, locationToRoute } from './RouterContext';
 type Props = {
   routes: {
     [key: string]: {
-      path: string
-    }
+      path: string;
+    };
   },
-  NotFound: typeof React.Component
+  NotFound: typeof React.Component;
 };
 
 type State = {
   route: {
-    path: string
-    hash: string
-    query: object
-  }
+    path: string;
+    hash: string;
+    query: object;
+  };
 };
 
 class Router extends React.Component<Props, State> {
@@ -47,6 +47,7 @@ class Router extends React.Component<Props, State> {
     const { route } = this.state;
     const routerContextValue = { route };
     const is404 = this.routes.indexOf(route.path) === -1;
+
     return (
       <RouterContext.Provider value={routerContextValue}>
         {is404 ? <NotFound /> : children}

@@ -17,6 +17,11 @@ type ToDoListState = {
 };
 
 class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
+  onLogOutClick = () => {
+    localStorage.clear();
+    return history.push('/login');
+  };
+
   render(): JSX.Element {
     const {
       todos,
@@ -35,10 +40,7 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
           </Button>
           <Button
             className="todos__btn todos__btn-logout"
-            onClick={() => {
-              localStorage.clear();
-              return history.push('/login');
-            }}
+            onClick={this.onLogOutClick}
           >
             LOGOUT
           </Button>
@@ -53,9 +55,9 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
                 id={tId}
                 text={toDo.text}
                 done={toDo.done}
-                onDelete={(toDoId: string) => onToDoDeleted(toDoId)}
-                onStatusChange={(id, newStatus) => onToDoStatusChanged(id, newStatus)}
-                onPositionChange={(id, nextId, prevId) => onToDoPositionChange(id, nextId, prevId)}
+                onDelete={onToDoDeleted}
+                onStatusChange={onToDoStatusChanged}
+                onPositionChange={onToDoPositionChange}
               />
             );
           })}

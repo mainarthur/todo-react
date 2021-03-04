@@ -29,12 +29,12 @@ class NewToDo extends React.Component<Props, State> {
     };
   }
 
-  onFormSubmit(ev: React.FormEvent<HTMLFormElement>) {
+  onFormSubmit = (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
     this.onButtonClick();
-  }
+  };
 
-  async onButtonClick() {
+  onButtonClick = async () => {
     const { onNewToDo } = this.props;
     const { textFieldValue } = this.state;
 
@@ -72,9 +72,11 @@ class NewToDo extends React.Component<Props, State> {
     }
 
     return true;
-  }
+  };
 
-  onTextChange(newText: string) {
+  onTextChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    const newText = ev.target.value;
+
     if (newText !== '') {
       const { invalidText } = this.state;
 
@@ -87,14 +89,17 @@ class NewToDo extends React.Component<Props, State> {
     this.setState({
       textFieldValue: newText,
     });
-  }
+  };
 
   render(): JSX.Element {
     const { textFieldValue, invalidText } = this.state;
 
     return (
       <div className="new-todo">
-        <ErrorLabel className="new-todo__error-label" invalid={invalidText}>
+        <ErrorLabel
+          className="new-todo__error-label"
+          invalid={invalidText}
+        >
           <Card>
             Text is required
           </Card>
@@ -102,7 +107,7 @@ class NewToDo extends React.Component<Props, State> {
         <form
           className="new-todo__form"
           id="main-form"
-          onSubmit={(ev) => this.onFormSubmit(ev)}
+          onSubmit={this.onFormSubmit}
         >
           <TextField
             className="new-todo__input"
@@ -110,12 +115,12 @@ class NewToDo extends React.Component<Props, State> {
             id="todo-text"
             placeholder="NEW TODO TEXT"
             value={textFieldValue}
-            onChange={(ev) => this.onTextChange(ev.target.value)}
+            onChange={this.onTextChange}
           />
           <Button
             id="add-todo"
             className="new-todo__btn-add"
-            onClick={() => this.onButtonClick()}
+            onClick={this.onButtonClick}
           >
             ADD
           </Button>

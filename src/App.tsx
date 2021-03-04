@@ -66,7 +66,7 @@ class App extends React.Component<{}, AppState> {
     });
   }
 
-  async onToDoDeleted(toDoId: string) {
+  onToDoDeleted = async (toDoId: string) => {
     const { todos } = this.state;
     const newTodos = todos.filter((t) => {
       const { _id: tId } = t;
@@ -86,9 +86,9 @@ class App extends React.Component<{}, AppState> {
     this.setState({
       todos: newTodos,
     });
-  }
+  };
 
-  async onToDoStatusChanged(toDoId: string, newStatus: boolean) {
+  onToDoStatusChanged = async (toDoId: string, newStatus: boolean) => {
     const { todos } = this.state;
     const newTodos = [...todos];
     const todoIndex = newTodos.findIndex((t) => {
@@ -114,9 +114,9 @@ class App extends React.Component<{}, AppState> {
     }
 
     this.setState({ todos: newTodos });
-  }
+  };
 
-  async onToDoPositionChanged(id: string, nextId: string, prevId: string) {
+  onToDoPositionChanged = async (id: string, nextId: string, prevId: string) => {
     const { todos } = this.state;
     const newTodos = [...todos];
     const todoIndex = newTodos.findIndex((t) => {
@@ -166,18 +166,18 @@ class App extends React.Component<{}, AppState> {
 
       this.setState({ todos: newTodos });
     }
-  }
+  };
 
-  onNewToDo(toDo: ToDo) {
+  onNewToDo = (toDo: ToDo) => {
     const { todos } = this.state;
     const newTodos = [...todos];
 
     newTodos.push(toDo);
 
     this.setState({ todos: newTodos });
-  }
+  };
 
-  async loadTodos(user: User) {
+  loadTodos = async (user: User) => {
     if (user) {
       const { _id: userId } = user;
       const db = await connectDB(`todo-${userId}`);
@@ -227,7 +227,7 @@ class App extends React.Component<{}, AppState> {
         });
       }
     }
-  }
+  };
 
   render(): JSX.Element {
     const { todos } = this.state;
@@ -235,18 +235,14 @@ class App extends React.Component<{}, AppState> {
     return (
       <>
         <Card>
-          <NewToDo onNewToDo={(toDo: ToDo) => this.onNewToDo(toDo)} />
+          <NewToDo onNewToDo={this.onNewToDo} />
         </Card>
         <Card id="todos-card">
           <ToDoList
             todos={todos}
-            onToDoDeleted={(toDoId: string) => this.onToDoDeleted(toDoId)}
-            onToDoStatusChanged={(toDoId: string, newStatus: boolean) => {
-              this.onToDoStatusChanged(toDoId, newStatus);
-            }}
-            onToDoPositionChange={(id: string, nextId: string, prevId: string) => {
-              this.onToDoPositionChanged(id, nextId, prevId);
-            }}
+            onToDoDeleted={this.onToDoDeleted}
+            onToDoStatusChanged={this.onToDoStatusChanged}
+            onToDoPositionChange={this.onToDoPositionChanged}
           />
         </Card>
       </>

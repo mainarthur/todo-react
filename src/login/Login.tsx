@@ -37,16 +37,6 @@ interface DispatchProps {
   toggleSeverError: typeof toggleServerErrorAction;
 }
 
-const mapState = (state: RootState): LoginStateProps => ({ ...state.login });
-
-const mapDispatch = () => ({
-  changeEmail: changeEmailAction,
-  changePassword: changePasswordAction,
-  toggleEmailValidation: toggleEmailValidationAction,
-  togglePasswordValidation: togglePasswordValidationAction,
-  toggleSeverError: toggleServerErrorAction,
-});
-
 type Props = LoginStateProps & DispatchProps;
 
 class Login extends React.Component<Props> {
@@ -164,4 +154,15 @@ class Login extends React.Component<Props> {
     );
   }
 }
-export default connect<LoginStateProps, DispatchProps>(mapState, mapDispatch())(Login);
+
+const mapStateToProps = (state: RootState): LoginStateProps => ({ ...state.login });
+
+const mapDispatchToProps = {
+  changeEmail: changeEmailAction,
+  changePassword: changePasswordAction,
+  toggleEmailValidation: toggleEmailValidationAction,
+  togglePasswordValidation: togglePasswordValidationAction,
+  toggleSeverError: toggleServerErrorAction,
+};
+
+export default connect<LoginStateProps, DispatchProps>(mapStateToProps, mapDispatchToProps)(Login);
