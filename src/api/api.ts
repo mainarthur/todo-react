@@ -1,4 +1,4 @@
-import Console from '../logging/Console'
+import { err } from '../logging/logger'
 import { history } from '../routing/RouterContext'
 import RefreshTokenBody from './bodies/RefreshTokenBody'
 import Request from './Request'
@@ -40,28 +40,32 @@ async function call<B>(opts: Request<B>): Promise<globalThis.Response> {
     })
 
     return res
-  } catch (err) {
-    Console.err(err)
-    throw err
+  } catch (e) {
+    err(e)
+    throw e
   }
 }
 
 export const refreshTokens = async (): Promise<boolean> => {
-  const authResponse = await call<RefreshTokenBody>({
-    endpoint: '/auth/refresh-token',
-    method: 'POST',
-    body: {
-      refresh_token: localStorage.getItem('refresh_token'),
-    },
-  })
+  try {
+    const authResponse = await call<RefreshTokenBody>({
+      endpoint: '/auth/refresh-token',
+      method: 'POST',
+      body: {
+        refresh_token: localStorage.getItem('refresh_token'),
+      },
+    })
 
-  if (authResponse.status === 200) {
-    const authData = await authResponse.json()
+    if (authResponse.status === 200) {
+      const authData = await authResponse.json()
 
-    localStorage.setItem('access_token', (authData as AuthResponse).access_token)
-    localStorage.setItem('refresh_token', (authData as AuthResponse).refresh_token)
+      localStorage.setItem('access_token', (authData as AuthResponse).access_token)
+      localStorage.setItem('refresh_token', (authData as AuthResponse).refresh_token)
 
-    return true
+      return true
+    }
+  } catch (e) {
+    err(e)
   }
 
   localStorage.clear()
@@ -81,8 +85,8 @@ export const api = async <T extends Response, B>(opts: Request<B>): Promise<T | 
       return { error: 'tokens error', status: false }
     }
     return await response.json()
-  } catch (err) {
-    Console.err(err)
-    return { error: err, status: false }
+  } catch (e) {
+    err(e)
+    return { error: e, status: false }
   }
 }

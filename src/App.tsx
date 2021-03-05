@@ -7,7 +7,7 @@ import ToDoList from './todo/ToDoList'
 import { history } from './routing/RouterContext'
 import UserResponse from './api/responses/UserResponse'
 import { api, refreshTokens } from './api/api'
-import Console from './logging/Console'
+import { err } from './logging/logger'
 import { AppState } from './redux/reducers/appReducer'
 import setUserAction from './redux/actions/appActions'
 import { RootState } from './redux/reducers'
@@ -43,8 +43,8 @@ class App extends React.Component<Props> {
           setUser(null)
         }
       }
-    } catch (err) {
-      Console.err(err)
+    } catch (e) {
+      err(e)
     }
   }
 

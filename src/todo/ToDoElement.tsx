@@ -1,6 +1,6 @@
 import * as React from 'react'
 import Button from '../common/Button'
-import Console from '../logging/Console'
+import { log } from '../logging/logger'
 import ClassNames from './ClassNames'
 import './ToDoElement.scss'
 
@@ -128,7 +128,7 @@ class ToDoElement extends React.Component<Props, State> {
             target.parentElement.append(target)
             ghostDiv?.remove()
 
-            Console.log('bottom-drag')
+            log('bottom-drag')
 
             if (target.previousElementSibling) {
               onPositionChange(target.id, '', target.previousElementSibling.id)

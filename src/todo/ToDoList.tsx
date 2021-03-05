@@ -7,7 +7,7 @@ import ToDoListResponse from '../api/responses/ToDoListResponse'
 import UpdateToDoResponse from '../api/responses/UpdateToDoResponse'
 import Button from '../common/Button'
 import { connectDB, defaultStoreName } from '../indexeddb/connect'
-import Console from '../logging/Console'
+import { err, log } from '../logging/logger'
 import ToDo from '../models/ToDo'
 import User from '../models/User'
 import { setTodosAction } from '../redux/actions/toDoActions'
@@ -77,8 +77,8 @@ class ToDoList extends React.Component<Props> {
         endpoint: `/todo/${toDoId}`,
         method: 'DELETE',
       })
-    } catch (err) {
-      Console.err(err)
+    } catch (e) {
+      err(e)
     }
 
     setToDos(newTodos)
@@ -106,8 +106,8 @@ class ToDoList extends React.Component<Props> {
           done: newStatus,
         },
       })
-    } catch (err) {
-      Console.err(err)
+    } catch (e) {
+      err(e)
     }
 
     setToDos(newTodos)
@@ -158,8 +158,8 @@ class ToDoList extends React.Component<Props> {
             position: newPosition,
           },
         })
-      } catch (err) {
-        Console.err(err)
+      } catch (e) {
+        err(e)
       }
 
       setToDos(newTodos)
@@ -175,7 +175,7 @@ class ToDoList extends React.Component<Props> {
           endpoint: `/todo${localStorage.getItem('lastUpdate') ? `?from=${localStorage.getItem('lastUpdate')}` : ''}`,
         })
 
-        Console.log(todos)
+        log(todos)
 
         if (todos.status) {
           let maxLastUpdate = 0
@@ -203,8 +203,8 @@ class ToDoList extends React.Component<Props> {
 
           localStorage.setItem('lastUpdate', `${maxLastUpdate}`)
         }
-      } catch (err) {
-        Console.log(err)
+      } catch (e) {
+        err(e)
       } finally {
         const transaction = db.transaction(defaultStoreName, 'readwrite')
         const store = transaction.objectStore(defaultStoreName).index('position')
