@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
 import Card from './common/Card';
 import './App.scss';
 import NewToDo from './todo/NewToDo';
@@ -14,30 +15,31 @@ import ToDoListResponse from './api/responses/ToDoListResponse';
 import UpdateToDoResponse from './api/responses/UpdateToDoResponse';
 import UpdateToDoBody from './api/bodies/UpdateToDoBody';
 import DeleteResponse from './api/responses/DeleteResponse';
+import { AppState } from './redux/reducers/appReducer';
+import { addToDoAction, setTodosAction, setUserAction } from './redux/actions/appActions';
+import { RootState } from './redux/reducers';
 
-type AppState = {
-  user: User;
-  todos: ToDo[];
-};
+interface DispatchProps {
+  setUser: typeof setUserAction;
+  addToDo: typeof addToDoAction;
+  setToDos: typeof setTodosAction;
+}
 
-class App extends React.Component<{}, AppState> {
-  constructor(props: {} | Readonly<{}>) {
+type Props = DispatchProps & AppState;
+
+class App extends React.Component<Props> {
+  constructor(props: Props | Readonly<Props>) {
     super(props);
     if (localStorage.getItem('access_token') == null) {
       history.push('/login');
     }
-
-    this.state = {
-      user: null,
-      todos: [],
-    };
   }
 
   async componentDidMount() {
     try {
       await refreshTokens();
 
-      const { user: userFromState } = this.state;
+      const { user: userFromState, setUser } = this.props;
 
       if (!userFromState) {
         const user = await api<UserResponse, {}>({
@@ -45,14 +47,10 @@ class App extends React.Component<{}, AppState> {
         });
 
         if (user.status) {
-          this.setState({
-            user: (user as UserResponse).result,
-          });
+          setUser((user as UserResponse).result);
           await this.loadTodos((user as UserResponse).result);
         } else if (userFromState) {
-          this.setState({
-            user: null,
-          });
+          setUser(null);
         }
       }
     } catch (err) {
@@ -61,13 +59,13 @@ class App extends React.Component<{}, AppState> {
   }
 
   componentWillUnmount() {
-    this.setState({
-      user: null,
-    });
+    const { setUser } = this.props;
+
+    setUser(null);
   }
 
   onToDoDeleted = async (toDoId: string) => {
-    const { todos } = this.state;
+    const { todos, setToDos } = this.props;
     const newTodos = todos.filter((t) => {
       const { _id: tId } = t;
 
@@ -83,20 +81,21 @@ class App extends React.Component<{}, AppState> {
       Console.err(err);
     }
 
-    this.setState({
-      todos: newTodos,
-    });
+    setToDos(newTodos);
   };
 
   onToDoStatusChanged = async (toDoId: string, newStatus: boolean) => {
-    const { todos } = this.state;
-    const newTodos = [...todos];
-    const todoIndex = newTodos.findIndex((t) => {
+    const { todos, setToDos } = this.props;
+    const newTodos = todos.map((t) => {
       const { _id: tId } = t;
+      if (tId === toDoId) {
+        const newTodo = { ...t };
+        newTodo.done = newStatus;
+        return newTodo;
+      }
 
-      return tId === toDoId;
+      return t;
     });
-    newTodos[todoIndex].done = newStatus;
 
     try {
       await api<UpdateToDoResponse, UpdateToDoBody>({
@@ -104,34 +103,26 @@ class App extends React.Component<{}, AppState> {
         method: 'PATCH',
         body: {
           _id: toDoId,
-          text: newTodos[todoIndex].text,
-          done: newTodos[todoIndex].done,
-          position: newTodos[todoIndex].position,
+          done: newStatus,
         },
       });
     } catch (err) {
       Console.err(err);
     }
 
-    this.setState({ todos: newTodos });
+    setToDos(newTodos);
   };
 
   onToDoPositionChanged = async (id: string, nextId: string, prevId: string) => {
-    const { todos } = this.state;
-    const newTodos = [...todos];
-    const todoIndex = newTodos.findIndex((t) => {
-      const { _id: tId } = t;
+    const { todos, setToDos } = this.props;
 
-      return tId === id;
-    });
-
-    const prevTodo = newTodos.find((t) => {
+    const prevTodo = todos.find((t) => {
       const { _id: tId } = t;
 
       return tId === prevId;
     });
 
-    const nextTodo = newTodos.find((t) => {
+    const nextTodo = todos.find((t) => {
       const { _id: tId } = t;
 
       return tId === nextId;
@@ -147,7 +138,16 @@ class App extends React.Component<{}, AppState> {
         newPosition = (prevTodo.position + nextTodo.position) / 2;
       }
 
-      newTodos[todoIndex].position = newPosition;
+      const newTodos = todos.map((t) => {
+        const { _id: tId } = t;
+        if (tId === id) {
+          const newTodo = { ...t };
+          newTodo.position = newPosition;
+          return newTodo;
+        }
+
+        return t;
+      });
 
       try {
         await api<UpdateToDoResponse, UpdateToDoBody>({
@@ -155,23 +155,21 @@ class App extends React.Component<{}, AppState> {
           method: 'PATCH',
           body: {
             _id: id,
-            text: newTodos[todoIndex].text,
-            done: newTodos[todoIndex].done,
-            position: newTodos[todoIndex].position,
+            position: newPosition,
           },
         });
       } catch (err) {
         Console.err(err);
       }
 
-      this.setState({ todos: newTodos });
+      setToDos(newTodos);
     }
   };
 
   onNewToDo = (toDo: ToDo) => {
-    const { todos } = this.state;
+    const { addToDo } = this.props;
 
-    this.setState({ todos: todos.concat([toDo]) });
+    addToDo(toDo);
   };
 
   loadTodos = async (user: User) => {
@@ -218,17 +216,16 @@ class App extends React.Component<{}, AppState> {
         const store = transaction.objectStore(defaultStoreName).index('position');
         const todosRequest = store.getAll();
         todosRequest.addEventListener('success', () => {
-          this.setState({
-            todos: todosRequest.result,
-          });
+          const { setToDos } = this.props;
+
+          setToDos(todosRequest.result);
         });
       }
     }
   };
 
   render(): JSX.Element {
-    const { todos } = this.state;
-
+    const { todos } = this.props;
     return (
       <>
         <Card>
@@ -246,4 +243,14 @@ class App extends React.Component<{}, AppState> {
     );
   }
 }
-export default App;
+
+const mapStateToProps = (state: RootState): AppState => ({ ...state.app });
+
+const mapDispatchToProps: DispatchProps = {
+  setUser: setUserAction,
+  addToDo: addToDoAction,
+  setToDos: setTodosAction,
+};
+
+export default connect<AppState, DispatchProps>(mapStateToProps,
+  mapDispatchToProps)(App);

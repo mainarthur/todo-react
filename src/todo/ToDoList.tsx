@@ -29,7 +29,6 @@ class ToDoList extends React.Component<ToDoListProps, ToDoListState> {
       onToDoStatusChanged,
       onToDoPositionChange,
     } = this.props;
-
     return (
       <div className="todos">
         <div className="todos_center">

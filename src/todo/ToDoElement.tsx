@@ -181,7 +181,7 @@ class ToDoElement extends React.Component<Props, State> {
           checked={done}
           onChange={this.onCheckBoxChange}
         />
-        <span className="todo__text">
+        <span className={`todo__text${done ? ' todo__text_done' : ''}`}>
           {text}
         </span>
         <span className="todo_centered-horizontally">
