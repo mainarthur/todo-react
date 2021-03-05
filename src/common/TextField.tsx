@@ -1,5 +1,7 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { addTextFieldAction, setAnimationAction } from '../redux/actions/textFieldActions';
+import { RootState } from '../redux/reducers';
 import { TextFieldState } from '../redux/reducers/textFieldReducer';
 import ErrorLabel from './ErrorLabel';
 import './TextField.scss';
@@ -32,26 +34,38 @@ class TextField extends React.Component<Props> {
   }
 
   onInputFocus = () => {
-    this.setState({ animation: '_maximizing' });
+    const { setAnimation, id } = this.props;
+    setAnimation(id, '_maximizing');
   };
 
   onInputBlur = (ev: React.FocusEvent<HTMLInputElement>) => {
     const { target: { value } } = ev;
 
     if (value === '') {
-      this.setState({ animation: '_minimizing' });
+      const { setAnimation, id } = this.props;
+      setAnimation(id, '_minimizing');
     }
   };
 
   render(): JSX.Element {
     const {
-      id, type, placeholder, className, onChange, value, errorText, invalid,
+      id,
+      type,
+      placeholder,
+      className,
+      onChange,
+      value,
+      errorText,
+      invalid,
+      textFields,
     } = this.props;
-    let { animation } = this.props;
+
+    let { animation } = textFields.find((e) => e.id === id);
 
     if (value === '' && this.#prevValue !== '' && animation === '_maximizing') {
       animation = '_minimizing';
     }
+    console.log(animation);
 
     this.#prevValue = value;
 
@@ -84,4 +98,13 @@ class TextField extends React.Component<Props> {
     );
   }
 }
-export default TextField;
+
+const mapStateToProps = (state: RootState): TextFieldState => ({ ...state.textFields });
+
+const mapDispatchToProps: DispatchProps = {
+  addTextField: addTextFieldAction,
+  setAnimation: setAnimationAction,
+};
+
+export default connect<TextFieldState, DispatchProps, OwnProps>(mapStateToProps,
+  mapDispatchToProps)(TextField);
