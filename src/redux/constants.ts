@@ -25,11 +25,11 @@ export enum TextFieldAction {
 
 export enum AppAction {
   SET_USER = 'AppAction.SET_USER',
-  SET_TODOS = 'AppAction.SET_TODOS',
-  ADD_TODO = 'AppAction.ADD_TODO',
-  UPDATE_TODO_POSITION = 'AppAction.UPDATE_TODO_POSITION',
-  UPDATE_TODO_STATUS = 'AppAction.UPDATE_TODO_STATUS',
-  DELETE_TODO = 'AppAction.DELETE_TODO',
+}
+
+export enum ToDoAction {
+  SET_TODOS = 'ToDoAction.SET_TODOS',
+  ADD_TODO = 'ToDoAction.ADD_TODO',
 }
 
 export enum RouterAction {
