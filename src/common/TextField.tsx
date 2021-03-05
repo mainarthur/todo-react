@@ -60,13 +60,19 @@ class TextField extends React.Component<Props> {
       invalid,
       textFields,
     } = this.props;
+    const currentTextfield = textFields.find((e) => e.id === id);
 
-    let { animation } = textFields.find((e) => e.id === id);
+    if (!currentTextfield) {
+      return null;
+    }
+
+    console.log('textFields', textFields);
+    let { animation } = currentTextfield;
 
     if (value === '' && this.#prevValue !== '' && animation === '_maximizing') {
       animation = '_minimizing';
     }
-    Console.log(animation);
+    Console.log(123);
 
     this.#prevValue = value;
 

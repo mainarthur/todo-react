@@ -19,10 +19,13 @@ export default function textFieldReducer(state = initialState, action: TextField
   let index;
   switch (action.type) {
     case TextFieldAction.ADD_TEXTFIELD:
-      newState.textFields.push({
-        id: action.payload,
-        animation: '',
-      });
+      newState.textFields = [
+        ...newState.textFields,
+        {
+          id: action.payload,
+          animation: '',
+        }
+      ];
 
       return newState;
     case TextFieldAction.SET_ANIMATION:
