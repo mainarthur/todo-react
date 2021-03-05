@@ -27,7 +27,11 @@ export default function textFieldReducer(state = initialState, action: TextField
       return newState;
     case TextFieldAction.SET_ANIMATION:
       index = newState.textFields.findIndex((e) => e.id === action.payload.id);
-      newState.textFields[index].animation = action.payload.animation;
+
+      if (index !== -1) {
+        newState.textFields[index].animation = action.payload.animation;
+      }
+
       return newState;
     default:
       return newState;

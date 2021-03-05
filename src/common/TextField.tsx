@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
+import Console from '../logging/Console';
 import { addTextFieldAction, setAnimationAction } from '../redux/actions/textFieldActions';
 import { RootState } from '../redux/reducers';
 import { TextFieldState } from '../redux/reducers/textFieldReducer';
@@ -65,7 +66,7 @@ class TextField extends React.Component<Props> {
     if (value === '' && this.#prevValue !== '' && animation === '_maximizing') {
       animation = '_minimizing';
     }
-    console.log(animation);
+    Console.log(animation);
 
     this.#prevValue = value;
 
