@@ -170,11 +170,8 @@ class App extends React.Component<{}, AppState> {
 
   onNewToDo = (toDo: ToDo) => {
     const { todos } = this.state;
-    const newTodos = [...todos];
 
-    newTodos.push(toDo);
-
-    this.setState({ todos: newTodos });
+    this.setState({ todos: todos.concat([toDo]) });
   };
 
   loadTodos = async (user: User) => {

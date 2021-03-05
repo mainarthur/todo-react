@@ -22,3 +22,12 @@ export enum TextFieldAction {
   ADD_TEXTFIELD = 'TextFieldAction.ADD_TEXTFIELD',
   SET_ANIMATION = 'TextFieldAction.SET_ANIMATION',
 }
+
+export enum AppAction {
+  SET_USER = 'AppAction.SET_USER',
+  SET_TODOS = 'AppAction.SET_TODOS',
+  ADD_TODO = 'AppAction.ADD_TODO',
+  UPDATE_TODO_POSITION = 'AppAction.UPDATE_TODO_POSITION',
+  UPDATE_TODO_STATUS = 'AppAction.UPDATE_TODO_STATUS',
+  DELETE_TODO = 'AppAction.DELETE_TODO',
+}
