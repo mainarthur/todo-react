@@ -1,39 +1,38 @@
 import { TextFieldAction } from '../constants';
 import TextFieldActions from '../types/textFieldTypes';
 
-interface TextField {
+export interface TextField {
   id: string;
   animation: string;
 }
 
-export interface TextFieldState {
-  textFields: TextField[];
-}
+type TextFieldState = TextField[];
 
-const initialState: TextFieldState = {
-  textFields: [],
-};
+const initialState: TextFieldState = [];
 
 export default function textFieldReducer(state = initialState, action: TextFieldActions) {
-  const newState = { ...state };
-  let index;
+  let newState = [...state];
   switch (action.type) {
     case TextFieldAction.ADD_TEXTFIELD:
-      newState.textFields = [
-        ...newState.textFields,
+      newState = [
+        ...newState,
         {
           id: action.payload,
           animation: '',
-        }
+        },
       ];
 
       return newState;
     case TextFieldAction.SET_ANIMATION:
-      index = newState.textFields.findIndex((e) => e.id === action.payload.id);
+      newState = newState.map((textField) => {
+        if (textField.id === action.payload.id) {
+          const newTextField = { ...textField };
+          newTextField.animation = action.payload.animation;
+          return newTextField;
+        }
 
-      if (index !== -1) {
-        newState.textFields[index].animation = action.payload.animation;
-      }
+        return textField;
+      });
 
       return newState;
     default:

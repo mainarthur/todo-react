@@ -1,15 +1,17 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import Console from '../logging/Console';
 import { addTextFieldAction, setAnimationAction } from '../redux/actions/textFieldActions';
 import { RootState } from '../redux/reducers';
-import { TextFieldState } from '../redux/reducers/textFieldReducer';
+import { TextField as TextFieldState } from '../redux/reducers/textFieldReducer';
 import ErrorLabel from './ErrorLabel';
 import './TextField.scss';
 
 interface DispatchProps {
   addTextField: typeof addTextFieldAction;
   setAnimation: typeof setAnimationAction;
+}
+interface StateProps {
+  textFields: TextFieldState[];
 }
 
 type OwnProps = {
@@ -23,7 +25,7 @@ type OwnProps = {
   value?: string;
 };
 
-type Props = TextFieldState & OwnProps & DispatchProps;
+type Props = StateProps & OwnProps & DispatchProps;
 
 class TextField extends React.Component<Props> {
   #prevValue: string = '';
@@ -60,19 +62,18 @@ class TextField extends React.Component<Props> {
       invalid,
       textFields,
     } = this.props;
+
     const currentTextfield = textFields.find((e) => e.id === id);
 
     if (!currentTextfield) {
       return null;
     }
 
-    console.log('textFields', textFields);
     let { animation } = currentTextfield;
 
     if (value === '' && this.#prevValue !== '' && animation === '_maximizing') {
       animation = '_minimizing';
     }
-    Console.log(123);
 
     this.#prevValue = value;
 
@@ -106,12 +107,12 @@ class TextField extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: RootState): TextFieldState => ({ ...state.textFields });
+const mapStateToProps = (state: RootState): StateProps => ({ textFields: state.textFields });
 
 const mapDispatchToProps: DispatchProps = {
   addTextField: addTextFieldAction,
   setAnimation: setAnimationAction,
 };
 
-export default connect<TextFieldState, DispatchProps, OwnProps>(mapStateToProps,
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps,
   mapDispatchToProps)(TextField);

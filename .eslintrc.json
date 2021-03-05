@@ -7,5 +7,10 @@
   },
   "plugins": [
     "only-warn"
-  ]
+  ],
+  "rules": {
+    "@typescript/semi": [
+      "off"
+    ]
+  }
 }
