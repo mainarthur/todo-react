@@ -1,27 +1,27 @@
-import * as React from 'react';
-import './Button.scss';
+import * as React from 'react'
+import './Button.scss'
 
 type Props = {
-  className?: string;
-  id?: string;
+  className?: string
+  id?: string
   onClick?(event: React.MouseEvent<HTMLDivElement, MouseEvent> |
-    React.KeyboardEvent<HTMLDivElement>): void;
-};
+    React.KeyboardEvent<HTMLDivElement>): void
+}
 
 class Button extends React.Component<Props> {
   onDivClicked = (ev: React.MouseEvent<HTMLDivElement, MouseEvent> |
     React.KeyboardEvent<HTMLDivElement>) => {
     const {
       onClick,
-    } = this.props;
+    } = this.props
 
-    onClick(ev);
+    onClick(ev)
   };
 
   render(): JSX.Element {
     const {
       className, children, id,
-    } = this.props;
+    } = this.props
 
     return (
       <div
@@ -34,7 +34,7 @@ class Button extends React.Component<Props> {
       >
         {children}
       </div>
-    );
+    )
   }
 }
-export default Button;
+export default Button

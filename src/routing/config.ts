@@ -8,4 +8,4 @@ export default {
   register: {
     path: '/register',
   },
-};
+}

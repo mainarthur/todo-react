@@ -1,23 +1,23 @@
-import User from '../../models/User';
-import { AppAction } from '../constants';
-import AppActions from '../types/appTypes';
+import User from '../../models/User'
+import { AppAction } from '../constants'
+import AppActions from '../types/appTypes'
 
 export type AppState = {
-  user: User;
-};
+  user: User
+}
 
 const initialState: AppState = {
   user: null,
-};
+}
 
 export default function appReducer(state = initialState, action: AppActions): AppState {
-  const newState = { ...state };
+  const newState = { ...state }
   switch (action.type) {
     case AppAction.SET_USER:
-      newState.user = { ...action.payload };
+      newState.user = { ...action.payload }
 
-      return newState;
+      return newState
     default:
-      return state;
+      return state
   }
 }

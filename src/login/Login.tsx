@@ -1,48 +1,48 @@
-import * as React from 'react';
-import { connect } from 'react-redux';
-import { api } from '../api/api';
-import LoginBody from '../api/bodies/LoginBody';
-import AuthResponse from '../api/responses/AuthResponse';
-import Button from '../common/Button';
-import Card from '../common/Card';
-import ErrorLabel from '../common/ErrorLabel';
-import TextField from '../common/TextField';
-import { AuthMethod } from '../redux/constants';
-import { RootState } from '../redux/reducers';
+import * as React from 'react'
+import { connect } from 'react-redux'
+import { api } from '../api/api'
+import LoginBody from '../api/bodies/LoginBody'
+import AuthResponse from '../api/responses/AuthResponse'
+import Button from '../common/Button'
+import Card from '../common/Card'
+import ErrorLabel from '../common/ErrorLabel'
+import TextField from '../common/TextField'
+import { AuthMethod } from '../redux/constants'
+import { RootState } from '../redux/reducers'
 import {
   changeEmailAction,
   changePasswordAction,
   toggleEmailValidationAction,
   togglePasswordValidationAction,
   toggleServerErrorAction,
-} from '../redux/actions/authActions';
-import Link from '../routing/Link';
-import { history } from '../routing/RouterContext';
-import { isValidEmail, isValidPassword } from '../utils';
-import './Login.scss';
+} from '../redux/actions/authActions'
+import Link from '../routing/Link'
+import { history } from '../routing/RouterContext'
+import { isValidEmail, isValidPassword } from '../utils'
+import './Login.scss'
 
 interface LoginStateProps {
-  email: string;
-  password: string;
-  invalidEmail: boolean;
-  invalidPassword: boolean;
-  serverError: boolean;
+  email: string
+  password: string
+  invalidEmail: boolean
+  invalidPassword: boolean
+  serverError: boolean
 }
 
 interface DispatchProps {
-  changeEmail: typeof changeEmailAction;
-  changePassword: typeof changePasswordAction;
-  toggleEmailValidation: typeof toggleEmailValidationAction;
-  togglePasswordValidation: typeof togglePasswordValidationAction;
-  toggleSeverError: typeof toggleServerErrorAction;
+  changeEmail: typeof changeEmailAction
+  changePassword: typeof changePasswordAction
+  toggleEmailValidation: typeof toggleEmailValidationAction
+  togglePasswordValidation: typeof togglePasswordValidationAction
+  toggleSeverError: typeof toggleServerErrorAction
 }
 
-type Props = LoginStateProps & DispatchProps;
+type Props = LoginStateProps & DispatchProps
 
 class Login extends React.Component<Props> {
   componentDidMount() {
     if (localStorage.getItem('access_token')) {
-      history.push('/');
+      history.push('/')
     }
   }
 
@@ -56,27 +56,27 @@ class Login extends React.Component<Props> {
       toggleEmailValidation,
       togglePasswordValidation,
       toggleSeverError,
-    } = this.props;
+    } = this.props
 
-    const email = propEmail.trim();
-    const password = propPassword.trim();
+    const email = propEmail.trim()
+    const password = propPassword.trim()
 
     if (!isValidEmail(email)) {
       if (!invalidEmail) {
-        toggleEmailValidation(AuthMethod.LOGIN);
+        toggleEmailValidation(AuthMethod.LOGIN)
       }
-      return;
+      return
     } if (invalidEmail) {
-      toggleEmailValidation(AuthMethod.LOGIN);
+      toggleEmailValidation(AuthMethod.LOGIN)
     }
 
     if (!isValidPassword(password)) {
       if (!invalidPassword) {
-        togglePasswordValidation(AuthMethod.LOGIN);
+        togglePasswordValidation(AuthMethod.LOGIN)
       }
-      return;
+      return
     } if (invalidPassword) {
-      togglePasswordValidation(AuthMethod.LOGIN);
+      togglePasswordValidation(AuthMethod.LOGIN)
     }
 
     const authResponse = await api<AuthResponse, LoginBody>({
@@ -85,35 +85,35 @@ class Login extends React.Component<Props> {
       body: {
         email, password,
       },
-    });
+    })
 
     if (authResponse.status) {
-      localStorage.setItem('access_token', (authResponse as AuthResponse).access_token);
-      localStorage.setItem('refresh_token', (authResponse as AuthResponse).refresh_token);
+      localStorage.setItem('access_token', (authResponse as AuthResponse).access_token)
+      localStorage.setItem('refresh_token', (authResponse as AuthResponse).refresh_token)
 
       if (serverError) {
-        toggleSeverError(AuthMethod.LOGIN);
+        toggleSeverError(AuthMethod.LOGIN)
       }
-      history.push('/');
+      history.push('/')
     } else if (!serverError) {
-      toggleSeverError(AuthMethod.LOGIN);
+      toggleSeverError(AuthMethod.LOGIN)
     }
   };
 
   onEmailChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const { changeEmail } = this.props;
+    const { changeEmail } = this.props
 
-    changeEmail(ev.target.value, AuthMethod.LOGIN);
+    changeEmail(ev.target.value, AuthMethod.LOGIN)
   };
 
   onPasswordChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const { changePassword } = this.props;
+    const { changePassword } = this.props
 
-    changePassword(ev.target.value, AuthMethod.LOGIN);
+    changePassword(ev.target.value, AuthMethod.LOGIN)
   };
 
   render(): JSX.Element {
-    const { invalidEmail, invalidPassword, serverError } = this.props;
+    const { invalidEmail, invalidPassword, serverError } = this.props
 
     return (
       <Card>
@@ -151,11 +151,11 @@ class Login extends React.Component<Props> {
           if you don&apos;t have an account yet.
         </p>
       </Card>
-    );
+    )
   }
 }
 
-const mapStateToProps = (state: RootState): LoginStateProps => ({ ...state.login });
+const mapStateToProps = (state: RootState): LoginStateProps => ({ ...state.login })
 
 const mapDispatchToProps = {
   changeEmail: changeEmailAction,
@@ -163,6 +163,6 @@ const mapDispatchToProps = {
   toggleEmailValidation: toggleEmailValidationAction,
   togglePasswordValidation: togglePasswordValidationAction,
   toggleSeverError: toggleServerErrorAction,
-};
+}
 
-export default connect<LoginStateProps, DispatchProps>(mapStateToProps, mapDispatchToProps)(Login);
+export default connect<LoginStateProps, DispatchProps>(mapStateToProps, mapDispatchToProps)(Login)

@@ -1,70 +1,70 @@
-import * as React from 'react';
-import { connect } from 'react-redux';
-import { Update } from 'history';
-import { history, RouterContext, locationToRoute } from './RouterContext';
-import setRouteAction from '../redux/actions/routerActions';
-import { RouterState } from '../redux/reducers/routerReducer';
-import { RootState } from '../redux/reducers';
+import * as React from 'react'
+import { connect } from 'react-redux'
+import { Update } from 'history'
+import { history, RouterContext, locationToRoute } from './RouterContext'
+import setRouteAction from '../redux/actions/routerActions'
+import { RouterState } from '../redux/reducers/routerReducer'
+import { RootState } from '../redux/reducers'
 
 interface DispatchProps {
-  setRoute: typeof setRouteAction;
+  setRoute: typeof setRouteAction
 }
 
 type OwnProps = {
   routes: {
     [key: string]: {
-      path: string;
-    };
+      path: string
+    }
   },
-  NotFound: typeof React.Component;
-};
+  NotFound: typeof React.Component
+}
 
-type Props = RouterState & DispatchProps & OwnProps & { children?: React.ReactNode; };
+type Props = RouterState & DispatchProps & OwnProps & { children?: React.ReactNode }
 
 class Router extends React.Component<Props> {
-  routes: string[];
+  routes: string[]
 
-  unlisten: () => void;
+  unlisten: () => void
 
   constructor(props: Props | Readonly<Props>) {
-    super(props);
-    this.routes = Object.keys(props.routes).map((key) => props.routes[key].path);
-    this.unlisten = history.listen(this.handleRouteChange);
-    props.setRoute(locationToRoute(history.location));
+    super(props)
+    this.routes = Object.keys(props.routes).map((key) => props.routes[key].path)
+    this.unlisten = history.listen(this.handleRouteChange)
+    props.setRoute(locationToRoute(history.location))
   }
 
   componentWillUnmount() {
-    this.unlisten();
+    this.unlisten()
   }
 
   handleRouteChange = (update: Update<object>) => {
-    const { setRoute } = this.props;
+    const { setRoute } = this.props
 
-    const route = locationToRoute(update.location);
-    setRoute(route);
+    const route = locationToRoute(update.location)
+    setRoute(route)
   };
 
   render() {
-    const { children, NotFound, route } = this.props;
+    const { children, NotFound, route } = this.props
     if (!route) {
-      return null;
+      return null
     }
-    const routerContextValue = { route };
-    const is404 = this.routes.indexOf(route.path) === -1;
+    const routerContextValue = { route }
+    const is404 = this.routes.indexOf(route.path) === -1
 
     return (
       <RouterContext.Provider value={routerContextValue}>
         {is404 ? <NotFound /> : children}
       </RouterContext.Provider>
-    );
+    )
   }
 }
 
-const mapStateToProps = (state: RootState): RouterState => ({ ...state.router });
+const mapStateToProps = (state: RootState): RouterState => ({ ...state.router })
 
 const mapDispatchToProps: DispatchProps = {
   setRoute: setRouteAction,
-};
+}
 
 export default connect<RouterState, DispatchProps, OwnProps>(mapStateToProps,
-  mapDispatchToProps)(Router);
+  mapDispatchToProps)(Router)

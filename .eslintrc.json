@@ -9,8 +9,10 @@
     "only-warn"
   ],
   "rules": {
-    "@typescript/semi": [
-      "off"
+    "@typescript-eslint/semi": 0,
+    "semi": [
+      2,
+      "never"
     ]
   }
 }

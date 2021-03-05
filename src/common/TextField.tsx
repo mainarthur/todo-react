@@ -1,52 +1,52 @@
-import * as React from 'react';
-import { connect } from 'react-redux';
-import { addTextFieldAction, setAnimationAction } from '../redux/actions/textFieldActions';
-import { RootState } from '../redux/reducers';
-import { TextField as TextFieldState } from '../redux/reducers/textFieldReducer';
-import ErrorLabel from './ErrorLabel';
-import './TextField.scss';
+import * as React from 'react'
+import { connect } from 'react-redux'
+import { addTextFieldAction, setAnimationAction } from '../redux/actions/textFieldActions'
+import { RootState } from '../redux/reducers'
+import { TextField as TextFieldState } from '../redux/reducers/textFieldReducer'
+import ErrorLabel from './ErrorLabel'
+import './TextField.scss'
 
 interface DispatchProps {
-  addTextField: typeof addTextFieldAction;
-  setAnimation: typeof setAnimationAction;
+  addTextField: typeof addTextFieldAction
+  setAnimation: typeof setAnimationAction
 }
 interface StateProps {
-  textFields: TextFieldState[];
+  textFields: TextFieldState[]
 }
 
 type OwnProps = {
-  className?: string;
-  type?: string;
-  id: string;
-  placeholder: string;
-  errorText?: string;
-  invalid?: boolean;
-  onChange?(ev: React.ChangeEvent<HTMLInputElement>): void;
-  value?: string;
-};
+  className?: string
+  type?: string
+  id: string
+  placeholder: string
+  errorText?: string
+  invalid?: boolean
+  onChange?(ev: React.ChangeEvent<HTMLInputElement>): void
+  value?: string
+}
 
-type Props = StateProps & OwnProps & DispatchProps;
+type Props = StateProps & OwnProps & DispatchProps
 
 class TextField extends React.Component<Props> {
   #prevValue: string = '';
 
   constructor(props: Props | Readonly<Props>) {
-    super(props);
+    super(props)
 
-    props.addTextField(props.id);
+    props.addTextField(props.id)
   }
 
   onInputFocus = () => {
-    const { setAnimation, id } = this.props;
-    setAnimation(id, '_maximizing');
+    const { setAnimation, id } = this.props
+    setAnimation(id, '_maximizing')
   };
 
   onInputBlur = (ev: React.FocusEvent<HTMLInputElement>) => {
-    const { target: { value } } = ev;
+    const { target: { value } } = ev
 
     if (value === '') {
-      const { setAnimation, id } = this.props;
-      setAnimation(id, '_minimizing');
+      const { setAnimation, id } = this.props
+      setAnimation(id, '_minimizing')
     }
   };
 
@@ -61,21 +61,21 @@ class TextField extends React.Component<Props> {
       errorText,
       invalid,
       textFields,
-    } = this.props;
+    } = this.props
 
-    const currentTextfield = textFields.find((e) => e.id === id);
+    const currentTextfield = textFields.find((e) => e.id === id)
 
     if (!currentTextfield) {
-      return null;
+      return null
     }
 
-    let { animation } = currentTextfield;
+    let { animation } = currentTextfield
 
     if (value === '' && this.#prevValue !== '' && animation === '_maximizing') {
-      animation = '_minimizing';
+      animation = '_minimizing'
     }
 
-    this.#prevValue = value;
+    this.#prevValue = value
 
     return (
       <div
@@ -103,16 +103,16 @@ class TextField extends React.Component<Props> {
         </div>
         { errorText && <ErrorLabel invalid={invalid}>{errorText}</ErrorLabel>}
       </div>
-    );
+    )
   }
 }
 
-const mapStateToProps = (state: RootState): StateProps => ({ textFields: state.textFields });
+const mapStateToProps = (state: RootState): StateProps => ({ textFields: state.textFields })
 
 const mapDispatchToProps: DispatchProps = {
   addTextField: addTextFieldAction,
   setAnimation: setAnimationAction,
-};
+}
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps,
-  mapDispatchToProps)(TextField);
+  mapDispatchToProps)(TextField)

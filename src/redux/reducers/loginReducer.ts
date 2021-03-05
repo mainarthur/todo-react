@@ -1,13 +1,13 @@
-import { AuthAction, AuthMethod } from '../constants';
-import AuthActions from '../types/authTypes';
+import { AuthAction, AuthMethod } from '../constants'
+import AuthActions from '../types/authTypes'
 
 export type LoginState = {
-  email: string;
-  password: string;
-  invalidEmail: boolean;
-  invalidPassword: boolean;
-  serverError: boolean;
-};
+  email: string
+  password: string
+  invalidEmail: boolean
+  invalidPassword: boolean
+  serverError: boolean
+}
 
 const initialState: LoginState = {
   email: '',
@@ -15,36 +15,36 @@ const initialState: LoginState = {
   invalidEmail: false,
   invalidPassword: false,
   serverError: false,
-};
+}
 
 export default function loginReducer(state = initialState, action: AuthActions): LoginState {
   if (action.method === AuthMethod.LOGIN) {
-    const newState = { ...state };
+    const newState = { ...state }
     switch (action.type) {
       case AuthAction.CHANGE_EMAIL:
-        newState.email = action.payload;
+        newState.email = action.payload
 
-        return newState;
+        return newState
       case AuthAction.CHANGE_PASSWORD:
-        newState.password = action.payload;
+        newState.password = action.payload
 
-        return newState;
+        return newState
       case AuthAction.TOGGLE_EMAIL_VALIDATION:
-        newState.invalidEmail = !newState.invalidEmail;
+        newState.invalidEmail = !newState.invalidEmail
 
-        return newState;
+        return newState
       case AuthAction.TOGGLE_PASSWORD_VALIDATION:
-        newState.invalidPassword = !newState.invalidPassword;
+        newState.invalidPassword = !newState.invalidPassword
 
-        return newState;
+        return newState
       case AuthAction.TOGGLE_SERVER_ERROR:
-        newState.serverError = !newState.serverError;
+        newState.serverError = !newState.serverError
 
-        return newState;
+        return newState
       default:
-        return state;
+        return state
     }
   } else {
-    return state;
+    return state
   }
 }

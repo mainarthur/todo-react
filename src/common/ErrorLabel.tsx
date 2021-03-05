@@ -1,17 +1,17 @@
-import * as React from 'react';
-import './ErrorLabel.scss';
+import * as React from 'react'
+import './ErrorLabel.scss'
 
 type Props = {
-  invalid?: boolean;
-  className?: string;
-  htmlFor?: string;
-};
+  invalid?: boolean
+  className?: string
+  htmlFor?: string
+}
 
 class ErrorLabel extends React.PureComponent<Props> {
   render(): JSX.Element {
     const {
       invalid, className, htmlFor, children,
-    } = this.props;
+    } = this.props
     return (
       <label
         htmlFor={htmlFor}
@@ -19,7 +19,7 @@ class ErrorLabel extends React.PureComponent<Props> {
       >
         {children}
       </label>
-    );
+    )
   }
 }
-export default ErrorLabel;
+export default ErrorLabel

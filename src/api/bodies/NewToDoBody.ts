@@ -1,3 +1,3 @@
 export default interface RefreshTokenBody {
-  text: string;
+  text: string
 }

@@ -1,23 +1,23 @@
-import ToDo from '../../models/ToDo';
-import { ToDoAction } from '../constants';
-import ToDoActions from '../types/todoTypes';
+import ToDo from '../../models/ToDo'
+import { ToDoAction } from '../constants'
+import ToDoActions from '../types/todoTypes'
 
-export type TodosState = ToDo[];
+export type TodosState = ToDo[]
 
-const initialState: TodosState = [];
+const initialState: TodosState = []
 
 export default function todosReducer(state = initialState, action: ToDoActions): TodosState {
-  let newState = [...state];
+  let newState = [...state]
   switch (action.type) {
     case ToDoAction.ADD_TODO:
-      newState = newState.concat([{ ...action.payload }]);
+      newState = newState.concat([{ ...action.payload }])
 
-      return newState;
+      return newState
     case ToDoAction.SET_TODOS:
-      newState = [...action.payload];
+      newState = [...action.payload]
 
-      return newState;
+      return newState
     default:
-      return state;
+      return state
   }
 }

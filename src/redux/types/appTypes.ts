@@ -1,11 +1,11 @@
-import User from '../../models/User';
-import { AppAction } from '../constants';
+import User from '../../models/User'
+import { AppAction } from '../constants'
 
 export interface SetUserAction {
-  type: AppAction.SET_USER;
-  payload: User;
+  type: AppAction.SET_USER
+  payload: User
 }
 
-type AppActions = SetUserAction;
+type AppActions = SetUserAction
 
-export default AppActions;
+export default AppActions

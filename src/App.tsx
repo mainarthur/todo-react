@@ -1,64 +1,64 @@
-import * as React from 'react';
-import { connect } from 'react-redux';
-import Card from './common/Card';
-import './App.scss';
-import NewToDo from './todo/NewToDo';
-import ToDoList from './todo/ToDoList';
-import { history } from './routing/RouterContext';
-import UserResponse from './api/responses/UserResponse';
-import { api, refreshTokens } from './api/api';
-import Console from './logging/Console';
-import { AppState } from './redux/reducers/appReducer';
-import setUserAction from './redux/actions/appActions';
-import { RootState } from './redux/reducers';
+import * as React from 'react'
+import { connect } from 'react-redux'
+import Card from './common/Card'
+import './App.scss'
+import NewToDo from './todo/NewToDo'
+import ToDoList from './todo/ToDoList'
+import { history } from './routing/RouterContext'
+import UserResponse from './api/responses/UserResponse'
+import { api, refreshTokens } from './api/api'
+import Console from './logging/Console'
+import { AppState } from './redux/reducers/appReducer'
+import setUserAction from './redux/actions/appActions'
+import { RootState } from './redux/reducers'
 
 interface DispatchProps {
-  setUser: typeof setUserAction;
+  setUser: typeof setUserAction
 }
 
-type Props = DispatchProps & AppState;
+type Props = DispatchProps & AppState
 
 class App extends React.Component<Props> {
   constructor(props: Props | Readonly<Props>) {
-    super(props);
+    super(props)
     if (localStorage.getItem('access_token') == null) {
-      history.push('/login');
+      history.push('/login')
     }
   }
 
   async componentDidMount() {
     try {
-      await refreshTokens();
+      await refreshTokens()
 
-      const { user: userFromState, setUser } = this.props;
+      const { user: userFromState, setUser } = this.props
 
       if (!userFromState) {
         const user = await api<UserResponse, {}>({
           endpoint: '/user',
-        });
+        })
 
         if (user.status) {
-          setUser((user as UserResponse).result);
+          setUser((user as UserResponse).result)
         } else if (userFromState) {
-          setUser(null);
+          setUser(null)
         }
       }
     } catch (err) {
-      Console.err(err);
+      Console.err(err)
     }
   }
 
   componentWillUnmount() {
-    const { setUser } = this.props;
+    const { setUser } = this.props
 
-    setUser(null);
+    setUser(null)
   }
 
   render(): JSX.Element {
-    const { user } = this.props;
+    const { user } = this.props
 
     if (!user) {
-      return null;
+      return null
     }
 
     return (
@@ -70,15 +70,15 @@ class App extends React.Component<Props> {
           <ToDoList user={user} />
         </Card>
       </>
-    );
+    )
   }
 }
 
-const mapStateToProps = (state: RootState): AppState => ({ ...state.app });
+const mapStateToProps = (state: RootState): AppState => ({ ...state.app })
 
 const mapDispatchToProps: DispatchProps = {
   setUser: setUserAction,
-};
+}
 
 export default connect<AppState, DispatchProps>(mapStateToProps,
-  mapDispatchToProps)(App);
+  mapDispatchToProps)(App)

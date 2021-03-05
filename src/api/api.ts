@@ -1,31 +1,31 @@
-import Console from '../logging/Console';
-import { history } from '../routing/RouterContext';
-import RefreshTokenBody from './bodies/RefreshTokenBody';
-import Request from './Request';
-import Response from './Response';
-import AuthResponse from './responses/AuthResponse';
+import Console from '../logging/Console'
+import { history } from '../routing/RouterContext'
+import RefreshTokenBody from './bodies/RefreshTokenBody'
+import Request from './Request'
+import Response from './Response'
+import AuthResponse from './responses/AuthResponse'
 
-const API_URL: string = 'http://api.todolist.local';
+const API_URL: string = 'http://api.todolist.local'
 
 async function call<B>(opts: Request<B>): Promise<globalThis.Response> {
   let {
     method, headers,
-  } = opts;
+  } = opts
 
   const {
     endpoint: url, body,
-  } = opts;
+  } = opts
 
   if (!method) {
-    method = 'GET';
+    method = 'GET'
   }
 
   if (!headers) {
-    headers = {};
+    headers = {}
   }
 
   if (localStorage.getItem('access_token')) {
-    headers.Authorization = `Bearer ${localStorage.getItem('access_token')}`;
+    headers.Authorization = `Bearer ${localStorage.getItem('access_token')}`
   }
 
   try {
@@ -37,12 +37,12 @@ async function call<B>(opts: Request<B>): Promise<globalThis.Response> {
         'Content-type': 'application/json',
         ...headers,
       },
-    });
+    })
 
-    return res;
+    return res
   } catch (err) {
-    Console.err(err);
-    throw err;
+    Console.err(err)
+    throw err
   }
 }
 
@@ -53,36 +53,36 @@ export const refreshTokens = async (): Promise<boolean> => {
     body: {
       refresh_token: localStorage.getItem('refresh_token'),
     },
-  });
+  })
 
   if (authResponse.status === 200) {
-    const authData = await authResponse.json();
+    const authData = await authResponse.json()
 
-    localStorage.setItem('access_token', (authData as AuthResponse).access_token);
-    localStorage.setItem('refresh_token', (authData as AuthResponse).refresh_token);
+    localStorage.setItem('access_token', (authData as AuthResponse).access_token)
+    localStorage.setItem('refresh_token', (authData as AuthResponse).refresh_token)
 
-    return true;
+    return true
   }
 
-  localStorage.clear();
-  history.push('/login');
+  localStorage.clear()
+  history.push('/login')
 
-  return false;
-};
+  return false
+}
 
 export const api = async <T extends Response, B>(opts: Request<B>): Promise<T | Response> => {
   try {
-    const response = await call<B>(opts);
+    const response = await call<B>(opts)
 
     if (response.status === 401) {
       if (await refreshTokens()) {
-        return await api<T, B>(opts);
+        return await api<T, B>(opts)
       }
-      return { error: 'tokens error', status: false };
+      return { error: 'tokens error', status: false }
     }
-    return await response.json();
+    return await response.json()
   } catch (err) {
-    Console.err(err);
-    return { error: err, status: false };
+    Console.err(err)
+    return { error: err, status: false }
   }
-};
+}

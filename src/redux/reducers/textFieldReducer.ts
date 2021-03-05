@@ -1,38 +1,38 @@
-import { TextFieldAction } from '../constants';
-import TextFieldActions from '../types/textFieldTypes';
+import { TextFieldAction } from '../constants'
+import TextFieldActions from '../types/textFieldTypes'
 
 export interface TextField {
-  id: string;
-  animation: string;
+  id: string
+  animation: string
 }
 
-type TextFieldState = TextField[];
+type TextFieldState = TextField[]
 
-const initialState: TextFieldState = [];
+const initialState: TextFieldState = []
 
 export default function textFieldReducer(state = initialState, action: TextFieldActions) {
-  let newState = [...state];
+  let newState = [...state]
   switch (action.type) {
     case TextFieldAction.ADD_TEXTFIELD:
       newState = newState.concat([{
         id: action.payload,
         animation: '',
-      }]);
+      }])
 
-      return newState;
+      return newState
     case TextFieldAction.SET_ANIMATION:
       newState = newState.map((textField) => {
         if (textField.id === action.payload.id) {
-          const newTextField = { ...textField };
-          newTextField.animation = action.payload.animation;
-          return newTextField;
+          const newTextField = { ...textField }
+          newTextField.animation = action.payload.animation
+          return newTextField
         }
 
-        return textField;
-      });
+        return textField
+      })
 
-      return newState;
+      return newState
     default:
-      return newState;
+      return newState
   }
 }
