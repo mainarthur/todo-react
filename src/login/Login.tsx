@@ -19,7 +19,6 @@ import {
 import Link from '../routing/Link'
 import { history } from '../routing/RouterContext'
 import { isValidEmail, isValidPassword } from '../utils'
-import './Login.scss'
 
 interface LoginStateProps {
   email: string

@@ -2,7 +2,6 @@ import * as React from 'react'
 import Button from '@material-ui/core/Button'
 import { log } from '../logging/logger'
 import ClassNames from './ClassNames'
-import './ToDoElement.scss'
 
 type Props = {
   id: string

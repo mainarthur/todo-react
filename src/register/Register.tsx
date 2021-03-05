@@ -22,7 +22,6 @@ import { RegisterState } from '../redux/reducers/registerReducer'
 import Link from '../routing/Link'
 import { history } from '../routing/RouterContext'
 import { isValidEmail, isValidName, isValidPassword } from '../utils'
-import './Register.scss'
 
 interface DispatchProps {
   changeEmail: typeof changeEmailAction

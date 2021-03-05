@@ -1,5 +1,4 @@
 import * as React from 'react'
-import './styles.scss'
 
 class NotFound extends React.PureComponent {
   render(): JSX.Element {

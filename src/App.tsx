@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 import Card from './common/Card'
-import './App.scss'
 import NewToDo from './todo/NewToDo'
 import ToDoList from './todo/ToDoList'
 import { history } from './routing/RouterContext'

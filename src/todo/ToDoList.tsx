@@ -15,7 +15,6 @@ import { RootState } from '../redux/reducers'
 import { history } from '../routing/RouterContext'
 import ClassNames from './ClassNames'
 import ToDoElement from './ToDoElement'
-import './ToDoList.scss'
 
 interface DispatchProps {
   setToDos: typeof setTodosAction

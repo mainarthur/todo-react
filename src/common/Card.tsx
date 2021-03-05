@@ -1,5 +1,4 @@
 import * as React from 'react'
-import './Card.scss'
 
 type Props = {
   id?: string

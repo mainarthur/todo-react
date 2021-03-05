@@ -1,5 +1,4 @@
 import * as React from 'react'
-import './ErrorLabel.scss'
 
 type Props = {
   invalid?: boolean

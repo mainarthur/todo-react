@@ -12,7 +12,6 @@ import { changeNewToDoTextAction, toggleTextErrorAction } from '../redux/actions
 import { addToDoAction } from '../redux/actions/toDoActions'
 import { RootState } from '../redux/reducers'
 import { NewToDoState } from '../redux/reducers/newToDoReducer'
-import './NewToDo.scss'
 
 interface DispatchProps {
   changeText: typeof changeNewToDoTextAction

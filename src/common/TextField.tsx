@@ -4,7 +4,6 @@ import { addTextFieldAction, setAnimationAction } from '../redux/actions/textFie
 import { RootState } from '../redux/reducers'
 import { TextField as TextFieldState } from '../redux/reducers/textFieldReducer'
 import ErrorLabel from './ErrorLabel'
-import './TextField.scss'
 
 interface DispatchProps {
   addTextField: typeof addTextFieldAction
