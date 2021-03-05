@@ -4,6 +4,7 @@ import registerReducer from './registerReducer';
 import newToDoReducer from './newToDoReducer';
 import textFieldReducer from './textFieldReducer';
 import appReducer from './appReducer';
+import routerReducer from './routerReducer';
 
 const rootReducer = combineReducers({
   login: loginReducer,
@@ -11,6 +12,7 @@ const rootReducer = combineReducers({
   newToDo: newToDoReducer,
   textFields: textFieldReducer,
   app: appReducer,
+  router: routerReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

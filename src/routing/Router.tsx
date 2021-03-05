@@ -1,8 +1,16 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { Update } from 'history';
 import { history, RouterContext, locationToRoute } from './RouterContext';
+import setRouteAction from '../redux/actions/routerActions';
+import { RouterState } from '../redux/reducers/routerReducer';
+import { RootState } from '../redux/reducers';
 
-type Props = {
+interface DispatchProps {
+  setRoute: typeof setRouteAction;
+}
+
+type OwnProps = {
   routes: {
     [key: string]: {
       path: string;
@@ -11,15 +19,9 @@ type Props = {
   NotFound: typeof React.Component;
 };
 
-type State = {
-  route: {
-    path: string;
-    hash: string;
-    query: object;
-  };
-};
+type Props = RouterState & DispatchProps & OwnProps & { children?: React.ReactNode; };
 
-class Router extends React.Component<Props, State> {
+class Router extends React.Component<Props> {
   routes: string[];
 
   unlisten: () => void;
@@ -28,9 +30,7 @@ class Router extends React.Component<Props, State> {
     super(props);
     this.routes = Object.keys(props.routes).map((key) => props.routes[key].path);
     this.unlisten = history.listen(this.handleRouteChange);
-    this.state = {
-      route: locationToRoute(history.location),
-    };
+    props.setRoute(locationToRoute(history.location));
   }
 
   componentWillUnmount() {
@@ -38,13 +38,17 @@ class Router extends React.Component<Props, State> {
   }
 
   handleRouteChange = (update: Update<object>) => {
+    const { setRoute } = this.props;
+
     const route = locationToRoute(update.location);
-    this.setState({ route });
+    setRoute(route);
   };
 
   render() {
-    const { children, NotFound } = this.props;
-    const { route } = this.state;
+    const { children, NotFound, route } = this.props;
+    if (!route) {
+      return null;
+    }
     const routerContextValue = { route };
     const is404 = this.routes.indexOf(route.path) === -1;
 
@@ -56,4 +60,11 @@ class Router extends React.Component<Props, State> {
   }
 }
 
-export default Router;
+const mapStateToProps = (state: RootState): RouterState => ({ ...state.router });
+
+const mapDispatchToProps: DispatchProps = {
+  setRoute: setRouteAction,
+};
+
+export default connect<RouterState, DispatchProps, OwnProps>(mapStateToProps,
+  mapDispatchToProps)(Router);

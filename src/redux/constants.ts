@@ -31,3 +31,7 @@ export enum AppAction {
   UPDATE_TODO_STATUS = 'AppAction.UPDATE_TODO_STATUS',
   DELETE_TODO = 'AppAction.DELETE_TODO',
 }
+
+export enum RouterAction {
+  SET_ROUTE = 'RouterAction.SET_ROUTE',
+}

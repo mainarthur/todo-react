@@ -19,23 +19,19 @@ const store = createStore(
 /* eslint-enable */
 
 ReactDOM.render(
-  <Router routes={routes} NotFound={NotFound}>
-    <h1 className="title">TO-DO LIST</h1>
-    <Route path={routes.home.path}>
-      <Provider store={store}>
+  <Provider store={store}>
+    <Router routes={routes} NotFound={NotFound}>
+      <h1 className="title">TO-DO LIST</h1>
+      <Route path={routes.home.path}>
         <App />
-      </Provider>
-    </Route>
-    <Route path={routes.login.path}>
-      <Provider store={store}>
+      </Route>
+      <Route path={routes.login.path}>
         <Login />
-      </Provider>
-    </Route>
-    <Route path={routes.register.path}>
-      <Provider store={store}>
+      </Route>
+      <Route path={routes.register.path}>
         <Register />
-      </Provider>
-    </Route>
-  </Router>,
+      </Route>
+    </Router>
+  </Provider>,
   document.querySelector('.root'),
 );
