@@ -1,16 +1,15 @@
 import * as React from 'react'
+import { MouseEvent as RMouseEvent, KeyboardEvent } from 'react'
 import './Button.scss'
 
 type Props = {
   className?: string
   id?: string
-  onClick?(event: React.MouseEvent<HTMLDivElement, MouseEvent> |
-    React.KeyboardEvent<HTMLDivElement>): void
+  onClick?(event: RMouseEvent<HTMLDivElement, MouseEvent> | KeyboardEvent<HTMLDivElement>): void
 }
 
 class Button extends React.Component<Props> {
-  onDivClicked = (ev: React.MouseEvent<HTMLDivElement, MouseEvent> |
-    React.KeyboardEvent<HTMLDivElement>) => {
+  onDivClicked = (ev: RMouseEvent<HTMLDivElement, MouseEvent> | KeyboardEvent<HTMLDivElement>) => {
     const {
       onClick,
     } = this.props
