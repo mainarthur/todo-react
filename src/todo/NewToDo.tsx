@@ -1,9 +1,9 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
+import Button from '@material-ui/core/Button'
 import { api } from '../api/api'
 import NewToDoBody from '../api/bodies/NewToDoBody'
 import NewToDoResponse from '../api/responses/NewToDoResponse'
-import Button from '../common/Button'
 import Card from '../common/Card'
 import ErrorLabel from '../common/ErrorLabel'
 import TextField from '../common/TextField'
@@ -127,7 +127,8 @@ class NewToDo extends React.Component<Props> {
           />
           <Button
             id="add-todo"
-            className="new-todo__btn-add"
+            variant="contained"
+            color="primary"
             onClick={this.onButtonClick}
           >
             ADD

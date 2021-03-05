@@ -1,9 +1,9 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
+import Button from '@material-ui/core/Button'
 import { api } from '../api/api'
 import LoginBody from '../api/bodies/LoginBody'
 import AuthResponse from '../api/responses/AuthResponse'
-import Button from '../common/Button'
 import Card from '../common/Card'
 import ErrorLabel from '../common/ErrorLabel'
 import TextField from '../common/TextField'
@@ -135,7 +135,8 @@ class Login extends React.Component<Props> {
           onChange={this.onPasswordChange}
         />
         <Button
-          className="login__button"
+          color="primary"
+          variant="contained"
           onClick={this.onLoginButtonClick}
         >
           Login

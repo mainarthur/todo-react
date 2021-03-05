@@ -1,11 +1,11 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
+import Button from '@material-ui/core/Button'
 import { api } from '../api/api'
 import UpdateToDoBody from '../api/bodies/UpdateToDoBody'
 import DeleteResponse from '../api/responses/DeleteResponse'
 import ToDoListResponse from '../api/responses/ToDoListResponse'
 import UpdateToDoResponse from '../api/responses/UpdateToDoResponse'
-import Button from '../common/Button'
 import { connectDB, defaultStoreName } from '../indexeddb/connect'
 import { err, log } from '../logging/logger'
 import ToDo from '../models/ToDo'
@@ -226,12 +226,14 @@ class ToDoList extends React.Component<Props> {
       <div className="todos">
         <div className="todos_center">
           <Button
-            className="todos__btn todos__btn-clear"
+            variant="contained"
+            color="primary"
           >
             CLEAR ALL
           </Button>
           <Button
-            className="todos__btn todos__btn-logout"
+            variant="contained"
+            color="primary"
             onClick={this.onLogOutClick}
           >
             LOGOUT

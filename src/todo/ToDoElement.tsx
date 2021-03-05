@@ -1,5 +1,5 @@
 import * as React from 'react'
-import Button from '../common/Button'
+import Button from '@material-ui/core/Button'
 import { log } from '../logging/logger'
 import ClassNames from './ClassNames'
 import './ToDoElement.scss'
@@ -187,7 +187,8 @@ class ToDoElement extends React.Component<Props, State> {
         <span className="todo_centered-horizontally">
           <Button
             onClick={this.onDeleteButtonClick}
-            className={ClassNames.DELETE_CLASSNAME}
+            color="primary"
+            variant="contained"
           >
             X
           </Button>
