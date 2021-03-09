@@ -9,13 +9,19 @@ import { err } from './logging/logger'
 import { AppState } from './redux/reducers/appReducer'
 import setUserAction from './redux/actions/appActions'
 import { RootState } from './redux/reducers'
-import { Box, Container, Grid, Toolbar } from '@material-ui/core'
+import { Box, createStyles, Grid, Theme, Toolbar, withStyles, WithStyles } from '@material-ui/core'
 
 interface DispatchProps {
   setUser: typeof setUserAction
 }
 
-type Props = DispatchProps & AppState
+const styles = (theme: Theme) => createStyles({
+  root: {
+    marginTop: theme.spacing(4),
+  },
+})
+
+type Props = DispatchProps & AppState & WithStyles<typeof styles>
 
 class App extends React.Component<Props> {
   constructor(props: Props | Readonly<Props>) {
@@ -54,7 +60,7 @@ class App extends React.Component<Props> {
   }
 
   render(): JSX.Element {
-    const { user } = this.props
+    const { user, classes } = this.props
 
     if (!user) {
       return null
@@ -68,8 +74,11 @@ class App extends React.Component<Props> {
           direction="column"
           justify="flex-start"
           alignItems="center"
+          spacing={3}
+          className={classes.root}
         >
           <NewToDo />
+          <ToDoList user={user} />
         </Grid>
       </Box>
     )
@@ -82,5 +91,7 @@ const mapDispatchToProps: DispatchProps = {
   setUser: setUserAction,
 }
 
-export default connect<AppState, DispatchProps>(mapStateToProps,
-  mapDispatchToProps)(App)
+export default connect<AppState, DispatchProps>(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withStyles(styles)(App))

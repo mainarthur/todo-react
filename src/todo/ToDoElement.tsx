@@ -2,6 +2,8 @@ import * as React from 'react'
 import Button from '@material-ui/core/Button'
 import { log } from '../logging/logger'
 import ClassNames from './ClassNames'
+import DeleteIcon from "@material-ui/icons/Delete"
+import { Checkbox, IconButton, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText } from '@material-ui/core'
 
 type Props = {
   id: string
@@ -163,37 +165,31 @@ class ToDoElement extends React.Component<Props, State> {
 
   render(): JSX.Element {
     const {
-      text, done, id,
+      text, done, id
     } = this.props
 
     return (
-      <li
-        id={id}
-        role="option"
-        aria-selected="false"
-        className="todo"
-        onMouseDown={this.onMouseDown}
+      <ListItem
+        role={undefined}
+        dense
+        button
       >
-        <input
-          className={ClassNames.CHECKBOX_CLASSNAME}
-          type="checkbox"
-          checked={done}
-          onChange={this.onCheckBoxChange}
-        />
-        <span className={`todo__text${done ? ' todo__text_done' : ''}`}>
-          {text}
-        </span>
-        <span className="todo_centered-horizontally">
-          <Button
-            onClick={this.onDeleteButtonClick}
-            color="primary"
-            variant="contained"
-          >
-            X
-          </Button>
-        </span>
-        <hr className="todo__divider" />
-      </li>
+        <ListItemIcon>
+          <Checkbox
+            onChange={this.onCheckBoxChange}
+            edge="start"
+            checked={done}
+            tabIndex={-1}
+            disableRipple
+          />
+        </ListItemIcon>
+        <ListItemText primary={text} />
+        <ListItemSecondaryAction>
+          <IconButton edge="end" onClick={this.onDeleteButtonClick}>
+            <DeleteIcon />
+          </IconButton>
+        </ListItemSecondaryAction>
+      </ListItem>
     )
   }
 }

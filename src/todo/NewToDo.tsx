@@ -1,14 +1,17 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
+import Alert from '@material-ui/lab/Alert'
 import {
   createStyles,
   Grid,
   IconButton,
   Paper,
-  TextField,
   Theme,
   WithStyles,
   withStyles,
+  Input,
+  InputAdornment,
+  Snackbar,
 } from '@material-ui/core'
 import { Add } from '@material-ui/icons'
 import { api } from '../api/api'
@@ -34,6 +37,16 @@ type StateProps = {
 const styles = (theme: Theme) => createStyles({
   addIcon: {
     fill: theme.palette.secondary.main,
+  },
+  paper: {
+    minWidth: '25vw',
+    paddingRight: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+  },
+  input: {
+    width: '100%',
   },
 })
 
@@ -111,19 +124,54 @@ class NewToDo extends React.Component<Props> {
     changeText(newText)
   };
 
+  handleKeyPress = (ev: React.KeyboardEvent<HTMLInputElement>) => {
+    if (ev.key === 'Enter') {
+      this.onButtonClick()
+    }
+  }
+
+  onSnackBarClose = () => {
+    const { newTodoState: { invalidText }, toggleTextError } = this.props
+
+    if (invalidText) {
+      toggleTextError()
+    }
+  }
+
   render(): JSX.Element {
-    const { newTodoState: { textFieldValue, invalidText }, classes } = this.props
+    const { newTodoState: { invalidText, textFieldValue }, classes } = this.props
 
     return (
-      <Grid container item alignItems="center">
-        <Grid item>
-          <Paper>
-            <TextField color="secondary" />
-            <IconButton>
-              <Add className={classes.addIcon} />
-            </IconButton>
-          </Paper>
-        </Grid>
+      <Grid item>
+        <Paper className={classes.paper}>
+          <Input
+            color="secondary"
+            className={classes.input}
+            onChange={this.onTextChange}
+            value={textFieldValue}
+            onKeyPress={this.handleKeyPress}
+            placeholder="New task"
+            endAdornment={
+              (
+                <InputAdornment position="end">
+                  <IconButton onClick={this.onButtonClick}>
+                    <Add className={classes.addIcon} />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }
+          />
+        </Paper>
+        <Snackbar open={invalidText}>
+          <Alert
+            elevation={6}
+            variant="filled"
+            severity="error"
+            onClose={this.onSnackBarClose}
+          >
+            Text is required
+          </Alert>
+        </Snackbar>
       </Grid>
     )
   }

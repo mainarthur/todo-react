@@ -1,6 +1,13 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 import Button from '@material-ui/core/Button'
+import {
+  ButtonGroup,
+  Container,
+  Grid,
+  List,
+  Paper,
+} from '@material-ui/core'
 import { api } from '../api/api'
 import UpdateToDoBody from '../api/bodies/UpdateToDoBody'
 import DeleteResponse from '../api/responses/DeleteResponse'
@@ -223,38 +230,42 @@ class ToDoList extends React.Component<Props> {
     } = this.props
     return (
       <div className="todos">
-        <div className="todos_center">
-          <Button
-            variant="contained"
-            color="primary"
-          >
-            CLEAR ALL
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={this.onLogOutClick}
-          >
-            LOGOUT
-          </Button>
-        </div>
-        <ul className={ClassNames.TODOLIST_CLASSNAME}>
-          {todos.map((toDo) => {
-            const { _id: tId } = toDo
+        <Container className="todos_center">
+          <ButtonGroup>
+            <Button
+              variant="contained"
+              color="secondary"
+            >
+              Clear All
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={this.onLogOutClick}
+            >
+              Clear Done
+            </Button>
+          </ButtonGroup>
+        </Container>
+        <Paper>
+          <List>
+            {todos.map((toDo) => {
+              const { _id: tId } = toDo
 
-            return (
-              <ToDoElement
-                key={tId}
-                id={tId}
-                text={toDo.text}
-                done={toDo.done}
-                onDelete={this.onToDoDeleted}
-                onStatusChange={this.onToDoStatusChanged}
-                onPositionChange={this.onToDoPositionChanged}
-              />
-            )
-          })}
-        </ul>
+              return (
+                <ToDoElement
+                  key={tId}
+                  id={tId}
+                  text={toDo.text}
+                  done={toDo.done}
+                  onDelete={this.onToDoDeleted}
+                  onStatusChange={this.onToDoStatusChanged}
+                  onPositionChange={this.onToDoPositionChanged}
+                />
+              )
+            })}
+          </List>
+        </Paper>
         <div className={ClassNames.BOTTOM_DROPABLE} />
       </div>
     )
