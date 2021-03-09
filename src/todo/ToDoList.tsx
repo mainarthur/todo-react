@@ -4,9 +4,12 @@ import Button from '@material-ui/core/Button'
 import {
   ButtonGroup,
   Container,
-  Grid,
+  createStyles,
   List,
   Paper,
+  Theme,
+  withStyles,
+  WithStyles,
 } from '@material-ui/core'
 import { api } from '../api/api'
 import UpdateToDoBody from '../api/bodies/UpdateToDoBody'
@@ -23,6 +26,18 @@ import { history } from '../routing/RouterContext'
 import ClassNames from './ClassNames'
 import ToDoElement from './ToDoElement'
 
+const styles = (theme: Theme) => createStyles({
+  paper: {
+    minWidth: '25vw',
+    width: '100%',
+    maxWidth: '30vw',
+    marginTop: theme.spacing(2),
+  },
+  list: {
+    width: '100%',
+  },
+})
+
 interface DispatchProps {
   setToDos: typeof setTodosAction
 }
@@ -35,7 +50,7 @@ interface ToDoListState {
   todos: ToDo[]
 }
 
-type Props = OwnProps & DispatchProps & ToDoListState
+type Props = OwnProps & DispatchProps & ToDoListState & WithStyles<typeof styles>
 
 class ToDoList extends React.Component<Props> {
   constructor(props: Props | Readonly<Props>) {
@@ -227,6 +242,7 @@ class ToDoList extends React.Component<Props> {
   render(): JSX.Element {
     const {
       todos,
+      classes,
     } = this.props
     return (
       <div className="todos">
@@ -247,8 +263,8 @@ class ToDoList extends React.Component<Props> {
             </Button>
           </ButtonGroup>
         </Container>
-        <Paper>
-          <List>
+        <Paper className={classes.paper}>
+          <List className={classes.list}>
             {todos.map((toDo) => {
               const { _id: tId } = toDo
 
@@ -278,5 +294,7 @@ const mapDispatchToProps: DispatchProps = {
   setToDos: setTodosAction,
 }
 
-export default connect<ToDoListState, DispatchProps, OwnProps>(mapStateToProps,
-  mapDispatchToProps)(ToDoList)
+export default connect<ToDoListState, DispatchProps, OwnProps>(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withStyles(styles)(ToDoList))
