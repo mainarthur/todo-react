@@ -18,11 +18,6 @@ export enum NewToDoAction {
   TOGGLE_TEXT_ERROR = 'NewToDoAction.TOGGLE_TEXT_ERROR',
 }
 
-export enum TextFieldAction {
-  ADD_TEXTFIELD = 'TextFieldAction.ADD_TEXTFIELD',
-  SET_ANIMATION = 'TextFieldAction.SET_ANIMATION',
-}
-
 export enum AppAction {
   SET_USER = 'AppAction.SET_USER',
 }
@@ -34,4 +29,10 @@ export enum ToDoAction {
 
 export enum RouterAction {
   SET_ROUTE = 'RouterAction.SET_ROUTE',
+}
+
+export enum TokenAction {
+  SET_REFRESH_TOKEN = 'TokenAction.SET_REFRESH_TOKEN',
+  SET_ACCESS_TOKEN = 'TokenAction.SET_ACCESS_TOKEN',
+  DELETE_TOKENS = 'TokenAction.DELETE_TOKENS',
 }

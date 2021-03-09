@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
-import Card from './common/Card'
 import NewToDo from './todo/NewToDo'
 import ToDoList from './todo/ToDoList'
 import { history } from './routing/RouterContext'
@@ -10,6 +9,7 @@ import { err } from './logging/logger'
 import { AppState } from './redux/reducers/appReducer'
 import setUserAction from './redux/actions/appActions'
 import { RootState } from './redux/reducers'
+import { Grid, Toolbar } from '@material-ui/core'
 
 interface DispatchProps {
   setUser: typeof setUserAction
@@ -62,12 +62,13 @@ class App extends React.Component<Props> {
 
     return (
       <>
-        <Card>
+        <Toolbar />
+        <Grid
+          container
+          direction="column"
+        >
           <NewToDo />
-        </Card>
-        <Card id="todos-card">
-          <ToDoList user={user} />
-        </Card>
+        </Grid>
       </>
     )
   }

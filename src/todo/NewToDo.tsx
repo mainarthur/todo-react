@@ -1,12 +1,19 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
-import Button from '@material-ui/core/Button'
+import {
+  createStyles,
+  Grid,
+  IconButton,
+  Paper,
+  TextField,
+  Theme,
+  WithStyles,
+  withStyles,
+} from '@material-ui/core'
+import { Add } from '@material-ui/icons'
 import { api } from '../api/api'
 import NewToDoBody from '../api/bodies/NewToDoBody'
 import NewToDoResponse from '../api/responses/NewToDoResponse'
-import Card from '../common/Card'
-import ErrorLabel from '../common/ErrorLabel'
-import TextField from '../common/TextField'
 import ToDo from '../models/ToDo'
 import { changeNewToDoTextAction, toggleTextErrorAction } from '../redux/actions/newToDoActions'
 import { addToDoAction } from '../redux/actions/toDoActions'
@@ -24,7 +31,13 @@ type StateProps = {
   todos: ToDo[]
 }
 
-type Props = StateProps & DispatchProps
+const styles = (theme: Theme) => createStyles({
+  addIcon: {
+    fill: theme.palette.secondary.main,
+  },
+})
+
+type Props = StateProps & DispatchProps & WithStyles<typeof styles>
 
 class NewToDo extends React.Component<Props> {
   timerId: number
@@ -99,41 +112,17 @@ class NewToDo extends React.Component<Props> {
   };
 
   render(): JSX.Element {
-    const { newTodoState: { textFieldValue, invalidText } } = this.props
+    const { newTodoState: { textFieldValue, invalidText }, classes } = this.props
 
     return (
-      <div className="new-todo">
-        <ErrorLabel
-          className="new-todo__error-label"
-          invalid={invalidText}
-        >
-          <Card>
-            Text is required
-          </Card>
-        </ErrorLabel>
-        <form
-          className="new-todo__form"
-          id="main-form"
-          onSubmit={this.onFormSubmit}
-        >
-          <TextField
-            className="new-todo__input"
-            type="text"
-            id="todo-text"
-            placeholder="NEW TODO TEXT"
-            value={textFieldValue}
-            onChange={this.onTextChange}
-          />
-          <Button
-            id="add-todo"
-            variant="contained"
-            color="primary"
-            onClick={this.onButtonClick}
-          >
-            ADD
-          </Button>
-        </form>
-      </div>
+      <Paper>
+        <Grid alignItems="center">
+          <TextField color="secondary" />
+          <IconButton>
+            <Add className={classes.addIcon} />
+          </IconButton>
+        </Grid>
+      </Paper>
     )
   }
 }
@@ -149,5 +138,7 @@ const mapDispatchToProps: DispatchProps = {
   addToDo: addToDoAction,
 }
 
-export default connect<StateProps, DispatchProps>(mapStateToProps,
-  mapDispatchToProps)(NewToDo)
+export default connect<StateProps, DispatchProps>(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withStyles(styles)(NewToDo))

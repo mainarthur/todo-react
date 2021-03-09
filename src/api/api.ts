@@ -1,4 +1,6 @@
 import { err } from '../logging/logger'
+import { deleteTokensAction, setAccessTokenAction, setRefreshTokenAction } from '../redux/actions/tokenActions'
+import store from '../redux/store'
 import { history } from '../routing/RouterContext'
 import RefreshTokenBody from './bodies/RefreshTokenBody'
 import Request from './Request'
@@ -58,9 +60,16 @@ export const refreshTokens = async (): Promise<boolean> => {
 
     if (authResponse.status === 200) {
       const authData = await authResponse.json()
+      const auth = (authData as AuthResponse)
+      const {
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      } = auth
 
-      localStorage.setItem('access_token', (authData as AuthResponse).access_token)
-      localStorage.setItem('refresh_token', (authData as AuthResponse).refresh_token)
+      localStorage.setItem('access_token', accessToken)
+      localStorage.setItem('refresh_token', refreshToken)
+      store.dispatch(setAccessTokenAction(accessToken))
+      store.dispatch(setRefreshTokenAction(refreshToken))
 
       return true
     }
@@ -69,6 +78,7 @@ export const refreshTokens = async (): Promise<boolean> => {
   }
 
   localStorage.clear()
+  store.dispatch(deleteTokensAction())
   history.push('/login')
 
   return false

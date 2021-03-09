@@ -1,12 +1,18 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
-import Button from '@material-ui/core/Button'
+import Alert from '@material-ui/lab/Alert'
+import {
+  Grid,
+  Paper,
+  Snackbar,
+  TextField,
+  Typography,
+  withStyles,
+  Button,
+} from '@material-ui/core'
 import { api } from '../api/api'
 import LoginBody from '../api/bodies/LoginBody'
 import AuthResponse from '../api/responses/AuthResponse'
-import Card from '../common/Card'
-import ErrorLabel from '../common/ErrorLabel'
-import TextField from '../common/TextField'
 import { AuthMethod } from '../redux/constants'
 import { RootState } from '../redux/reducers'
 import {
@@ -19,13 +25,14 @@ import {
 import Link from '../routing/Link'
 import { history } from '../routing/RouterContext'
 import { isValidEmail, isValidPassword } from '../utils'
+import { setAccessTokenAction, setRefreshTokenAction } from '../redux/actions/tokenActions'
+import { LoginState } from '../redux/reducers/loginReducer'
+import { TokensState } from '../redux/reducers/tokensReducer'
+import styles, { StyleProps } from '../common/authStyles'
 
 interface LoginStateProps {
-  email: string
-  password: string
-  invalidEmail: boolean
-  invalidPassword: boolean
-  serverError: boolean
+  login: LoginState,
+  tokens: TokensState
 }
 
 interface DispatchProps {
@@ -34,9 +41,11 @@ interface DispatchProps {
   toggleEmailValidation: typeof toggleEmailValidationAction
   togglePasswordValidation: typeof togglePasswordValidationAction
   toggleSeverError: typeof toggleServerErrorAction
+  setAccessToken: typeof setAccessTokenAction
+  setRefreshToken: typeof setRefreshTokenAction
 }
 
-type Props = LoginStateProps & DispatchProps
+type Props = LoginStateProps & DispatchProps & StyleProps
 
 class Login extends React.Component<Props> {
   componentDidMount() {
@@ -47,15 +56,21 @@ class Login extends React.Component<Props> {
 
   onLoginButtonClick = async (): Promise<void> => {
     const {
+      toggleEmailValidation,
+      togglePasswordValidation,
+      toggleSeverError,
+      setAccessToken,
+      setRefreshToken,
+      login,
+    } = this.props
+
+    const {
       invalidEmail,
       invalidPassword,
       serverError,
       email: propEmail,
       password: propPassword,
-      toggleEmailValidation,
-      togglePasswordValidation,
-      toggleSeverError,
-    } = this.props
+    } = login
 
     const email = propEmail.trim()
     const password = propPassword.trim()
@@ -87,8 +102,16 @@ class Login extends React.Component<Props> {
     })
 
     if (authResponse.status) {
-      localStorage.setItem('access_token', (authResponse as AuthResponse).access_token)
-      localStorage.setItem('refresh_token', (authResponse as AuthResponse).refresh_token)
+      const auth = (authResponse as AuthResponse)
+      const {
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      } = auth
+
+      localStorage.setItem('access_token', accessToken)
+      localStorage.setItem('refresh_token', refreshToken)
+      setAccessToken(accessToken)
+      setRefreshToken(refreshToken)
 
       if (serverError) {
         toggleSeverError(AuthMethod.LOGIN)
@@ -97,72 +120,145 @@ class Login extends React.Component<Props> {
     } else if (!serverError) {
       toggleSeverError(AuthMethod.LOGIN)
     }
-  };
+  }
 
   onEmailChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const { changeEmail } = this.props
+    const { changeEmail, login, toggleEmailValidation } = this.props
+    const { invalidEmail } = login
+    const { target: { value } } = ev
 
-    changeEmail(ev.target.value, AuthMethod.LOGIN)
-  };
+    if (value === '' && invalidEmail) {
+      toggleEmailValidation(AuthMethod.LOGIN)
+    }
+
+    changeEmail(value, AuthMethod.LOGIN)
+  }
 
   onPasswordChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const { changePassword } = this.props
+    const { changePassword, login, togglePasswordValidation } = this.props
+    const { invalidPassword } = login
+    const { target: { value } } = ev
 
-    changePassword(ev.target.value, AuthMethod.LOGIN)
-  };
+    if (value === '' && invalidPassword) {
+      togglePasswordValidation(AuthMethod.LOGIN)
+    }
+
+    changePassword(value, AuthMethod.LOGIN)
+  }
+
+  onSnackBarClose = () => {
+    const { login, toggleSeverError } = this.props
+    const { serverError } = login
+
+    if (serverError) {
+      toggleSeverError(AuthMethod.LOGIN)
+    }
+  }
 
   render(): JSX.Element {
-    const { invalidEmail, invalidPassword, serverError } = this.props
+    const { login, classes } = this.props
+    const { invalidEmail, invalidPassword, serverError } = login
 
     return (
-      <Card>
-        <TextField
-          className="login__email"
-          id="email"
-          placeholder="Email"
-          invalid={invalidEmail}
-          errorText="Ivalid email format"
-          onChange={this.onEmailChange}
-        />
-        <TextField
-          className="login__password"
-          type="password"
-          id="password"
-          placeholder="Password"
-          invalid={invalidPassword}
-          errorText="Password is too weak"
-          onChange={this.onPasswordChange}
-        />
-        <Button
-          color="primary"
-          variant="contained"
-          onClick={this.onLoginButtonClick}
+      <Grid
+        container
+        spacing={0}
+        direction="column"
+        alignItems="center"
+        justify="center"
+        className={classes.root}
+      >
+        <Grid
+          item
         >
-          Login
-        </Button>
-        <ErrorLabel
-          className="login__error-label"
-          invalid={serverError}
+          <Paper className={classes.paper}>
+            <Grid
+              container
+              alignItems="center"
+              direction="column"
+              spacing={2}
+            >
+              <Grid
+                item
+                className={classes.gridItem}
+              >
+                <TextField
+                  error={invalidEmail}
+                  helperText={invalidEmail && 'Invalid email format'}
+                  label="Email"
+                  placeholder="test@gmail.com"
+                  variant="outlined"
+                  className={classes.textField}
+                  onChange={this.onEmailChange}
+                />
+              </Grid>
+              <Grid
+                item
+                className={classes.gridItem}
+              >
+                <TextField
+                  error={invalidPassword}
+                  helperText={invalidPassword && 'Password is too weak'}
+                  label="Password"
+                  variant="outlined"
+                  type="password"
+                  className={classes.textField}
+                  onChange={this.onPasswordChange}
+                />
+              </Grid>
+              <Grid item>
+                <Button
+                  className={classes.button}
+                  variant="contained"
+                  color="secondary"
+                  onClick={this.onLoginButtonClick}
+                >
+                  Login
+                </Button>
+              </Grid>
+              <Grid item>
+                <Typography>
+                  <Link to="/register">Register </Link>
+                  if you don&apos;t have an account yet.
+                </Typography>
+              </Grid>
+            </Grid>
+          </Paper>
+        </Grid>
+        <Snackbar
+          open={serverError}
+          autoHideDuration={4000}
+          onClose={this.onSnackBarClose}
         >
-          Login Problem: invalid email or password
-        </ErrorLabel>
-        <p>
-          <Link to="/register">Register </Link>
-          if you don&apos;t have an account yet.
-        </p>
-      </Card>
+          <Alert
+            elevation={6}
+            variant="filled"
+            severity="error"
+            onClose={this.onSnackBarClose}
+          >
+            Login problem
+          </Alert>
+        </Snackbar>
+      </Grid>
     )
   }
 }
 
-const mapStateToProps = (state: RootState): LoginStateProps => ({ ...state.login })
+const mapStateToProps = (state: RootState): LoginStateProps => ({
+  login: state.login,
+  tokens: state.tokens,
+})
 
-const mapDispatchToProps = {
+const mapDispatchToProps: DispatchProps = {
   changeEmail: changeEmailAction,
   changePassword: changePasswordAction,
   toggleEmailValidation: toggleEmailValidationAction,
   togglePasswordValidation: togglePasswordValidationAction,
   toggleSeverError: toggleServerErrorAction,
+  setAccessToken: setAccessTokenAction,
+  setRefreshToken: setRefreshTokenAction,
 }
 
-export default connect<LoginStateProps, DispatchProps>(mapStateToProps, mapDispatchToProps)(Login)
+export default connect<LoginStateProps, DispatchProps>(
+  mapStateToProps, mapDispatchToProps,
+)(withStyles(styles)(Login))

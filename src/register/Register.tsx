@@ -1,12 +1,19 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
-import Button from '@material-ui/core/Button'
+import Alert from '@material-ui/lab/Alert'
+import {
+  Grid,
+  Paper,
+  Snackbar,
+  TextField,
+  Typography,
+  WithStyles,
+  Button,
+  withStyles,
+} from '@material-ui/core'
 import { api } from '../api/api'
 import RegisterBody from '../api/bodies/RegisterBody'
 import AuthResponse from '../api/responses/AuthResponse'
-import Card from '../common/Card'
-import ErrorLabel from '../common/ErrorLabel'
-import TextField from '../common/TextField'
 import {
   changeEmailAction,
   changeNameAction,
@@ -22,6 +29,7 @@ import { RegisterState } from '../redux/reducers/registerReducer'
 import Link from '../routing/Link'
 import { history } from '../routing/RouterContext'
 import { isValidEmail, isValidName, isValidPassword } from '../utils'
+import styles, { StyleProps } from '../common/authStyles'
 
 interface DispatchProps {
   changeEmail: typeof changeEmailAction
@@ -33,7 +41,7 @@ interface DispatchProps {
   toggleSeverError: typeof toggleServerErrorAction
 }
 
-type Props = RegisterState & DispatchProps
+type Props = RegisterState & DispatchProps & StyleProps
 
 class Register extends React.Component<Props> {
   constructor(props: Props | Readonly<Props>) {
@@ -108,19 +116,40 @@ class Register extends React.Component<Props> {
     } else if (serverError) {
       toggleSeverError(AuthMethod.REGISTRATION)
     }
-  };
+  }
 
   onEmailChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const { changeEmail } = this.props
+    const { changeEmail, login, toggleEmailValidation } = this.props
+    const { invalidEmail } = login
+    const { target: { value } } = ev
 
-    changeEmail(ev.target.value, AuthMethod.REGISTRATION)
-  };
+    if (value === '' && invalidEmail) {
+      toggleEmailValidation(AuthMethod.REGISTRATION)
+    }
+
+    changeEmail(value, AuthMethod.REGISTRATION)
+  }
 
   onPasswordChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const { changePassword } = this.props
+    const { changePassword, login, togglePasswordValidation } = this.props
+    const { invalidPassword } = login
+    const { target: { value } } = ev
 
-    changePassword(ev.target.value, AuthMethod.REGISTRATION)
-  };
+    if (value === '' && invalidPassword) {
+      togglePasswordValidation(AuthMethod.REGISTRATION)
+    }
+
+    changePassword(value, AuthMethod.REGISTRATION)
+  }
+
+  onSnackBarClose = () => {
+    const { login, toggleSeverError } = this.props
+    const { serverError } = login
+
+    if (serverError) {
+      toggleSeverError(AuthMethod.LOGIN)
+    }
+  }
 
   onNameChange = (ev: React.ChangeEvent<HTMLInputElement>): void => {
     const { changeName } = this.props
@@ -130,54 +159,94 @@ class Register extends React.Component<Props> {
 
   render(): JSX.Element {
     const {
-      invalidEmail, invalidName, invalidPassword, serverError,
+      invalidEmail,
+      invalidName,
+      invalidPassword,
+      serverError,
+      classes,
     } = this.props
 
     return (
-      <Card>
-        <TextField
-          className="register__email"
-          id="email"
-          placeholder="Email"
-          invalid={invalidEmail}
-          errorText="Ivalid email format"
-          onChange={this.onEmailChange}
-        />
-        <TextField
-          className="register__name"
-          id="name"
-          placeholder="Name"
-          invalid={invalidName}
-          errorText="Ivalid name format"
-          onChange={this.onNameChange}
-        />
-        <TextField
-          className="register__password"
-          type="password"
-          id="password"
-          placeholder="Password"
-          invalid={invalidPassword}
-          errorText="Password is too weak"
-          onChange={this.onPasswordChange}
-        />
-        <Button
-          color="primary"
-          variant="contained"
-          onClick={this.onRegisterButtonClick}
+      <Grid
+        container
+        spacing={0}
+        direction="column"
+        alignItems="center"
+        justify="center"
+        className={classes.root}
+      >
+        <Grid
+          item
         >
-          Register
-        </Button>
-        <ErrorLabel
-          className="register__error-label"
-          invalid={serverError}
+          <Paper className={classes.paper}>
+            <Grid
+              container
+              alignItems="center"
+              direction="column"
+              spacing={2}
+            >
+              <Grid
+                item
+                className={classes.gridItem}
+              >
+                <TextField
+                  error={invalidEmail}
+                  helperText={invalidEmail && 'Invalid email format'}
+                  label="Email"
+                  placeholder="test@gmail.com"
+                  variant="outlined"
+                  className={classes.textField}
+                  onChange={this.onEmailChange}
+                />
+              </Grid>
+              <Grid
+                item
+                className={classes.gridItem}
+              >
+                <TextField
+                  error={invalidPassword}
+                  helperText={invalidPassword && 'Password is too weak'}
+                  label="Password"
+                  variant="outlined"
+                  type="password"
+                  className={classes.textField}
+                  onChange={this.onPasswordChange}
+                />
+              </Grid>
+              <Grid item>
+                <Button
+                  className={classes.button}
+                  variant="contained"
+                  color="secondary"
+                  onClick={this.onRegisterButtonClick}
+                >
+                  Register
+                </Button>
+              </Grid>
+              <Grid item>
+                <Typography>
+                  <Link to="/register">Register </Link>
+                  if you don&apos;t have an account yet.
+                </Typography>
+              </Grid>
+            </Grid>
+          </Paper>
+        </Grid>
+        <Snackbar
+          open={serverError}
+          autoHideDuration={4000}
+          onClose={this.onSnackBarClose}
         >
-          Register Problem: try to use another email
-        </ErrorLabel>
-        <p>
-          Already have an account?
-          <Link to="/login">Login</Link>
-        </p>
-      </Card>
+          <Alert
+            elevation={6}
+            variant="filled"
+            severity="error"
+            onClose={this.onSnackBarClose}
+          >
+            Login problem
+          </Alert>
+        </Snackbar>
+      </Grid>
     )
   }
 }
@@ -193,4 +262,7 @@ const mapDispatchToProps: DispatchProps = {
   toggleNameValidation: toggleNameValidationAction,
 }
 
-export default connect<RegisterState, DispatchProps>(mapStateToProps, mapDispatchToProps)(Register)
+export default connect<RegisterState, DispatchProps>(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withStyles(styles)(Register))

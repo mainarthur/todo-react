@@ -1,28 +1,40 @@
-var path = require("path")
+const path = require('path')
+const HtmlWebPackPlugin = require('html-webpack-plugin')
 
-var config = {
-  entry: ["./src/index.tsx"],
+const config = {
+  entry: ['./src/index.tsx'],
   output: {
-    path: path.resolve(__dirname, "static/build"),
-    filename: "bundle.js"
+    path: path.resolve(__dirname, 'static/build'),
+    filename: 'bundle.js',
   },
   resolve: {
-    extensions: [".ts", ".tsx", ".js"]
+    extensions: ['.ts', '.tsx', '.js'],
   },
-  mode: "development",
+  mode: 'development',
   module: {
     rules: [
       {
         test: /\.tsx?$/,
-        use: "ts-loader",
-        exclude: /node_modules/
+        use: 'ts-loader',
+        exclude: /node_modules/,
       },
       {
         test: /\.s[ac]ss$/i,
-        use: ["style-loader", "css-loader", "sass-loader"]
-      }
-    ]
-  }
+        use: ['style-loader', 'css-loader', 'sass-loader'],
+      },
+    ],
+  },
+  devServer: {
+    historyApiFallback: true,
+    port: 3000,
+    disableHostCheck: true,
+  },
+  plugins: [
+    new HtmlWebPackPlugin({
+      template: path.resolve(__dirname, 'static/index.html'),
+      filename: 'index.html',
+    }),
+  ],
 }
 
 module.exports = config
