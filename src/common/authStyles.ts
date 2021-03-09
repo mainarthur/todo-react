@@ -19,8 +19,14 @@ const styles = (theme: Theme) => createStyles({
     width: '100%',
   },
   button: {
-    width: '10vw',
+    width: '100%',
     color: '#fff',
+  },
+  buttonGrid: {
+    minWidth: '85.75px',
+    width: '100%',
+    maxWidth: '133.75px',
+    boxSizing: 'border-box',
   },
 })
 

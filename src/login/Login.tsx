@@ -206,7 +206,10 @@ class Login extends React.Component<Props> {
                   onChange={this.onPasswordChange}
                 />
               </Grid>
-              <Grid item>
+              <Grid
+                item
+                className={classes.buttonGrid}
+              >
                 <Button
                   className={classes.button}
                   variant="contained"
@@ -217,9 +220,9 @@ class Login extends React.Component<Props> {
                 </Button>
               </Grid>
               <Grid item>
-                <Typography>
+                <Typography variant="body2">
                   <Link to="/register">Register </Link>
-                  if you don&apos;t have an account yet.
+                  <span>if you don&apos;t have an account yet.</span>
                 </Typography>
               </Grid>
             </Grid>

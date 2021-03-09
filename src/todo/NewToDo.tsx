@@ -115,14 +115,16 @@ class NewToDo extends React.Component<Props> {
     const { newTodoState: { textFieldValue, invalidText }, classes } = this.props
 
     return (
-      <Paper>
-        <Grid alignItems="center">
-          <TextField color="secondary" />
-          <IconButton>
-            <Add className={classes.addIcon} />
-          </IconButton>
+      <Grid container item alignItems="center">
+        <Grid item>
+          <Paper>
+            <TextField color="secondary" />
+            <IconButton>
+              <Add className={classes.addIcon} />
+            </IconButton>
+          </Paper>
         </Grid>
-      </Paper>
+      </Grid>
     )
   }
 }

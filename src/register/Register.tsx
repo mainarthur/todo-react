@@ -30,6 +30,7 @@ import Link from '../routing/Link'
 import { history } from '../routing/RouterContext'
 import { isValidEmail, isValidName, isValidPassword } from '../utils'
 import styles, { StyleProps } from '../common/authStyles'
+import { setAccessTokenAction, setRefreshTokenAction } from '../redux/actions/tokenActions'
 
 interface DispatchProps {
   changeEmail: typeof changeEmailAction
@@ -39,6 +40,8 @@ interface DispatchProps {
   togglePasswordValidation: typeof togglePasswordValidationAction
   toggleNameValidation: typeof toggleNameValidationAction
   toggleSeverError: typeof toggleServerErrorAction
+  setAccessToken: typeof setAccessTokenAction
+  setRefreshToken: typeof setRefreshTokenAction
 }
 
 type Props = RegisterState & DispatchProps & StyleProps
@@ -64,20 +67,13 @@ class Register extends React.Component<Props> {
       togglePasswordValidation,
       toggleSeverError,
       toggleNameValidation,
+      setAccessToken,
+      setRefreshToken,
     } = this.props
 
     const email = stateEmail.trim()
     const name = stateName.trim()
     const password = statePassword.trim()
-
-    if (!isValidEmail(email)) {
-      if (!invalidEmail) {
-        toggleEmailValidation(AuthMethod.REGISTRATION)
-      }
-      return
-    } if (invalidEmail) {
-      toggleEmailValidation(AuthMethod.REGISTRATION)
-    }
 
     if (!isValidName(name)) {
       if (!invalidName) {
@@ -86,6 +82,15 @@ class Register extends React.Component<Props> {
       return
     } if (invalidName) {
       toggleNameValidation(AuthMethod.REGISTRATION)
+    }
+
+    if (!isValidEmail(email)) {
+      if (!invalidEmail) {
+        toggleEmailValidation(AuthMethod.REGISTRATION)
+      }
+      return
+    } if (invalidEmail) {
+      toggleEmailValidation(AuthMethod.REGISTRATION)
     }
 
     if (!isValidPassword(password)) {
@@ -106,8 +111,16 @@ class Register extends React.Component<Props> {
     })
 
     if (authResponse.status) {
-      localStorage.setItem('access_token', (authResponse as AuthResponse).access_token)
-      localStorage.setItem('refresh_token', (authResponse as AuthResponse).refresh_token)
+      const auth = (authResponse as AuthResponse)
+      const {
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      } = auth
+
+      localStorage.setItem('access_token', accessToken)
+      localStorage.setItem('refresh_token', refreshToken)
+      setAccessToken(accessToken)
+      setRefreshToken(refreshToken)
 
       history.push('/')
       if (serverError) {
@@ -119,8 +132,7 @@ class Register extends React.Component<Props> {
   }
 
   onEmailChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const { changeEmail, login, toggleEmailValidation } = this.props
-    const { invalidEmail } = login
+    const { changeEmail, invalidEmail, toggleEmailValidation } = this.props
     const { target: { value } } = ev
 
     if (value === '' && invalidEmail) {
@@ -131,8 +143,7 @@ class Register extends React.Component<Props> {
   }
 
   onPasswordChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const { changePassword, login, togglePasswordValidation } = this.props
-    const { invalidPassword } = login
+    const { changePassword, invalidPassword, togglePasswordValidation } = this.props
     const { target: { value } } = ev
 
     if (value === '' && invalidPassword) {
@@ -143,11 +154,10 @@ class Register extends React.Component<Props> {
   }
 
   onSnackBarClose = () => {
-    const { login, toggleSeverError } = this.props
-    const { serverError } = login
+    const { toggleSeverError, serverError } = this.props
 
     if (serverError) {
-      toggleSeverError(AuthMethod.LOGIN)
+      toggleSeverError(AuthMethod.REGISTRATION)
     }
   }
 
@@ -190,11 +200,27 @@ class Register extends React.Component<Props> {
                 className={classes.gridItem}
               >
                 <TextField
+                  error={invalidName}
+                  helperText={invalidName && 'Invalid name format'}
+                  label="Name"
+                  placeholder="Mike"
+                  variant="outlined"
+                  type="name"
+                  className={classes.textField}
+                  onChange={this.onNameChange}
+                />
+              </Grid>
+              <Grid
+                item
+                className={classes.gridItem}
+              >
+                <TextField
                   error={invalidEmail}
                   helperText={invalidEmail && 'Invalid email format'}
                   label="Email"
                   placeholder="test@gmail.com"
                   variant="outlined"
+                  type="email"
                   className={classes.textField}
                   onChange={this.onEmailChange}
                 />
@@ -213,7 +239,7 @@ class Register extends React.Component<Props> {
                   onChange={this.onPasswordChange}
                 />
               </Grid>
-              <Grid item>
+              <Grid item className={classes.buttonGrid}>
                 <Button
                   className={classes.button}
                   variant="contained"
@@ -224,9 +250,9 @@ class Register extends React.Component<Props> {
                 </Button>
               </Grid>
               <Grid item>
-                <Typography>
-                  <Link to="/register">Register </Link>
-                  if you don&apos;t have an account yet.
+                <Typography variant="body2">
+                  <span>Already have an account?</span>
+                  <Link to="/login">Login</Link>
                 </Typography>
               </Grid>
             </Grid>
@@ -243,7 +269,7 @@ class Register extends React.Component<Props> {
             severity="error"
             onClose={this.onSnackBarClose}
           >
-            Login problem
+            Registration problem
           </Alert>
         </Snackbar>
       </Grid>
@@ -260,6 +286,8 @@ const mapDispatchToProps: DispatchProps = {
   togglePasswordValidation: togglePasswordValidationAction,
   toggleSeverError: toggleServerErrorAction,
   toggleNameValidation: toggleNameValidationAction,
+  setAccessToken: setAccessTokenAction,
+  setRefreshToken: setRefreshTokenAction,
 }
 
 export default connect<RegisterState, DispatchProps>(

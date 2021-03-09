@@ -9,7 +9,7 @@ import { err } from './logging/logger'
 import { AppState } from './redux/reducers/appReducer'
 import setUserAction from './redux/actions/appActions'
 import { RootState } from './redux/reducers'
-import { Grid, Toolbar } from '@material-ui/core'
+import { Box, Container, Grid, Toolbar } from '@material-ui/core'
 
 interface DispatchProps {
   setUser: typeof setUserAction
@@ -61,15 +61,17 @@ class App extends React.Component<Props> {
     }
 
     return (
-      <>
+      <Box>
         <Toolbar />
         <Grid
           container
           direction="column"
+          justify="flex-start"
+          alignItems="center"
         >
           <NewToDo />
         </Grid>
-      </>
+      </Box>
     )
   }
 }
