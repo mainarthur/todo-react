@@ -3,26 +3,20 @@ import * as React from 'react'
 import IconButton from '@material-ui/core/IconButton'
 
 import ReloadIcon from '@material-ui/icons/Cached'
+import useStyle from './ReloadButtonStyles'
 
-interface OwnProps {
+interface Props {
   onReloadTodosClick(): void
 }
 
-type Props = OwnProps & WithStyles<typeof styles>
+const ReloadButton: React.FC<Props> = ({ onReloadTodosClick }: Props) => {
+  const classes = useStyle()
 
-class ReloadButton extends React.PureComponent<Props> {
-  render() {
-    const {
-      onReloadTodosClick,
-      classes,
-    } = this.props
-
-    return (
-      <IconButton onClick={onReloadTodosClick}>
-        <ReloadIcon className={classes.reloadIcon} />
-      </IconButton>
-    )
-  }
+  return (
+    <IconButton onClick={onReloadTodosClick}>
+      <ReloadIcon className={classes.reloadIcon} />
+    </IconButton>
+  )
 }
 
-export default withStyles(styles)(ReloadButton)
+export default ReloadButton

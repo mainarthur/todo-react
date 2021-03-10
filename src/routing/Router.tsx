@@ -18,7 +18,7 @@ type OwnProps = {
       path: string
     }
   },
-  NotFound: typeof React.Component
+  NotFound: React.ReactNode,
 }
 
 type Props = RouterState & DispatchProps & OwnProps & { children?: React.ReactNode }
@@ -56,7 +56,7 @@ class Router extends React.Component<Props> {
 
     return (
       <RouterContext.Provider value={routerContextValue}>
-        {is404 ? <NotFound /> : children}
+        {is404 ? NotFound : children}
       </RouterContext.Provider>
     )
   }

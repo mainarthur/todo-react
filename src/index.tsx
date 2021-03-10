@@ -32,7 +32,7 @@ const theme = createMuiTheme({
 ReactDOM.render(
   <ThemeProvider theme={theme}>
     <ReduxStoreProvider store={store}>
-      <Router routes={routes} NotFound={NotFound}>
+      <Router routes={routes} NotFound={<NotFound />}>
         <ToDoAppBar />
         <Route path={routes.home.path}>
           <App />
