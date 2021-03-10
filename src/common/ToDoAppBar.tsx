@@ -8,10 +8,6 @@ import Typography from '@material-ui/core/Typography'
 
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
 
-import createStyles from '@material-ui/core/styles/createStyles'
-import { Theme } from '@material-ui/core/styles/createMuiTheme'
-import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles'
-
 import { deleteTokensAction } from '../redux/actions/tokenActions'
 import { RootState } from '../redux/reducers'
 import { TokensState } from '../redux/reducers/tokensReducer'
@@ -22,23 +18,7 @@ interface DispatchProps {
   deleteTokens: typeof deleteTokensAction
 }
 
-const toolBarPadding = 4
-
-const styles = (theme: Theme) => createStyles({
-  title: {
-    flexGrow: 1,
-    color: '#fff',
-  },
-  toolBar: {
-    paddingLeft: theme.spacing(toolBarPadding),
-    paddingRight: theme.spacing(toolBarPadding),
-  },
-  logOutIcon: {
-    fill: '#fff',
-  },
-})
-
-type Props = DispatchProps & TokensState & WithStyles<typeof styles>
+type Props = DispatchProps & TokensState
 
 class ToDoAppBar extends React.PureComponent<Props> {
   onLogOutClick = () => {
