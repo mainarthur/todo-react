@@ -1,5 +1,6 @@
-import User from '../../models/User'
 import { AppAction } from '../constants'
+
+import User from '../../models/User'
 
 export interface SetUserAction {
   type: AppAction.SET_USER

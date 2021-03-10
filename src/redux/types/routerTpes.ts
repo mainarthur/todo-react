@@ -1,5 +1,6 @@
-import Route from '../../models/Route'
 import { RouterAction } from '../constants'
+
+import Route from '../../models/Route'
 
 export interface SetRouteAction {
   type: RouterAction.SET_ROUTE

@@ -1,19 +1,21 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
-import {
-  AppBar,
-  createStyles,
-  IconButton,
-  Theme,
-  Toolbar,
-  Typography,
-  WithStyles,
-  withStyles,
-} from '@material-ui/core'
+
+import AppBar from '@material-ui/core/AppBar'
+import IconButton from '@material-ui/core/IconButton'
+import Toolbar from '@material-ui/core/Toolbar'
+import Typography from '@material-ui/core/Typography'
+
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
+
+import createStyles from '@material-ui/core/styles/createStyles'
+import { Theme } from '@material-ui/core/styles/createMuiTheme'
+import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles'
+
 import { deleteTokensAction } from '../redux/actions/tokenActions'
 import { RootState } from '../redux/reducers'
 import { TokensState } from '../redux/reducers/tokensReducer'
+
 import { history } from '../routing/RouterContext'
 
 interface DispatchProps {

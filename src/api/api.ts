@@ -1,11 +1,14 @@
-import { err } from '../logging/logger'
-import { deleteTokensAction, setAccessTokenAction, setRefreshTokenAction } from '../redux/actions/tokenActions'
-import store from '../redux/store'
-import { history } from '../routing/RouterContext'
-import RefreshTokenBody from './bodies/RefreshTokenBody'
 import Request from './Request'
 import Response from './Response'
+
+import RefreshTokenBody from './bodies/RefreshTokenBody'
 import AuthResponse from './responses/AuthResponse'
+
+import store from '../redux/store'
+import { deleteTokensAction, setAccessTokenAction, setRefreshTokenAction } from '../redux/actions/tokenActions'
+import { history } from '../routing/RouterContext'
+
+import { err } from '../logging/logger'
 
 const API_URL: string = 'http://api.todolist.local'
 

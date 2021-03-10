@@ -1,6 +1,7 @@
-import ToDo from '../../models/ToDo'
 import { ToDoAction } from '../constants'
 import ToDoActions from '../types/todoTypes'
+
+import ToDo from '../../models/ToDo'
 
 export type TodosState = ToDo[]
 

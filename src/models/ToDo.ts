@@ -1,17 +1,17 @@
 export default class ToDo {
-  _id: string;
+  _id: string
 
-  userId: string;
+  userId: string
 
-  text: string;
+  text: string
 
-  done: boolean;
+  done: boolean
 
-  createdAt: Date;
+  createdAt: Date
 
-  lastUpdate: number;
+  lastUpdate: number
 
-  position: number;
+  position: number
 
-  deleted: boolean;
+  deleted: boolean
 }

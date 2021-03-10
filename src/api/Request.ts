@@ -1,7 +1,7 @@
 export default interface Request<B> {
-  endpoint: string,
+  endpoint: string
   method?: string
-  body?: B,
+  body?: B
   headers?: {
     [key: string]: string
   }

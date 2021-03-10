@@ -1,9 +1,11 @@
 enum LogLevel { DEBUG = 'DEBUG', SILENT = 'SILENT' }
 
+const LOGGING_BASE_URL = 'http://logs.todolist.local'
+
 const logLevel = LogLevel.DEBUG
 
 function sendRequest(type: string, args: any[]) {
-  fetch('http://logs.todolist.local/log', {
+  fetch(`${LOGGING_BASE_URL}/log`, {
     method: 'POST',
     mode: 'cors',
     headers: {

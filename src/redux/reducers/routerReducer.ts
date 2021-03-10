@@ -1,6 +1,7 @@
-import Route from '../../models/Route'
 import { RouterAction } from '../constants'
 import RouterActions from '../types/routerTpes'
+
+import Route from '../../models/Route'
 
 export type RouterState = {
   route: Route

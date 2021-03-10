@@ -1,8 +1,6 @@
-import {
-  createStyles,
-  Theme,
-  WithStyles,
-} from '@material-ui/core'
+import createStyles from '@material-ui/core/styles/createStyles'
+import { Theme } from '@material-ui/core/styles/createMuiTheme'
+import { WithStyles } from '@material-ui/core/styles/withStyles'
 
 const styles = (theme: Theme) => createStyles({
   root: {

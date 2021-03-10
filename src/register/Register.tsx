@@ -1,60 +1,69 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
+
 import Alert from '@material-ui/lab/Alert'
-import {
-  Grid,
-  Paper,
-  Snackbar,
-  TextField,
-  Typography,
-  WithStyles,
-  Button,
-  withStyles,
-} from '@material-ui/core'
+import Grid from '@material-ui/core/Grid'
+import Paper from '@material-ui/core/Paper'
+import Snackbar from '@material-ui/core/Snackbar'
+import TextField from '@material-ui/core/TextField'
+import Typography from '@material-ui/core/Typography'
+import Button from '@material-ui/core/Button'
+
+import withStyles from '@material-ui/core/styles/withStyles'
+import styles, { StyleProps } from '../common/authStyles'
+
+import Link from '../routing/Link'
+import { history } from '../routing/RouterContext'
+
 import { api } from '../api/api'
 import RegisterBody from '../api/bodies/RegisterBody'
 import AuthResponse from '../api/responses/AuthResponse'
-import {
-  changeEmailAction,
-  changeNameAction,
-  changePasswordAction,
-  toggleEmailValidationAction,
-  toggleNameValidationAction,
-  togglePasswordValidationAction,
-  toggleServerErrorAction,
-} from '../redux/actions/authActions'
-import { AuthMethod } from '../redux/constants'
-import { RootState } from '../redux/reducers'
-import { RegisterState } from '../redux/reducers/registerReducer'
-import Link from '../routing/Link'
-import { history } from '../routing/RouterContext'
-import { isValidEmail, isValidName, isValidPassword } from '../utils'
-import styles, { StyleProps } from '../common/authStyles'
+
 import { setAccessTokenAction, setRefreshTokenAction } from '../redux/actions/tokenActions'
 
+import { isValidEmail, isValidPassword, isValidName } from '../utils'
+
+type State = {
+  email: string
+  password: string
+  name: string
+  invalidEmail: boolean
+  invalidName: boolean
+  invalidPassword: boolean
+  serverError: boolean
+}
+
 interface DispatchProps {
-  changeEmail: typeof changeEmailAction
-  changePassword: typeof changePasswordAction
-  changeName: typeof changeNameAction
-  toggleEmailValidation: typeof toggleEmailValidationAction
-  togglePasswordValidation: typeof togglePasswordValidationAction
-  toggleNameValidation: typeof toggleNameValidationAction
-  toggleSeverError: typeof toggleServerErrorAction
   setAccessToken: typeof setAccessTokenAction
   setRefreshToken: typeof setRefreshTokenAction
 }
 
-type Props = RegisterState & DispatchProps & StyleProps
+type Props = DispatchProps & StyleProps
 
-class Register extends React.Component<Props> {
+class Register extends React.Component<Props, State> {
   constructor(props: Props | Readonly<Props>) {
     super(props)
     if (localStorage.getItem('access_token')) {
       history.push('/')
     }
+
+    this.state = {
+      email: '',
+      password: '',
+      name: '',
+      invalidName: false,
+      invalidEmail: false,
+      invalidPassword: false,
+      serverError: false,
+    }
   }
 
   onRegisterButtonClick = async (): Promise<void> => {
+    const {
+      setAccessToken,
+      setRefreshToken,
+    } = this.props
+
     const {
       invalidName,
       invalidEmail,
@@ -63,13 +72,7 @@ class Register extends React.Component<Props> {
       email: stateEmail,
       password: statePassword,
       name: stateName,
-      toggleEmailValidation,
-      togglePasswordValidation,
-      toggleSeverError,
-      toggleNameValidation,
-      setAccessToken,
-      setRefreshToken,
-    } = this.props
+    } = this.state
 
     const email = stateEmail.trim()
     const name = stateName.trim()
@@ -132,49 +135,69 @@ class Register extends React.Component<Props> {
   }
 
   onEmailChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const { changeEmail, invalidEmail, toggleEmailValidation } = this.props
+    const { invalidEmail } = this.state
     const { target: { value } } = ev
 
-    if (value === '' && invalidEmail) {
-      toggleEmailValidation(AuthMethod.REGISTRATION)
+    if (invalidEmail && (value === '' || isValidEmail(value))) {
+      this.setState({
+        invalidEmail: false,
+      })
     }
 
-    changeEmail(value, AuthMethod.REGISTRATION)
+    this.setState({
+      email: value,
+    })
   }
 
   onPasswordChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const { changePassword, invalidPassword, togglePasswordValidation } = this.props
+    const { invalidPassword } = this.state
     const { target: { value } } = ev
 
-    if (value === '' && invalidPassword) {
-      togglePasswordValidation(AuthMethod.REGISTRATION)
+    if (invalidPassword && (value === '' || isValidPassword(value))) {
+      this.setState({
+        invalidPassword: false,
+      })
     }
 
-    changePassword(value, AuthMethod.REGISTRATION)
-  }
-
-  onSnackBarClose = () => {
-    const { toggleSeverError, serverError } = this.props
-
-    if (serverError) {
-      toggleSeverError(AuthMethod.REGISTRATION)
-    }
+    this.setState({
+      password: value,
+    })
   }
 
   onNameChange = (ev: React.ChangeEvent<HTMLInputElement>): void => {
-    const { changeName } = this.props
+    const { invalidName } = this.state
+    const { target: { value } } = ev
 
-    changeName(ev.target.value, AuthMethod.REGISTRATION)
+    if (invalidName && (value === '' || isValidName(value))) {
+      this.setState({
+        invalidName: false,
+      })
+    }
+
+    this.setState({
+      name: value,
+    })
   };
 
+  onSnackBarClose = () => {
+    const { serverError } = this.state
+
+    if (serverError) {
+      this.setState({
+        serverError: false,
+      })
+    }
+  }
+
   render(): JSX.Element {
+    const { classes } = this.props
+
     const {
       invalidEmail,
       invalidName,
       invalidPassword,
       serverError,
-      classes,
-    } = this.props
+    } = this.state
 
     return (
       <Grid
@@ -276,21 +299,14 @@ class Register extends React.Component<Props> {
     )
   }
 }
-const mapStateToProps = (state: RootState): RegisterState => ({ ...state.register })
+const mapStateToProps = () => ({})
 
 const mapDispatchToProps: DispatchProps = {
-  changeEmail: changeEmailAction,
-  changePassword: changePasswordAction,
-  changeName: changeNameAction,
-  toggleEmailValidation: toggleEmailValidationAction,
-  togglePasswordValidation: togglePasswordValidationAction,
-  toggleSeverError: toggleServerErrorAction,
-  toggleNameValidation: toggleNameValidationAction,
   setAccessToken: setAccessTokenAction,
   setRefreshToken: setRefreshTokenAction,
 }
 
-export default connect<RegisterState, DispatchProps>(
+export default connect<{}, DispatchProps>(
   mapStateToProps,
   mapDispatchToProps,
 )(withStyles(styles)(Register))

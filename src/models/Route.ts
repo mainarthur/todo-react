@@ -1,5 +1,5 @@
 export default interface Route {
-  path: string;
-  hash: string;
-  query: object;
+  path: string
+  hash: string
+  query: object
 }

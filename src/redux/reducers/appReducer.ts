@@ -1,6 +1,7 @@
-import User from '../../models/User'
 import { AppAction } from '../constants'
 import AppActions from '../types/appTypes'
+
+import User from '../../models/User'
 
 export type AppState = {
   user: User
