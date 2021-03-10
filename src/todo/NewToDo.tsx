@@ -63,16 +63,19 @@ class NewToDo extends React.Component<Props, State> {
     this.onButtonClick()
   };
 
-  onButtonClick = async () => {
+  onButtonClick = async (): Promise<void> => {
     const { addToDo } = this.props
     const { invalidText, newToDoText } = this.state
 
     const toDoText = newToDoText.trim()
 
-    if (toDoText === '' && !invalidText) {
-      return this.setState({
-        invalidText: true,
-      })
+    if (toDoText === '') {
+      if (!invalidText) {
+        this.setState({
+          invalidText: true,
+        })
+      }
+      return null
     }
 
     this.setState({
