@@ -7,41 +7,43 @@ import SlideDown from './SlideDown'
 
 interface Props {
   open: boolean
+  children?: React.ReactNode
   onClose?(): void
   action?: React.ReactNode
   autoHide?: boolean
 }
 
-class ErrorSnackBar extends React.PureComponent<Props> {
-  render() {
-    const {
-      open,
-      onClose,
-      children,
-      action,
-      autoHide,
-    } = this.props
+const ErrorSnackBar: React.FC<Props> = ({
+  open,
+  onClose,
+  children,
+  action,
+  autoHide,
+}: Props) => (
+  <Snackbar
+    open={open}
+    autoHideDuration={autoHide ? 4000 : null}
+    onClose={onClose}
+    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+    TransitionComponent={SlideDown}
+  >
+    <Alert
+      elevation={6}
+      variant="filled"
+      severity="error"
+      action={action}
+      onClose={onClose}
+    >
+      {children}
+    </Alert>
+  </Snackbar>
+)
 
-    return (
-      <Snackbar
-        open={open}
-        autoHideDuration={autoHide ? 4000 : null}
-        onClose={onClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        TransitionComponent={SlideDown}
-      >
-        <Alert
-          elevation={6}
-          variant="filled"
-          severity="error"
-          action={action}
-          onClose={onClose}
-        >
-          {children}
-        </Alert>
-      </Snackbar>
-    )
-  }
+ErrorSnackBar.defaultProps = {
+  children: null,
+  onClose: () => null,
+  action: null,
+  autoHide: false,
 }
 
 export default ErrorSnackBar

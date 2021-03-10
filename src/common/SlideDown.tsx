@@ -4,21 +4,14 @@ import Slide, { SlideProps } from '@material-ui/core/Slide'
 
 type Props = Omit<SlideProps, 'direction'>
 
-class SlideDown extends React.PureComponent<Props> {
-  render() {
-    const {
-      ref,
-      timeout,
-      children,
-    } = this.props
-
-    return (
-      // eslint-disable-next-line react/destructuring-assignment
-      <Slide direction="down" ref={ref} timeout={timeout} in={this.props.in}>
-        {children}
-      </Slide>
-    )
-  }
+const SlideDown: React.FC<Props> = (props: Props) => {
+  const { children } = props
+  return (
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    <Slide direction="down" {...props}>
+      {children}
+    </Slide>
+  )
 }
 
 export default SlideDown
