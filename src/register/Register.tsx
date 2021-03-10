@@ -1,16 +1,16 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 
-import Alert from '@material-ui/lab/Alert'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
-import Snackbar from '@material-ui/core/Snackbar'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 
 import withStyles from '@material-ui/core/styles/withStyles'
 import styles, { StyleProps } from '../common/authStyles'
+
+import ErrorSnackBar from '../common/ErrorSnackBar'
 
 import Link from '../routing/Link'
 import { history } from '../routing/RouterContext'
@@ -143,7 +143,7 @@ class Register extends React.Component<Props, State> {
           serverError: false,
         })
       }
-    } else if (serverError) {
+    } else if (!serverError) {
       this.setState({
         serverError: true,
       })
@@ -295,21 +295,13 @@ class Register extends React.Component<Props, State> {
             </Grid>
           </Paper>
         </Grid>
-        <Snackbar
+        <ErrorSnackBar
           open={serverError}
-          autoHideDuration={4000}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          autoHide
           onClose={this.onSnackBarClose}
         >
-          <Alert
-            elevation={6}
-            variant="filled"
-            severity="error"
-            onClose={this.onSnackBarClose}
-          >
-            Registration problem
-          </Alert>
-        </Snackbar>
+          Registration Problem
+        </ErrorSnackBar>
       </Grid>
     )
   }

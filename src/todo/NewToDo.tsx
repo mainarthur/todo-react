@@ -1,19 +1,19 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 
-import Alert from '@material-ui/lab/Alert'
 import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton'
 import Paper from '@material-ui/core/Paper'
 import Input from '@material-ui/core/Input'
 import InputAdornment from '@material-ui/core/InputAdornment'
-import Snackbar from '@material-ui/core/Snackbar'
 
 import createStyles from '@material-ui/core/styles/createStyles'
 import { Theme } from '@material-ui/core/styles/createMuiTheme'
 import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles'
 
 import { Add } from '@material-ui/icons'
+
+import ErrorSnackBar from '../common/ErrorSnackBar'
 
 import { api } from '../api/api'
 import NewToDoBody from '../api/bodies/NewToDoBody'
@@ -156,16 +156,13 @@ class NewToDo extends React.Component<Props, State> {
             }
           />
         </Paper>
-        <Snackbar open={invalidText}>
-          <Alert
-            elevation={6}
-            variant="filled"
-            severity="error"
-            onClose={this.onSnackBarClose}
-          >
-            Text is required
-          </Alert>
-        </Snackbar>
+        <ErrorSnackBar
+          open={invalidText}
+          autoHide
+          onClose={this.onSnackBarClose}
+        >
+          Text is required
+        </ErrorSnackBar>
       </Grid>
     )
   }

@@ -1,16 +1,16 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 
-import Alert from '@material-ui/lab/Alert'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
-import Snackbar from '@material-ui/core/Snackbar'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 
 import withStyles from '@material-ui/core/styles/withStyles'
 import styles, { StyleProps } from '../common/authStyles'
+
+import ErrorSnackBar from '../common/ErrorSnackBar'
 
 import Link from '../routing/Link'
 import { history } from '../routing/RouterContext'
@@ -245,21 +245,13 @@ class Login extends React.Component<Props, State> {
             </Grid>
           </Paper>
         </Grid>
-        <Snackbar
+        <ErrorSnackBar
           open={serverError}
-          autoHideDuration={4000}
+          autoHide
           onClose={this.onSnackBarClose}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
-          <Alert
-            elevation={6}
-            variant="filled"
-            severity="error"
-            onClose={this.onSnackBarClose}
-          >
-            Login problem
-          </Alert>
-        </Snackbar>
+          Login problem
+        </ErrorSnackBar>
       </Grid>
     )
   }
