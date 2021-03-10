@@ -249,6 +249,7 @@ class Login extends React.Component<Props, State> {
           open={serverError}
           autoHideDuration={4000}
           onClose={this.onSnackBarClose}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
           <Alert
             elevation={6}
