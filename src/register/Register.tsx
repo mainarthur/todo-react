@@ -80,29 +80,41 @@ class Register extends React.Component<Props, State> {
 
     if (!isValidName(name)) {
       if (!invalidName) {
-        toggleNameValidation(AuthMethod.REGISTRATION)
+        this.setState({
+          invalidName: true,
+        })
       }
       return
     } if (invalidName) {
-      toggleNameValidation(AuthMethod.REGISTRATION)
+      this.setState({
+        invalidName: false,
+      })
     }
 
     if (!isValidEmail(email)) {
       if (!invalidEmail) {
-        toggleEmailValidation(AuthMethod.REGISTRATION)
+        this.setState({
+          invalidEmail: true,
+        })
       }
       return
     } if (invalidEmail) {
-      toggleEmailValidation(AuthMethod.REGISTRATION)
+      this.setState({
+        invalidEmail: false,
+      })
     }
 
     if (!isValidPassword(password)) {
       if (!invalidPassword) {
-        togglePasswordValidation(AuthMethod.REGISTRATION)
+        this.setState({
+          invalidPassword: true,
+        })
       }
       return
     } if (invalidPassword) {
-      togglePasswordValidation(AuthMethod.REGISTRATION)
+      this.setState({
+        invalidPassword: false,
+      })
     }
 
     const authResponse = await api<AuthResponse, RegisterBody>({
@@ -127,10 +139,14 @@ class Register extends React.Component<Props, State> {
 
       history.push('/')
       if (serverError) {
-        toggleSeverError(AuthMethod.REGISTRATION)
+        this.setState({
+          serverError: false,
+        })
       }
     } else if (serverError) {
-      toggleSeverError(AuthMethod.REGISTRATION)
+      this.setState({
+        serverError: true,
+      })
     }
   }
 
@@ -208,9 +224,7 @@ class Register extends React.Component<Props, State> {
         justify="center"
         className={classes.root}
       >
-        <Grid
-          item
-        >
+        <Grid item>
           <Paper className={classes.paper}>
             <Grid
               container

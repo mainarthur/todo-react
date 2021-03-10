@@ -1,4 +1,5 @@
 import * as React from 'react'
+
 import { RouterContext, history } from './RouterContext'
 
 type Props = {

@@ -1,9 +1,17 @@
 import * as React from 'react'
-import Button from '@material-ui/core/Button'
+
+import Checkbox from '@material-ui/core/Checkbox'
+import IconButton from '@material-ui/core/IconButton'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
+import ListItemText from '@material-ui/core/ListItemText'
+
+import DeleteIcon from '@material-ui/icons/Delete'
+
 import { log } from '../logging/logger'
+
 import ClassNames from './ClassNames'
-import DeleteIcon from "@material-ui/icons/Delete"
-import { Checkbox, IconButton, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText } from '@material-ui/core'
 
 type Props = {
   id: string
@@ -12,14 +20,9 @@ type Props = {
   onPositionChange(id: string, nextId: string, prevId: string): void
   text: string
   done: boolean
-
 }
 
-type State = {
-
-}
-
-class ToDoElement extends React.Component<Props, State> {
+class ToDoElement extends React.Component<Props> {
   onDeleteButtonClick = (): void => {
     const { id, onDelete } = this.props
     onDelete(id)
@@ -165,11 +168,12 @@ class ToDoElement extends React.Component<Props, State> {
 
   render(): JSX.Element {
     const {
-      text, done, id
+      text, done, id,
     } = this.props
 
     return (
       <ListItem
+        id={id}
         role={undefined}
         dense
         button

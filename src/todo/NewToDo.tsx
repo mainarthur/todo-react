@@ -1,37 +1,33 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
+
 import Alert from '@material-ui/lab/Alert'
-import {
-  createStyles,
-  Grid,
-  IconButton,
-  Paper,
-  Theme,
-  WithStyles,
-  withStyles,
-  Input,
-  InputAdornment,
-  Snackbar,
-} from '@material-ui/core'
+import Grid from '@material-ui/core/Grid'
+import IconButton from '@material-ui/core/IconButton'
+import Paper from '@material-ui/core/Paper'
+import Input from '@material-ui/core/Input'
+import InputAdornment from '@material-ui/core/InputAdornment'
+import Snackbar from '@material-ui/core/Snackbar'
+
+import createStyles from '@material-ui/core/styles/createStyles'
+import { Theme } from '@material-ui/core/styles/createMuiTheme'
+import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles'
+
 import { Add } from '@material-ui/icons'
+
 import { api } from '../api/api'
 import NewToDoBody from '../api/bodies/NewToDoBody'
 import NewToDoResponse from '../api/responses/NewToDoResponse'
-import ToDo from '../models/ToDo'
-import { changeNewToDoTextAction, toggleTextErrorAction } from '../redux/actions/newToDoActions'
-import { addToDoAction } from '../redux/actions/toDoActions'
-import { RootState } from '../redux/reducers'
-import { NewToDoState } from '../redux/reducers/newToDoReducer'
 
-interface DispatchProps {
-  changeText: typeof changeNewToDoTextAction
-  toggleTextError: typeof toggleTextErrorAction
-  addToDo: typeof addToDoAction
+import { addToDoAction } from '../redux/actions/toDoActions'
+
+type State = {
+  newToDoText: string
+  invalidText: boolean
 }
 
-type StateProps = {
-  newTodoState: NewToDoState
-  todos: ToDo[]
+interface DispatchProps {
+  addToDo: typeof addToDoAction
 }
 
 const styles = (theme: Theme) => createStyles({
@@ -50,10 +46,17 @@ const styles = (theme: Theme) => createStyles({
   },
 })
 
-type Props = StateProps & DispatchProps & WithStyles<typeof styles>
+type Props = DispatchProps & WithStyles<typeof styles>
 
-class NewToDo extends React.Component<Props> {
-  timerId: number
+class NewToDo extends React.Component<Props, State> {
+  constructor(props: Props | Readonly<Props>) {
+    super(props)
+
+    this.state = {
+      newToDoText: '',
+      invalidText: false,
+    }
+  }
 
   onFormSubmit = (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault()
@@ -61,40 +64,24 @@ class NewToDo extends React.Component<Props> {
   };
 
   onButtonClick = async () => {
-    const {
-      newTodoState: {
-        textFieldValue,
-        invalidText,
-      },
-      toggleTextError,
-      changeText,
-      addToDo,
-    } = this.props
+    const { addToDo } = this.props
+    const { invalidText, newToDoText } = this.state
 
-    const toDoText = textFieldValue.trim()
+    const toDoText = newToDoText.trim()
 
-    if (toDoText === '') {
-      clearTimeout(this.timerId)
-
-      this.timerId = window.setTimeout(() => {
-        const {
-          newTodoState: {
-            invalidText: invalidTextAtUpdate,
-          },
-          toggleTextError: toggleTextErrorAtUpdate,
-        } = this.props
-
-        if (invalidTextAtUpdate) {
-          toggleTextErrorAtUpdate()
-        }
-      }, 5000)
-
-      return !invalidText && toggleTextError()
+    if (toDoText === '' && !invalidText) {
+      return this.setState({
+        invalidText: true,
+      })
     }
 
-    changeText('')
+    this.setState({
+      newToDoText: '',
+    })
     if (invalidText) {
-      toggleTextError()
+      this.setState({
+        invalidText: false,
+      })
     }
 
     const toDoResponse = await api<NewToDoResponse, NewToDoBody>({
@@ -109,19 +96,23 @@ class NewToDo extends React.Component<Props> {
       addToDo((toDoResponse as NewToDoResponse).result)
     }
 
-    return true
+    return null
   };
 
   onTextChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const newText = ev.target.value
-    const { newTodoState: { invalidText }, toggleTextError, changeText } = this.props
+    const { invalidText } = this.state
+    const { target: { value: newText } } = ev
 
     if (newText !== '') {
       if (invalidText) {
-        toggleTextError()
+        this.setState({
+          invalidText: false,
+        })
       }
     }
-    changeText(newText)
+    this.setState({
+      newToDoText: newText,
+    })
   };
 
   handleKeyPress = (ev: React.KeyboardEvent<HTMLInputElement>) => {
@@ -131,15 +122,18 @@ class NewToDo extends React.Component<Props> {
   }
 
   onSnackBarClose = () => {
-    const { newTodoState: { invalidText }, toggleTextError } = this.props
+    const { invalidText } = this.state
 
     if (invalidText) {
-      toggleTextError()
+      this.setState({
+        invalidText: false,
+      })
     }
   }
 
   render(): JSX.Element {
-    const { newTodoState: { invalidText, textFieldValue }, classes } = this.props
+    const { classes } = this.props
+    const { invalidText, newToDoText: textFieldValue } = this.state
 
     return (
       <Grid item>
@@ -177,18 +171,13 @@ class NewToDo extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: RootState): StateProps => ({
-  newTodoState: state.newToDo,
-  todos: state.todos,
-})
+const mapStateToProps = () => ({})
 
 const mapDispatchToProps: DispatchProps = {
-  changeText: changeNewToDoTextAction,
-  toggleTextError: toggleTextErrorAction,
   addToDo: addToDoAction,
 }
 
-export default connect<StateProps, DispatchProps>(
+export default connect<{}, DispatchProps>(
   mapStateToProps,
   mapDispatchToProps,
 )(withStyles(styles)(NewToDo))

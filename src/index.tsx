@@ -1,17 +1,22 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import { Provider } from 'react-redux'
-import { createMuiTheme, ThemeProvider } from '@material-ui/core'
+import { Provider as ReduxStoreProvider } from 'react-redux'
+
+import createMuiTheme from '@material-ui/core/styles/createMuiTheme'
+import { ThemeProvider } from '@material-ui/core/styles'
+import { green } from '@material-ui/core/colors'
+
+import ToDoAppBar from './common/ToDoAppBar'
 import App from './App'
 import Login from './login/Login'
 import Register from './register/Register'
+import NotFound from './common/NotFound'
+
 import Router from './routing/Router'
 import Route from './routing/Route'
 import routes from './routing/config'
-import NotFound from './common/NotFound'
+
 import store from './redux/store'
-import ToDoAppBar from './common/ToDoAppBar'
-import { green } from '@material-ui/core/colors'
 
 const theme = createMuiTheme({
   palette: {
@@ -26,7 +31,7 @@ const theme = createMuiTheme({
 
 ReactDOM.render(
   <ThemeProvider theme={theme}>
-    <Provider store={store}>
+    <ReduxStoreProvider store={store}>
       <Router routes={routes} NotFound={NotFound}>
         <ToDoAppBar />
         <Route path={routes.home.path}>
@@ -39,7 +44,7 @@ ReactDOM.render(
           <Register />
         </Route>
       </Router>
-    </Provider>
+    </ReduxStoreProvider>
   </ThemeProvider>,
   document.querySelector('.root'),
 )

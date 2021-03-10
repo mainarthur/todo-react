@@ -1,10 +1,12 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 import { Update } from 'history'
-import { history, RouterContext, locationToRoute } from './RouterContext'
+
 import setRouteAction from '../redux/actions/routerActions'
 import { RouterState } from '../redux/reducers/routerReducer'
 import { RootState } from '../redux/reducers'
+
+import { history, RouterContext, locationToRoute } from './RouterContext'
 
 interface DispatchProps {
   setRoute: typeof setRouteAction

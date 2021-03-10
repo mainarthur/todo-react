@@ -1,15 +1,27 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
+
+import Toolbar from '@material-ui/core/Toolbar'
+import Grid from '@material-ui/core/Grid'
+import Box from '@material-ui/core/Box'
+
+import createStyles from '@material-ui/core/styles/createStyles'
+import { Theme } from '@material-ui/core/styles/createMuiTheme'
+import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles'
+
 import NewToDo from './todo/NewToDo'
 import ToDoList from './todo/ToDoList'
+
 import { history } from './routing/RouterContext'
-import UserResponse from './api/responses/UserResponse'
+
 import { api, refreshTokens } from './api/api'
-import { err } from './logging/logger'
+import UserResponse from './api/responses/UserResponse'
+
 import { AppState } from './redux/reducers/appReducer'
 import setUserAction from './redux/actions/appActions'
 import { RootState } from './redux/reducers'
-import { Box, createStyles, Grid, Theme, Toolbar, withStyles, WithStyles } from '@material-ui/core'
+
+import { err } from './logging/logger'
 
 interface DispatchProps {
   setUser: typeof setUserAction
