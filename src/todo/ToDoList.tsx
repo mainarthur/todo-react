@@ -9,6 +9,7 @@ import createStyles from '@material-ui/core/styles/createStyles'
 import { Theme } from '@material-ui/core/styles/createMuiTheme'
 import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles'
 
+import { Typography } from '@material-ui/core'
 import ErrorSnackBar from '../common/ErrorSnackBar'
 import ReloadButton from '../common/ReloadButton'
 import ToDoElement from './ToDoElement'
@@ -52,6 +53,10 @@ const styles = (theme: Theme) => createStyles({
   },
   reloadIcon: {
     fill: '#fff',
+  },
+  noToDoText: {
+    padding: theme.spacing(5),
+    textAlign: 'center',
   },
 })
 
@@ -385,6 +390,22 @@ class ToDoList extends React.Component<Props, State> {
       clearDoneError,
     } = this.state
 
+    const todosElements = todos.map((toDo) => {
+      const { _id: tId } = toDo
+
+      return (
+        <ToDoElement
+          key={tId}
+          id={tId}
+          text={toDo.text}
+          done={toDo.done}
+          onDelete={this.onToDoDeleted}
+          onStatusChange={this.onToDoStatusChanged}
+          onPositionChange={this.onToDoPositionChanged}
+        />
+      )
+    })
+
     return (
       <Grid item className={classes.root}>
         <ToDoListControls
@@ -392,23 +413,11 @@ class ToDoList extends React.Component<Props, State> {
           onClearDoneError={this.onClearDoneError}
         />
         <Paper className={classes.paper}>
-          <List className={classes.list}>
-            {todos.map((toDo) => {
-              const { _id: tId } = toDo
-
-              return (
-                <ToDoElement
-                  key={tId}
-                  id={tId}
-                  text={toDo.text}
-                  done={toDo.done}
-                  onDelete={this.onToDoDeleted}
-                  onStatusChange={this.onToDoStatusChanged}
-                  onPositionChange={this.onToDoPositionChanged}
-                />
-              )
-            })}
-          </List>
+          {todosElements.length > 0 ? <List className={classes.list}>{todosElements}</List> : (
+            <Typography variant="body1" className={classes.noToDoText}>
+              Tasks you add appear here
+            </Typography>
+          )}
         </Paper>
         <div className="ClassNames.BOTTOM_DROPABLE" />
         <ErrorSnackBar

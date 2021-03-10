@@ -76,7 +76,7 @@ class ToDoListControls extends React.Component<Props> {
     const doneTodos = todos.filter((toDo) => toDo.done)
     const undoneTodos = todos.filter((toDo) => !toDo.done)
 
-    for (let i = 0; i < todos.length; i += 1) {
+    for (let i = 0; i < doneTodos.length; i += 1) {
       const toDo = doneTodos[i]
       const { _id: toDoId } = toDo
 
