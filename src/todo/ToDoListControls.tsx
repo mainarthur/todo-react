@@ -1,12 +1,9 @@
 import * as React from 'react'
-import { connect } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import Button from '@material-ui/core/Button'
 import ButtonGroup from '@material-ui/core/ButtonGroup'
 import Container from '@material-ui/core/Container'
-
-import createStyles from '@material-ui/core/styles/createStyles'
-import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles'
 
 import { setTodosAction } from '../redux/actions/toDoActions'
 import { RootState } from '../redux/reducers'
@@ -15,37 +12,25 @@ import { api } from '../api/api'
 import DeleteResponse from '../api/responses/DeleteResponse'
 
 import ToDo from '../models/ToDo'
+import useStyle from './ToDoListControlsStyles'
 
-interface DispatchProps {
-  setToDos: typeof setTodosAction
-}
-
-interface ToDoListState {
-  todos: ToDo[]
-}
-
-interface OwnProps {
+interface Props {
   onClearAllError(): void
   onClearDoneError(): void
 }
 
-const styles = () => createStyles({
-  controls: {
-    textAlign: 'center',
-  },
-  clearAllButton: {
-    color: '#fff',
-  },
-  clearDoneButton: {
-    backgroundColor: '#fff',
-  },
-})
+const ToDoListControls: React.FC<Props> = ({
+  onClearAllError,
+  onClearDoneError,
+}: Props) => {
+  const classes = useStyle()
 
-type Props = WithStyles<typeof styles> & DispatchProps & OwnProps & ToDoListState
+  const todos = useSelector((state: RootState) => state.todos)
+  const dispatch = useDispatch()
 
-class ToDoListControls extends React.Component<Props> {
-  onClearAllClick = async () => {
-    const { setToDos, todos, onClearAllError } = this.props
+  const setToDos = (newTodos: ToDo[]) => dispatch(setTodosAction(newTodos))
+
+  const onClearAllClick = async () => {
     const faliedToDeleteIndexes: Array<number> = []
 
     for (let i = 0; i < todos.length; i += 1) {
@@ -67,10 +52,9 @@ class ToDoListControls extends React.Component<Props> {
     if (faliedToDeleteIndexes.length > 0) {
       onClearAllError()
     }
-  };
+  }
 
-  onClearDoneClick = async () => {
-    const { setToDos, todos, onClearDoneError } = this.props
+  const onClearDoneClick = async () => {
     const faliedToDeleteIndexes: Array<number> = []
 
     const doneTodos = todos.filter((toDo) => toDo.done)
@@ -100,42 +84,30 @@ class ToDoListControls extends React.Component<Props> {
     if (faliedToDeleteIndexes.length > 0) {
       onClearDoneError()
     }
-  };
-
-  render() {
-    const { classes } = this.props
-    return (
-      <Container className={classes.controls}>
-        <ButtonGroup>
-          <Button
-            variant="contained"
-            color="secondary"
-            className={classes.clearAllButton}
-            onClick={this.onClearAllClick}
-          >
-            Clear All
-          </Button>
-          <Button
-            variant="outlined"
-            color="secondary"
-            className={classes.clearDoneButton}
-            onClick={this.onClearDoneClick}
-          >
-            Clear Done
-          </Button>
-        </ButtonGroup>
-      </Container>
-    )
   }
+
+  return (
+    <Container className={classes.controls}>
+      <ButtonGroup>
+        <Button
+          variant="contained"
+          color="secondary"
+          className={classes.clearAllButton}
+          onClick={onClearAllClick}
+        >
+          Clear All
+        </Button>
+        <Button
+          variant="outlined"
+          color="secondary"
+          className={classes.clearDoneButton}
+          onClick={onClearDoneClick}
+        >
+          Clear Done
+        </Button>
+      </ButtonGroup>
+    </Container>
+  )
 }
 
-const mapStateToProps = (state: RootState): ToDoListState => ({ todos: state.todos })
-
-const mapDispatchToProps: DispatchProps = {
-  setToDos: setTodosAction,
-}
-
-export default connect<ToDoListState, DispatchProps, OwnProps>(
-  mapStateToProps,
-  mapDispatchToProps,
-)(withStyles(styles)(ToDoListControls))
+export default ToDoListControls
