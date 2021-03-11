@@ -1,17 +1,24 @@
 import * as React from 'react'
-
+import { useContext } from 'react'
 import { RouterContext, history } from './RouterContext'
 
 type Props = {
   to: string
   onClick?(ev: React.MouseEvent<HTMLAnchorElement, MouseEvent>): void,
-  className?: string
+  className?: string,
+  children?: React.ReactNode
 }
 
-export default class Link extends React.Component<Props> {
-  onAnchorClick = (ev: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-    const { onClick, to } = this.props
-    const { route } = this.context
+const Link: React.FC<Props> = ({
+  to,
+  onClick,
+  className,
+  children,
+}: Props) => {
+  const context = useContext(RouterContext)
+
+  const onAnchorClick = (ev: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+    const { route } = context
 
     ev.preventDefault()
 
@@ -24,23 +31,23 @@ export default class Link extends React.Component<Props> {
     }
 
     history.push(to)
-  };
-
-  render() {
-    const {
-      to, children, className,
-    } = this.props
-
-    return (
-      <a
-        href={to}
-        className={className}
-        onClick={this.onAnchorClick}
-      >
-        {children}
-      </a>
-    )
   }
+
+  return (
+    <a
+      href={to}
+      className={className}
+      onClick={onAnchorClick}
+    >
+      {children}
+    </a>
+  )
 }
 
-Link.contextType = RouterContext
+Link.defaultProps = {
+  onClick: () => null,
+  children: null,
+  className: null,
+}
+
+export default Link
