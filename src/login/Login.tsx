@@ -24,6 +24,11 @@ import { setAccessTokenAction, setRefreshTokenAction } from '../redux/actions/to
 import { isValidEmail, isValidPassword } from '../utils'
 
 const Login: React.FC = () => {
+  if (localStorage.getItem('access_token')) {
+    history.push('/')
+    return null
+  }
+
   const classes = useStyle()
 
   const [emailState, setEmail] = useState('')
