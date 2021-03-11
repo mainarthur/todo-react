@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { connect } from 'react-redux'
+import { useState } from 'react'
+import { useDispatch } from 'react-redux'
 
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
@@ -7,8 +8,7 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 
-import withStyles from '@material-ui/core/styles/withStyles'
-import styles, { StyleProps } from '../common/authStyles'
+import useStyle from '../common/authStyles'
 
 import ErrorSnackBar from '../common/ErrorSnackBar'
 
@@ -23,98 +23,106 @@ import { setAccessTokenAction, setRefreshTokenAction } from '../redux/actions/to
 
 import { isValidEmail, isValidPassword, isValidName } from '../utils'
 
-type State = {
-  email: string
-  password: string
-  name: string
-  invalidEmail: boolean
-  invalidName: boolean
-  invalidPassword: boolean
-  serverError: boolean
-}
+const Register: React.FC = () => {
+  if (localStorage.getItem('access_token')) {
+    history.push('/')
+    return null
+  }
 
-interface DispatchProps {
-  setAccessToken: typeof setAccessTokenAction
-  setRefreshToken: typeof setRefreshTokenAction
-}
+  const classes = useStyle()
 
-type Props = DispatchProps & StyleProps
+  const [nameState, setName] = useState('')
+  const [emailState, setEmail] = useState('')
+  const [passwordState, setPassword] = useState('')
 
-class Register extends React.Component<Props, State> {
-  constructor(props: Props | Readonly<Props>) {
-    super(props)
-    if (localStorage.getItem('access_token')) {
-      history.push('/')
+  const [invalidName, setInvalidName] = useState(false)
+  const [invalidEmail, setInvalidEmail] = useState(false)
+  const [invalidPassword, setInvalidPassword] = useState(false)
+
+  const [serverError, setServerError] = useState(false)
+
+  const dispatch = useDispatch()
+
+  const setAccessToken = (token: string) => {
+    localStorage.setItem('access_token', token)
+    dispatch(setAccessTokenAction(token))
+  }
+  const setRefreshToken = (token: string) => {
+    localStorage.setItem('refresh_token', token)
+    dispatch(setRefreshTokenAction(token))
+  }
+
+  const onChange = (
+    getError: () => boolean,
+    setValue: React.Dispatch<React.SetStateAction<string>>,
+    setError: React.Dispatch<React.SetStateAction<boolean>>,
+    validator: (a: string) => boolean,
+  ) => (ev: React.ChangeEvent<HTMLInputElement>) => {
+    const { target: { value } } = ev
+
+    if (getError() && (value === '' || validator(value))) {
+      setError(false)
     }
 
-    this.state = {
-      email: '',
-      password: '',
-      name: '',
-      invalidName: false,
-      invalidEmail: false,
-      invalidPassword: false,
-      serverError: false,
+    setValue(value)
+  }
+
+  const onEmailChange = onChange(
+    () => invalidEmail,
+    setEmail,
+    setInvalidEmail,
+    isValidEmail,
+  )
+  const onPasswordChange = onChange(
+    () => invalidPassword,
+    setPassword,
+    setInvalidPassword,
+    isValidPassword,
+  )
+
+  const onNameChange = onChange(
+    () => invalidName,
+    setName,
+    setInvalidName,
+    isValidName,
+  )
+
+  const onSnackBarClose = () => {
+    if (serverError) {
+      setServerError(false)
     }
   }
 
-  onRegisterButtonClick = async (): Promise<void> => {
-    const {
-      setAccessToken,
-      setRefreshToken,
-    } = this.props
-
-    const {
-      invalidName,
-      invalidEmail,
-      invalidPassword,
-      serverError,
-      email: stateEmail,
-      password: statePassword,
-      name: stateName,
-    } = this.state
-
-    const email = stateEmail.trim()
-    const name = stateName.trim()
-    const password = statePassword.trim()
+  const onRegisterButtonClick = async () => {
+    const name = nameState.trim()
+    const email = emailState.trim()
+    const password = passwordState.trim()
 
     if (!isValidName(name)) {
       if (!invalidName) {
-        this.setState({
-          invalidName: true,
-        })
+        setInvalidName(true)
       }
       return
     } if (invalidName) {
-      this.setState({
-        invalidName: false,
-      })
+      setInvalidName(false)
     }
 
     if (!isValidEmail(email)) {
       if (!invalidEmail) {
-        this.setState({
-          invalidEmail: true,
-        })
+        setInvalidEmail(true)
       }
       return
     } if (invalidEmail) {
-      this.setState({
-        invalidEmail: false,
-      })
+      setInvalidEmail(false)
     }
 
     if (!isValidPassword(password)) {
       if (!invalidPassword) {
-        this.setState({
-          invalidPassword: true,
-        })
+        setInvalidPassword(true)
       }
       return
     } if (invalidPassword) {
-      this.setState({
-        invalidPassword: false,
-      })
+      setInvalidPassword(false)
     }
 
     const authResponse = await api<AuthResponse, RegisterBody>({
@@ -132,188 +140,110 @@ class Register extends React.Component<Props, State> {
         refresh_token: refreshToken,
       } = auth
 
-      localStorage.setItem('access_token', accessToken)
-      localStorage.setItem('refresh_token', refreshToken)
       setAccessToken(accessToken)
       setRefreshToken(refreshToken)
 
-      history.push('/')
       if (serverError) {
-        this.setState({
-          serverError: false,
-        })
+        setServerError(false)
       }
+      history.push('/')
     } else if (!serverError) {
-      this.setState({
-        serverError: true,
-      })
+      setServerError(true)
     }
   }
 
-  onEmailChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const { invalidEmail } = this.state
-    const { target: { value } } = ev
-
-    if (invalidEmail && (value === '' || isValidEmail(value))) {
-      this.setState({
-        invalidEmail: false,
-      })
-    }
-
-    this.setState({
-      email: value,
-    })
-  }
-
-  onPasswordChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const { invalidPassword } = this.state
-    const { target: { value } } = ev
-
-    if (invalidPassword && (value === '' || isValidPassword(value))) {
-      this.setState({
-        invalidPassword: false,
-      })
-    }
-
-    this.setState({
-      password: value,
-    })
-  }
-
-  onNameChange = (ev: React.ChangeEvent<HTMLInputElement>): void => {
-    const { invalidName } = this.state
-    const { target: { value } } = ev
-
-    if (invalidName && (value === '' || isValidName(value))) {
-      this.setState({
-        invalidName: false,
-      })
-    }
-
-    this.setState({
-      name: value,
-    })
-  };
-
-  onSnackBarClose = () => {
-    const { serverError } = this.state
-
-    if (serverError) {
-      this.setState({
-        serverError: false,
-      })
-    }
-  }
-
-  render(): JSX.Element {
-    const { classes } = this.props
-
-    const {
-      invalidEmail,
-      invalidName,
-      invalidPassword,
-      serverError,
-    } = this.state
-
-    return (
-      <Grid
-        container
-        spacing={0}
-        direction="column"
-        alignItems="center"
-        justify="center"
-        className={classes.root}
-      >
-        <Grid item>
-          <Paper className={classes.paper}>
+  return (
+    <Grid
+      container
+      spacing={0}
+      direction="column"
+      alignItems="center"
+      justify="center"
+      className={classes.root}
+    >
+      <Grid item>
+        <Paper className={classes.paper}>
+          <Grid
+            container
+            alignItems="center"
+            direction="column"
+            spacing={2}
+          >
             <Grid
-              container
-              alignItems="center"
-              direction="column"
-              spacing={2}
+              item
+              className={classes.gridItem}
             >
-              <Grid
-                item
-                className={classes.gridItem}
-              >
-                <TextField
-                  error={invalidName}
-                  helperText={invalidName && 'Invalid name format'}
-                  label="Name"
-                  placeholder="Mike"
-                  variant="outlined"
-                  type="name"
-                  className={classes.textField}
-                  onChange={this.onNameChange}
-                />
-              </Grid>
-              <Grid
-                item
-                className={classes.gridItem}
-              >
-                <TextField
-                  error={invalidEmail}
-                  helperText={invalidEmail && 'Invalid email format'}
-                  label="Email"
-                  placeholder="test@gmail.com"
-                  variant="outlined"
-                  type="email"
-                  className={classes.textField}
-                  onChange={this.onEmailChange}
-                />
-              </Grid>
-              <Grid
-                item
-                className={classes.gridItem}
-              >
-                <TextField
-                  error={invalidPassword}
-                  helperText={invalidPassword && 'Password is too weak'}
-                  label="Password"
-                  variant="outlined"
-                  type="password"
-                  className={classes.textField}
-                  onChange={this.onPasswordChange}
-                />
-              </Grid>
-              <Grid item className={classes.buttonGrid}>
-                <Button
-                  className={classes.button}
-                  variant="contained"
-                  color="secondary"
-                  onClick={this.onRegisterButtonClick}
-                >
-                  Register
-                </Button>
-              </Grid>
-              <Grid item>
-                <Typography variant="body2">
-                  <span>Already have an account?</span>
-                  <Link to="/login">Login</Link>
-                </Typography>
-              </Grid>
+              <TextField
+                error={invalidName}
+                helperText={invalidName && 'Invalid name format'}
+                label="Name"
+                placeholder="Mike"
+                variant="outlined"
+                type="name"
+                value={nameState}
+                className={classes.textField}
+                onChange={onNameChange}
+              />
             </Grid>
-          </Paper>
-        </Grid>
-        <ErrorSnackBar
-          open={serverError}
-          autoHide
-          onClose={this.onSnackBarClose}
-        >
-          Registration Problem
-        </ErrorSnackBar>
+            <Grid
+              item
+              className={classes.gridItem}
+            >
+              <TextField
+                error={invalidEmail}
+                helperText={invalidEmail && 'Invalid email format'}
+                label="Email"
+                placeholder="test@gmail.com"
+                variant="outlined"
+                type="email"
+                value={emailState}
+                className={classes.textField}
+                onChange={onEmailChange}
+              />
+            </Grid>
+            <Grid
+              item
+              className={classes.gridItem}
+            >
+              <TextField
+                error={invalidPassword}
+                helperText={invalidPassword && 'Password is too weak'}
+                label="Password"
+                variant="outlined"
+                type="password"
+                value={passwordState}
+                className={classes.textField}
+                onChange={onPasswordChange}
+              />
+            </Grid>
+            <Grid item className={classes.buttonGrid}>
+              <Button
+                className={classes.button}
+                variant="contained"
+                color="secondary"
+                onClick={onRegisterButtonClick}
+              >
+                Register
+              </Button>
+            </Grid>
+            <Grid item>
+              <Typography variant="body2">
+                <span>Already have an account?</span>
+                <Link to="/login">Login</Link>
+              </Typography>
+            </Grid>
+          </Grid>
+        </Paper>
       </Grid>
-    )
-  }
+      <ErrorSnackBar
+        open={serverError}
+        autoHide
+        onClose={onSnackBarClose}
+      >
+        Registration Problem
+      </ErrorSnackBar>
+    </Grid>
+  )
 }
-const mapStateToProps = () => ({})
 
-const mapDispatchToProps: DispatchProps = {
-  setAccessToken: setAccessTokenAction,
-  setRefreshToken: setRefreshTokenAction,
-}
-
-export default connect<{}, DispatchProps>(
-  mapStateToProps,
-  mapDispatchToProps,
-)(withStyles(styles)(Register))
+export default Register
