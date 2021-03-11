@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { FC } from 'react'
 
 import IconButton from '@material-ui/core/IconButton'
 
@@ -9,7 +10,7 @@ interface Props {
   onReloadTodosClick(): void
 }
 
-const ReloadButton: React.FC<Props> = ({ onReloadTodosClick }: Props) => {
+const ReloadButton: FC<Props> = ({ onReloadTodosClick }: Props) => {
   const classes = useStyle()
 
   return (

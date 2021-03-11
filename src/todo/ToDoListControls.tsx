@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { FC } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import Button from '@material-ui/core/Button'
@@ -19,7 +20,7 @@ interface Props {
   onClearDoneError(): void
 }
 
-const ToDoListControls: React.FC<Props> = ({
+const ToDoListControls: FC<Props> = ({
   onClearAllError,
   onClearDoneError,
 }: Props) => {

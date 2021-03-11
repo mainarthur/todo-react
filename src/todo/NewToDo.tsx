@@ -1,5 +1,10 @@
 import * as React from 'react'
-import { useState, ChangeEvent, KeyboardEvent } from 'react'
+import {
+  useState,
+  ChangeEvent,
+  KeyboardEvent,
+  FC,
+} from 'react'
 import { useDispatch } from 'react-redux'
 
 import Grid from '@material-ui/core/Grid'
@@ -20,7 +25,7 @@ import { addToDoAction } from '../redux/actions/toDoActions'
 import useStyle from './NewToDoStyles'
 import ToDo from '../models/ToDo'
 
-const NewToDo: React.FC = () => {
+const NewToDo: FC = () => {
   const classes = useStyle()
 
   const [text, setText] = useState('')

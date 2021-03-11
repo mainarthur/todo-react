@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useState } from 'react'
+import { useState, FC } from 'react'
 import { useDispatch } from 'react-redux'
 
 import Grid from '@material-ui/core/Grid'
@@ -25,7 +25,7 @@ import { isValidEmail, isValidPassword, isValidName } from '../utils'
 import onChange from '../common/onChange'
 import validateTextFields from '../common/validateTextFields'
 
-const Register: React.FC = () => {
+const Register: FC = () => {
   if (localStorage.getItem('access_token')) {
     history.push('/')
     return null

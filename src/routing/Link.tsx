@@ -1,17 +1,17 @@
 import * as React from 'react'
-import { ReactNode } from 'react'
+import { ReactNode, FC, MouseEvent } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from '../redux/reducers'
 import { history } from './routerHistory'
 
 type Props = {
   to: string
-  onClick?(ev: React.MouseEvent<HTMLAnchorElement, MouseEvent>): void,
+  onClick?(ev: MouseEvent<HTMLAnchorElement>): void,
   className?: string,
   children?: ReactNode
 }
 
-const Link: React.FC<Props> = ({
+const Link: FC<Props> = ({
   to,
   onClick,
   className,
@@ -19,7 +19,7 @@ const Link: React.FC<Props> = ({
 }: Props) => {
   const context = useSelector((state: RootState) => state.router)
 
-  const onAnchorClick = (ev: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+  const onAnchorClick = (ev: MouseEvent<HTMLAnchorElement>) => {
     const { route } = context
 
     ev.preventDefault()

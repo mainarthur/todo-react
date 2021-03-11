@@ -1,5 +1,10 @@
 import * as React from 'react'
-import { ReactNode } from 'react'
+import {
+  ReactNode,
+  FC,
+  useEffect,
+  useMemo,
+} from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Update } from 'history'
 
@@ -19,7 +24,7 @@ type Props = {
   children?: ReactNode,
 }
 
-const Router: React.FC<Props> = ({
+const Router: FC<Props> = ({
   routes: routesProps,
   NotFound,
   children,
@@ -36,9 +41,9 @@ const Router: React.FC<Props> = ({
     setRoute(route)
   }
 
-  const unlisten = React.useMemo(() => history.listen(handleRouteChange), [history])
+  const unlisten = useMemo(() => history.listen(handleRouteChange), [history])
 
-  React.useEffect(() => {
+  useEffect(() => {
     setRoute(locationToRoute(history.location))
     return () => unlisten()
   }, [])

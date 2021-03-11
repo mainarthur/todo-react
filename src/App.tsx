@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useEffect } from 'react'
+import { useEffect, FC } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import Toolbar from '@material-ui/core/Toolbar'
@@ -23,7 +23,7 @@ import User from './models/User'
 
 import { err } from './logging/logger'
 
-const App: React.FC = () => {
+const App: FC = () => {
   if (localStorage.getItem('access_token') == null) {
     history.push('/login')
     return null

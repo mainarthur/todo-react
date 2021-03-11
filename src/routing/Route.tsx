@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ReactNode } from 'react'
+import { ReactNode, FC } from 'react'
 import { useSelector } from 'react-redux'
 
 import { RootState } from '../redux/reducers'
@@ -9,7 +9,7 @@ type Props = {
   children?: ReactNode
 }
 
-const Route: React.FC<Props> = ({
+const Route: FC<Props> = ({
   path,
   children,
 }: Props) => {

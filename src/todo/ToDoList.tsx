@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, FC } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import List from '@material-ui/core/List'
@@ -43,7 +43,7 @@ enum ErrorCodes {
   ClearDone = 'Failed to delete all done tasks',
 }
 
-const ToDoList: React.FC<Props> = ({ user }: Props) => {
+const ToDoList: FC<Props> = ({ user }: Props) => {
   const classes = useStyle()
 
   const todos = useSelector((state: RootState) => state.todos)

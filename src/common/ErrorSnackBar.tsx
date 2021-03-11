@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ReactNode } from 'react'
+import { ReactNode, FC } from 'react'
 
 import Alert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
@@ -14,7 +14,7 @@ interface Props {
   autoHide?: boolean
 }
 
-const ErrorSnackBar: React.FC<Props> = ({
+const ErrorSnackBar: FC<Props> = ({
   open,
   onClose,
   children,

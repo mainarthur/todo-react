@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { FC } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import AppBar from '@material-ui/core/AppBar'
@@ -14,7 +15,7 @@ import { RootState } from '../redux/reducers'
 import { history } from '../routing/routerHistory'
 import useStyle from './ToDoAppBarStyles'
 
-const ToDoAppBar: React.FC = () => {
+const ToDoAppBar: FC = () => {
   const classes = useStyle()
   const { accessToken } = useSelector((state: RootState) => state.tokens)
   const dispatch = useDispatch()

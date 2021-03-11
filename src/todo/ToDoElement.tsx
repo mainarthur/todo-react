@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ChangeEvent } from 'react'
+import { ChangeEvent, FC } from 'react'
 
 import Checkbox from '@material-ui/core/Checkbox'
 import IconButton from '@material-ui/core/IconButton'
@@ -23,7 +23,7 @@ type Props = {
   done: boolean
 }
 
-const ToDoElement: React.FC<Props> = ({
+const ToDoElement: FC<Props> = ({
   id,
   done,
   text,
