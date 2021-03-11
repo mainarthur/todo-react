@@ -1,13 +1,10 @@
 import * as React from 'react'
-import { connect } from 'react-redux'
+import { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 
 import List from '@material-ui/core/List'
 import Paper from '@material-ui/core/Paper'
 import Grid from '@material-ui/core/Grid'
-
-import createStyles from '@material-ui/core/styles/createStyles'
-import { Theme } from '@material-ui/core/styles/createMuiTheme'
-import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles'
 
 import { Typography } from '@material-ui/core'
 import ErrorSnackBar from '../common/ErrorSnackBar'
@@ -30,202 +27,100 @@ import User from '../models/User'
 
 import { err, log } from '../logging/logger'
 import ToDoListControls from './ToDoListControls'
+import useStyle from './ToDoListStyles'
 
-const styles = (theme: Theme) => createStyles({
-  paper: {
-    width: '100%',
-    marginTop: theme.spacing(2),
-  },
-  list: {
-    width: '100%',
-  },
-  controls: {
-    textAlign: 'center',
-  },
-  clearAllButton: {
-    color: '#fff',
-  },
-  clearDoneButton: {
-    backgroundColor: '#fff',
-  },
-  root: {
-    minWidth: `calc(25vw + ${theme.spacing(4)}px)`,
-  },
-  reloadIcon: {
-    fill: '#fff',
-  },
-  noToDoText: {
-    padding: theme.spacing(5),
-    textAlign: 'center',
-  },
-})
-
-interface DispatchProps {
-  setToDos: typeof setTodosAction
-}
-
-type OwnProps = {
+type Props = {
   user: User
 }
 
-interface ToDoListState {
-  todos: ToDo[]
+enum ErrorCodes {
+  None = '',
+  Delete = 'Failed to delete To-Do',
+  PositionChange = 'Failed to change To-Do&apos;s position',
+  StatusChange = 'Failed to change To-Do&apos;s status',
+  Load = 'To-Do List loading error',
+  ClearAll = 'Failed to delete all tasks',
+  ClearDone = 'Failed to delete all done tasks',
 }
 
-type Props = OwnProps & DispatchProps & ToDoListState & WithStyles<typeof styles>
+const ToDoList: React.FC<Props> = ({ user }: Props) => {
+  const classes = useStyle()
 
-interface State {
-  deleteError: boolean
-  positionChangeError: boolean
-  statusChangeError: boolean
-  loadError: boolean
-  clearAllError: boolean
-  clearDoneError: boolean
-}
+  const todos = useSelector((state: RootState) => state.todos)
+  const dispatch = useDispatch()
 
-class ToDoList extends React.Component<Props, State> {
-  constructor(props: Props | Readonly<Props>) {
-    super(props)
+  const setToDos = (newToDos: ToDo[]) => dispatch(setTodosAction(newToDos))
 
-    this.state = {
-      deleteError: false,
-      positionChangeError: false,
-      statusChangeError: false,
-      loadError: false,
-      clearAllError: false,
-      clearDoneError: false,
-    }
+  const getToDoById = (id: string): ToDo => todos.find((toDo: ToDo) => {
+    const { _id: tId } = toDo
 
-    if (props.user) {
-      this.loadTodos(props.user)
+    return tId === id
+  })
+
+  const [errorCode, setErrorCode] = useState(ErrorCodes.None)
+  const [loadError, setLoadError] = useState(false)
+
+  const onCloseSnackBar = () => {
+    if (errorCode !== ErrorCodes.None) {
+      setErrorCode(ErrorCodes.None)
     }
   }
 
-  async componentDidUpdate(prevProps: Props) {
-    const { user, user: { _id: currentUserId } } = this.props
-    let { user: prevUser } = prevProps
+  const onClearAllError = () => {
+    if (errorCode !== ErrorCodes.ClearAll) {
+      setErrorCode(ErrorCodes.ClearAll)
+    }
+  }
 
-    if (!prevUser) {
-      prevUser = {
-        _id: '',
-        name: '',
-        email: '',
+  const onClearDoneError = () => {
+    if (errorCode !== ErrorCodes.ClearDone) {
+      setErrorCode(ErrorCodes.ClearDone)
+    }
+  }
+
+  const onToDoPositionChanged = async (id: string, nextId: string, prevId: string) => {
+    const prevTodo = getToDoById(prevId)
+    const nextTodo = getToDoById(nextId)
+
+    if (prevTodo || nextTodo) {
+      let newPosition = 0
+      if (!prevTodo) {
+        newPosition = nextTodo.position / 2
+      } else if (!nextTodo) {
+        newPosition = prevTodo.position + 1
+      } else {
+        newPosition = (prevTodo.position + nextTodo.position) / 2
       }
-    }
 
-    const { _id: prevUserId } = prevUser
-
-    if (currentUserId !== prevUserId) {
-      await this.loadTodos(user)
-    }
-  }
-
-  onClearAllError = () => {
-    const { clearAllError } = this.state
-
-    if (!clearAllError) {
-      this.setState({
-        clearAllError: true,
+      const response = await api<UpdateToDoResponse, UpdateToDoBody>({
+        endpoint: '/todo',
+        method: 'PATCH',
+        body: {
+          _id: id,
+          position: newPosition,
+        },
       })
-    }
-  }
 
-  onClearDoneError = () => {
-    const { clearDoneError } = this.state
+      if (response.status) {
+        const newTodos = todos.map((toDo) => {
+          const { _id: tId } = toDo
+          if (tId === id) {
+            const newTodo = { ...toDo }
+            newTodo.position = newPosition
+            return newTodo
+          }
 
-    if (!clearDoneError) {
-      this.setState({
-        clearDoneError: true,
-      })
-    }
-  }
+          return toDo
+        })
 
-  onReloadTodosClick = async () => {
-    const { user } = this.props
-    const { loadError } = this.state
-
-    if (user) {
-      try {
-        await this.loadTodos(user)
-      } catch (e) {
-        if (!loadError) {
-          this.setState({
-            loadError: true,
-          })
-        }
-        err(e)
+        setToDos(newTodos)
+      } else if (errorCode !== ErrorCodes.PositionChange) {
+        setErrorCode(ErrorCodes.PositionChange)
       }
     }
   }
 
-  onCloseSnackBar = () => {
-    const {
-      deleteError,
-      positionChangeError,
-      statusChangeError,
-      clearAllError,
-      clearDoneError,
-    } = this.state
-
-    if (deleteError) {
-      this.setState({
-        deleteError: false,
-      })
-    }
-
-    if (positionChangeError) {
-      this.setState({
-        positionChangeError: false,
-      })
-    }
-
-    if (statusChangeError) {
-      this.setState({
-        statusChangeError: false,
-      })
-    }
-
-    if (clearAllError) {
-      this.setState({
-        clearAllError: false,
-      })
-    }
-
-    if (clearDoneError) {
-      this.setState({
-        clearDoneError: false,
-      })
-    }
-  }
-
-  onToDoDeleted = async (toDoId: string) => {
-    const { todos, setToDos } = this.props
-    const { deleteError } = this.state
-
-    const response = await api<DeleteResponse, {}>({
-      endpoint: `/todo/${toDoId}`,
-      method: 'DELETE',
-    })
-
-    if (response.status) {
-      const newTodos = todos.filter((t) => {
-        const { _id: tId } = t
-
-        return tId !== toDoId
-      })
-
-      setToDos(newTodos)
-    } else if (!deleteError) {
-      this.setState({
-        deleteError: true,
-      })
-    }
-  };
-
-  onToDoStatusChanged = async (toDoId: string, newStatus: boolean) => {
-    const { todos, setToDos } = this.props
-    const { statusChangeError } = this.state
-
+  const onToDoStatusChanged = async (toDoId: string, newStatus: boolean) => {
     const response = await api<UpdateToDoResponse, UpdateToDoBody>({
       endpoint: '/todo',
       method: 'PATCH',
@@ -248,74 +143,34 @@ class ToDoList extends React.Component<Props, State> {
       })
 
       setToDos(newTodos)
-    } else if (!statusChangeError) {
-      this.setState({
-        statusChangeError: true,
-      })
+    } else if (errorCode !== ErrorCodes.StatusChange) {
+      setErrorCode(ErrorCodes.StatusChange)
     }
   }
 
-  onToDoPositionChanged = async (id: string, nextId: string, prevId: string) => {
-    const { todos, setToDos } = this.props
-    const { positionChangeError } = this.state
-
-    const prevTodo = todos.find((t) => {
-      const { _id: tId } = t
-
-      return tId === prevId
+  const onToDoDeleted = async (toDoId: string) => {
+    const response = await api<DeleteResponse, {}>({
+      endpoint: `/todo/${toDoId}`,
+      method: 'DELETE',
     })
 
-    const nextTodo = todos.find((t) => {
-      const { _id: tId } = t
+    if (response.status) {
+      const newTodos = todos.filter((t) => {
+        const { _id: tId } = t
 
-      return tId === nextId
-    })
-
-    if (prevTodo || nextTodo) {
-      let newPosition = 0
-      if (!prevTodo) {
-        newPosition = nextTodo.position / 2
-      } else if (!nextTodo) {
-        newPosition = prevTodo.position + 1
-      } else {
-        newPosition = (prevTodo.position + nextTodo.position) / 2
-      }
-
-      const response = await api<UpdateToDoResponse, UpdateToDoBody>({
-        endpoint: '/todo',
-        method: 'PATCH',
-        body: {
-          _id: id,
-          position: newPosition,
-        },
+        return tId !== toDoId
       })
 
-      if (response.status) {
-        const newTodos = todos.map((t) => {
-          const { _id: tId } = t
-          if (tId === id) {
-            const newTodo = { ...t }
-            newTodo.position = newPosition
-            return newTodo
-          }
-
-          return t
-        })
-
-        setToDos(newTodos)
-      } else if (!positionChangeError) {
-        this.setState({
-          positionChangeError: true,
-        })
-      }
+      setToDos(newTodos)
+    } else if (errorCode !== ErrorCodes.Delete) {
+      setErrorCode(ErrorCodes.Delete)
     }
   }
 
-  loadTodos = async (user: User) => {
-    if (user) {
-      const { _id: userId } = user
+  const loadTodos = async (newUser: User) => {
+    if (newUser) {
+      const { _id: userId } = newUser
       const db = await connectDB(`todo-${userId}`)
-      const { loadError } = this.state
 
       try {
         const response = await api<ToDoListResponse, {}>({
@@ -326,7 +181,7 @@ class ToDoList extends React.Component<Props, State> {
 
         if (response.status) {
           const todosResponse = response as ToDoListResponse
-          const { results: todos } = todosResponse
+          const { results: loadedTodos } = todosResponse
           let maxLastUpdate = 0
           const currentLastUpdate: number = parseInt(localStorage.getItem('lastUpdate'), 10)
 
@@ -334,7 +189,7 @@ class ToDoList extends React.Component<Props, State> {
             maxLastUpdate = Math.max(currentLastUpdate, maxLastUpdate)
           }
 
-          todos.forEach((toDo: ToDo) => {
+          loadedTodos.forEach((toDo: ToDo) => {
             const { _id: toDoId } = toDo
 
             if (toDo.lastUpdate) {
@@ -352,15 +207,11 @@ class ToDoList extends React.Component<Props, State> {
 
           localStorage.setItem('lastUpdate', `${maxLastUpdate}`)
         } else if (!loadError) {
-          this.setState({
-            loadError: true,
-          })
+          setLoadError(true)
         }
       } catch (e) {
         if (!loadError) {
-          this.setState({
-            loadError: true,
-          })
+          setLoadError(true)
         }
         err(e)
       } finally {
@@ -368,93 +219,80 @@ class ToDoList extends React.Component<Props, State> {
         const store = transaction.objectStore(defaultStoreName).index('position')
         const todosRequest = store.getAll()
         todosRequest.addEventListener('success', () => {
-          const { setToDos } = this.props
-
           setToDos(todosRequest.result)
         })
       }
     }
   }
 
-  render(): JSX.Element {
-    const {
-      todos,
-      classes,
-    } = this.props
-    const {
-      loadError,
-      deleteError,
-      positionChangeError,
-      statusChangeError,
-      clearAllError,
-      clearDoneError,
-    } = this.state
+  const onReloadTodosClick = async () => {
+    if (user) {
+      try {
+        await loadTodos(user)
+      } catch (e) {
+        if (!loadError) {
+          setLoadError(true)
+        }
+        err(e)
+      }
+    }
+  }
 
-    const todosElements = todos.map((toDo) => {
-      const { _id: tId } = toDo
+  useEffect(() => {
+    setToDos([])
+    if (user) {
+      loadTodos(user)
+    }
+  }, [user])
 
-      return (
-        <ToDoElement
-          key={tId}
-          id={tId}
-          text={toDo.text}
-          done={toDo.done}
-          onDelete={this.onToDoDeleted}
-          onStatusChange={this.onToDoStatusChanged}
-          onPositionChange={this.onToDoPositionChanged}
-        />
-      )
-    })
+  const todosElements = todos.map((toDo) => {
+    const { _id: tId } = toDo
 
     return (
-      <Grid item className={classes.root}>
-        <ToDoListControls
-          onClearAllError={this.onClearAllError}
-          onClearDoneError={this.onClearDoneError}
-        />
-        <Paper className={classes.paper}>
-          {todosElements.length > 0 ? <List className={classes.list}>{todosElements}</List> : (
-            <Typography variant="body1" className={classes.noToDoText}>
-              Tasks you add appear here
-            </Typography>
-          )}
-        </Paper>
-        <div className="ClassNames.BOTTOM_DROPABLE" />
-        <ErrorSnackBar
-          open={loadError}
-          action={(
-            <ReloadButton onReloadTodosClick={this.onReloadTodosClick} />
-          )}
-        >
-          To-Do List loading error
-        </ErrorSnackBar>
-        <ErrorSnackBar open={deleteError} autoHide onClose={this.onCloseSnackBar}>
-          Failed to delete To-Do
-        </ErrorSnackBar>
-        <ErrorSnackBar open={statusChangeError} autoHide onClose={this.onCloseSnackBar}>
-          Failed to change To-Do&apos;s status
-        </ErrorSnackBar>
-        <ErrorSnackBar open={positionChangeError} autoHide onClose={this.onCloseSnackBar}>
-          Failed to change To-Do&apos;s position
-        </ErrorSnackBar>
-        <ErrorSnackBar open={clearAllError} autoHide onClose={this.onCloseSnackBar}>
-          Failed to delete all tasks
-        </ErrorSnackBar>
-        <ErrorSnackBar open={clearDoneError} autoHide onClose={this.onCloseSnackBar}>
-          Failed to delete all done tasks
-        </ErrorSnackBar>
-      </Grid>
-    )// TODO add Snakbars for falied requests
-  }
+      <ToDoElement
+        key={tId}
+        id={tId}
+        text={toDo.text}
+        done={toDo.done}
+        onDelete={onToDoDeleted}
+        onStatusChange={onToDoStatusChanged}
+        onPositionChange={onToDoPositionChanged}
+      />
+    )
+  })
+
+  return (
+    <Grid item className={classes.root}>
+      <ToDoListControls
+        onClearAllError={onClearAllError}
+        onClearDoneError={onClearDoneError}
+      />
+      <Paper className={classes.paper}>
+        {todosElements.length > 0 ? <List className={classes.list}>{todosElements}</List> : (
+          <Typography variant="body1" className={classes.noToDoText}>
+            Tasks you add appear here
+          </Typography>
+        )}
+      </Paper>
+      <div className="ClassNames.BOTTOM_DROPABLE" />
+      <ErrorSnackBar
+        open={loadError}
+        action={(
+          <ReloadButton onReloadTodosClick={onReloadTodosClick} />
+        )}
+      >
+        {ErrorCodes.Load.toString()}
+      </ErrorSnackBar>
+      <ErrorSnackBar
+        open={errorCode !== ErrorCodes.None}
+        key={errorCode}
+        autoHide
+        onClose={onCloseSnackBar}
+      >
+        {errorCode.toString()}
+      </ErrorSnackBar>
+    </Grid>
+  )
 }
 
-const mapStateToProps = (state: RootState): ToDoListState => ({ todos: state.todos })
-
-const mapDispatchToProps: DispatchProps = {
-  setToDos: setTodosAction,
-}
-
-export default connect<ToDoListState, DispatchProps, OwnProps>(
-  mapStateToProps,
-  mapDispatchToProps,
-)(withStyles(styles)(ToDoList))
+export default ToDoList
