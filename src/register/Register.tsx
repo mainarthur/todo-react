@@ -22,6 +22,8 @@ import AuthResponse from '../api/responses/AuthResponse'
 import { setAccessTokenAction, setRefreshTokenAction } from '../redux/actions/tokenActions'
 
 import { isValidEmail, isValidPassword, isValidName } from '../utils'
+import onChange from '../common/onChange'
+import validateTextFields from '../common/validateTextFields'
 
 const Register: React.FC = () => {
   if (localStorage.getItem('access_token')) {
@@ -52,27 +54,13 @@ const Register: React.FC = () => {
     dispatch(setRefreshTokenAction(token))
   }
 
-  const onChange = (
-    getError: () => boolean,
-    setValue: React.Dispatch<React.SetStateAction<string>>,
-    setError: React.Dispatch<React.SetStateAction<boolean>>,
-    validator: (a: string) => boolean,
-  ) => (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const { target: { value } } = ev
-
-    if (getError() && (value === '' || validator(value))) {
-      setError(false)
-    }
-
-    setValue(value)
-  }
-
   const onEmailChange = onChange(
     () => invalidEmail,
     setEmail,
     setInvalidEmail,
     isValidEmail,
   )
+
   const onPasswordChange = onChange(
     () => invalidPassword,
     setPassword,
@@ -98,31 +86,23 @@ const Register: React.FC = () => {
     const email = emailState.trim()
     const password = passwordState.trim()
 
-    if (!isValidName(name)) {
-      if (!invalidName) {
-        setInvalidName(true)
-      }
+    if (!validateTextFields([{
+      textFieldValue: name,
+      error: invalidName,
+      setError: setInvalidName,
+      validator: isValidName,
+    }, {
+      textFieldValue: email,
+      error: invalidEmail,
+      setError: setInvalidEmail,
+      validator: isValidEmail,
+    }, {
+      textFieldValue: password,
+      error: invalidPassword,
+      setError: setInvalidPassword,
+      validator: isValidPassword,
+    }])) {
       return
-    } if (invalidName) {
-      setInvalidName(false)
-    }
-
-    if (!isValidEmail(email)) {
-      if (!invalidEmail) {
-        setInvalidEmail(true)
-      }
-      return
-    } if (invalidEmail) {
-      setInvalidEmail(false)
-    }
-
-    if (!isValidPassword(password)) {
-      if (!invalidPassword) {
-        setInvalidPassword(true)
-      }
-      return
-    } if (invalidPassword) {
-      setInvalidPassword(false)
     }
 
     const authResponse = await api<AuthResponse, RegisterBody>({
