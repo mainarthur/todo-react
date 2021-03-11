@@ -16,7 +16,6 @@ import ListItemText from '@material-ui/core/ListItemText'
 import DragHandleIcon from '@material-ui/icons/DragHandle'
 import DeleteIcon from '@material-ui/icons/Delete'
 import ClassNames from './ClassNames'
-import { Typography } from '@material-ui/core'
 
 type Props = {
   id: string
@@ -181,9 +180,7 @@ const ToDoElement: FC<Props> = ({
           disableRipple
         />
       </ListItemIcon>
-      <Typography variant="body1">
-        {text}
-      </Typography>
+      <ListItemText primary={text} />
       <ListItemSecondaryAction>
         <IconButton ref={deleteButton} edge="end" onClick={onDeleteButtonClick}>
           <DeleteIcon />
