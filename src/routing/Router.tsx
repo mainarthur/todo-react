@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { ReactNode } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Update } from 'history'
 
@@ -14,8 +15,8 @@ type Props = {
       path: string
     }
   },
-  NotFound: React.ReactNode,
-  children?: React.ReactNode,
+  NotFound: ReactNode,
+  children?: ReactNode,
 }
 
 const Router: React.FC<Props> = ({

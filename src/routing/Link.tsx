@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { ReactNode } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from '../redux/reducers'
 import { history } from './routerHistory'
@@ -7,7 +8,7 @@ type Props = {
   to: string
   onClick?(ev: React.MouseEvent<HTMLAnchorElement, MouseEvent>): void,
   className?: string,
-  children?: React.ReactNode
+  children?: ReactNode
 }
 
 const Link: React.FC<Props> = ({

@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { ChangeEvent } from 'react'
 
 import Checkbox from '@material-ui/core/Checkbox'
 import IconButton from '@material-ui/core/IconButton'
@@ -22,18 +23,50 @@ type Props = {
   done: boolean
 }
 
-class ToDoElement extends React.Component<Props> {
-  onDeleteButtonClick = (): void => {
-    const { id, onDelete } = this.props
+const ToDoElement: React.FC<Props> = ({
+  id,
+  done,
+  text,
+  onDelete,
+  onStatusChange,
+  onPositionChange,
+}: Props) => {
+  const onDeleteButtonClick = (): void => {
     onDelete(id)
-  };
+  }
 
-  onCheckBoxChange = (ev: React.ChangeEvent<HTMLInputElement>): void => {
-    const { id, onStatusChange } = this.props
+  const onCheckBoxChange = (ev: ChangeEvent<HTMLInputElement>): void => {
+    const { target: { checked } } = ev
 
-    onStatusChange(id, ev.target.checked)
-  };
+    onStatusChange(id, checked)
+  }
+  return (
+    <ListItem
+      id={id}
+      role={undefined}
+      dense
+      button
+    >
+      <ListItemIcon>
+        <Checkbox
+          onChange={onCheckBoxChange}
+          edge="start"
+          checked={done}
+          tabIndex={-1}
+          disableRipple
+        />
+      </ListItemIcon>
+      <ListItemText primary={text} />
+      <ListItemSecondaryAction>
+        <IconButton edge="end" onClick={onDeleteButtonClick}>
+          <DeleteIcon />
+        </IconButton>
+      </ListItemSecondaryAction>
+    </ListItem>
+  )
+}
 
+class ToDoElement2 extends React.Component<Props> {
   onMouseDown = (ev: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
     const { onPositionChange } = this.props
 
@@ -165,36 +198,6 @@ class ToDoElement extends React.Component<Props> {
     window.document.addEventListener('mousemove', onMouseMove)
     target.addEventListener('mouseup', onMouseUp)
   };
-
-  render(): JSX.Element {
-    const {
-      text, done, id,
-    } = this.props
-
-    return (
-      <ListItem
-        id={id}
-        role={undefined}
-        dense
-        button
-      >
-        <ListItemIcon>
-          <Checkbox
-            onChange={this.onCheckBoxChange}
-            edge="start"
-            checked={done}
-            tabIndex={-1}
-            disableRipple
-          />
-        </ListItemIcon>
-        <ListItemText primary={text} />
-        <ListItemSecondaryAction>
-          <IconButton edge="end" onClick={this.onDeleteButtonClick}>
-            <DeleteIcon />
-          </IconButton>
-        </ListItemSecondaryAction>
-      </ListItem>
-    )
-  }
 }
+
 export default ToDoElement

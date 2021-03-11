@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useState } from 'react'
+import { useState, ChangeEvent, KeyboardEvent } from 'react'
 import { useDispatch } from 'react-redux'
 
 import Grid from '@material-ui/core/Grid'
@@ -66,7 +66,7 @@ const NewToDo: React.FC = () => {
     return null
   }
 
-  const onTextChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+  const onTextChange = (ev: ChangeEvent<HTMLInputElement>) => {
     const { target: { value: newText } } = ev
 
     if (newText !== '') {
@@ -78,7 +78,7 @@ const NewToDo: React.FC = () => {
     setText(newText)
   }
 
-  const handleKeyPress = (ev: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyPress = (ev: KeyboardEvent<HTMLInputElement>) => {
     if (ev.key === 'Enter') {
       onButtonClick()
     }

@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { ReactNode } from 'react'
 
 import Alert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
@@ -7,9 +8,9 @@ import SlideDown from './SlideDown'
 
 interface Props {
   open: boolean
-  children?: React.ReactNode
+  children?: ReactNode
   onClose?(): void
-  action?: React.ReactNode
+  action?: ReactNode
   autoHide?: boolean
 }
 

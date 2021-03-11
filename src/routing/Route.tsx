@@ -1,11 +1,12 @@
 import * as React from 'react'
+import { ReactNode } from 'react'
 import { useSelector } from 'react-redux'
 
 import { RootState } from '../redux/reducers'
 
 type Props = {
   path: string,
-  children?: React.ReactNode
+  children?: ReactNode
 }
 
 const Route: React.FC<Props> = ({
