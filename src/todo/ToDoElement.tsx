@@ -4,7 +4,6 @@ import {
   FC,
   useRef,
   useEffect,
-  MutableRefObject,
 } from 'react'
 
 import Checkbox from '@material-ui/core/Checkbox'
@@ -16,6 +15,8 @@ import ListItemText from '@material-ui/core/ListItemText'
 
 import DragHandleIcon from '@material-ui/icons/DragHandle'
 import DeleteIcon from '@material-ui/icons/Delete'
+import ClassNames from './ClassNames'
+import { Typography } from '@material-ui/core'
 
 type Props = {
   id: string
@@ -25,6 +26,8 @@ type Props = {
   text: string
   done: boolean
 }
+
+const getToDoIdByElement = (elem: Element) => elem?.querySelector('div[id]')?.id ?? null
 
 const ToDoElement: FC<Props> = ({
   id,
@@ -52,7 +55,6 @@ const ToDoElement: FC<Props> = ({
   useEffect(() => {
     const { current: li } = listItem
     const { current: dragButton } = dragElement
-    console.log(li)
     const onMouseDown = (ev: MouseEvent) => {
       if (ev.button !== 0) {
         return // Only left button handle
@@ -71,14 +73,17 @@ const ToDoElement: FC<Props> = ({
 
       const ghostDiv = document.createElement('div')
 
-      ghostDiv.style.width = `${rect.right - rect.left}px`
-      ghostDiv.style.height = `${rect.bottom - rect.top}px`
+      ghostDiv.style.width = `${rect.right - rect.left - 4}px`
+      ghostDiv.style.height = `${rect.bottom - rect.top - 4}px`
+      ghostDiv.style.margin = '2px'
       ghostDiv.style.border = '1px dotted rgba(66,66,66,0.3)'
 
       li.style.width = `${rect.right - rect.left}px`
       li.style.position = 'fixed'
       li.style.backgroundColor = 'white'
       li.style.zIndex = '666'
+
+      li.after(ghostDiv)
 
       const moveAt = (pageX: number, pageY: number): void => {
         li.style.left = `${pageX - shiftX}px`
@@ -107,77 +112,48 @@ const ToDoElement: FC<Props> = ({
 
         currentDropable = elementBelow
 
-        if (currentDropable.tagName.toUpperCase() === 'LI') {
-          currentDropable.before(ghostDiv)
-        } /* else if (currentDropable.classList.contains(ClassNames.BOTTOM_DROPABLE)) {
-          target.parentElement.append(ghostDiv)
-        } */
+        if (li.parentElement.contains(currentDropable)) {
+          if (currentDropable.classList.contains(ClassNames.BOTTOM_DROPABLE)) {
+            currentDropable.before(ghostDiv)
+          } else {
+            let i = 0
+
+            while (i !== 7 && currentDropable.tagName.toUpperCase() !== 'LI') {
+              currentDropable = currentDropable.parentElement
+              i += 1
+            }
+
+            if (currentDropable.tagName.toUpperCase() === 'LI') {
+              currentDropable.before(ghostDiv)
+            }
+          }
+        }
       }
 
       const onMouseUp = () => {
         window.document.removeEventListener('mousemove', onMouseMove)
         window.document.removeEventListener('mouseup', onMouseUp)
 
-        if (currentDropable) {
-          /* let dropableTarget: Element = currentDropable
-          let i = 0
+        if (ghostDiv) {
+          ghostDiv.before(li)
+          ghostDiv?.remove()
 
-          while (dropableTarget != null && dropableTarget !== ghostDiv && dropableTarget.tagName.toUpperCase() !== 'LI' && !dropableTarget.classList.contains(ClassNames.BOTTOM_DROPABLE) && i !== 10) {
-            i += 1
-            dropableTarget = dropableTarget.parentElement
-          }
+          const {
+            nextElementSibling: nextElement,
+            previousElementSibling: prevElement,
+          } = li
 
-          if (dropableTarget) {
-            if (dropableTarget.tagName.toUpperCase() === 'LI') {
-              dropableTarget.before(target)
-              ghostDiv?.remove()
-              const nextId = dropableTarget.id
-              let prevId = ''
+          const prevId = getToDoIdByElement(prevElement)
+          const nextId = getToDoIdByElement(nextElement)
 
-              if (target.previousElementSibling) {
-                prevId = target.previousElementSibling.id
-              }
-
-              onPositionChange(target.id, nextId, prevId)
-            } else if (dropableTarget.classList.contains(ClassNames.BOTTOM_DROPABLE)) {
-              target.parentElement.append(target)
-              ghostDiv?.remove()
-
-              Console.log('bottom-drag')
-
-              if (target.previousElementSibling) {
-                onPositionChange(target.id, '', target.previousElementSibling.id)
-              }
-            } else if (dropableTarget === ghostDiv) {
-              dropableTarget.before(target)
-              ghostDiv?.remove()
-
-              const {
-                previousElementSibling,
-                nextElementSibling,
-              } = target
-
-              if (previousElementSibling || nextElementSibling) {
-                if (!previousElementSibling) {
-                  onPositionChange(target.id, nextElementSibling.id, '')
-                } else if (!nextElementSibling) {
-                  onPositionChange(target.id, '', previousElementSibling.id)
-                } else {
-                  onPositionChange(target.id, nextElementSibling.id, previousElementSibling.id)
-                }
-              }
-            }
-          } */
+          onPositionChange(id, nextId, prevId)
         }
-        console.log('mouse up')
         li.removeAttribute('style')
         ghostDiv?.remove()
       }
 
       window.document.addEventListener('mousemove', onMouseMove)
       window.document.addEventListener('mouseup', onMouseUp)
-
-      console.log(123)
     }
 
     li.addEventListener('mousedown', onMouseDown)
@@ -205,7 +181,9 @@ const ToDoElement: FC<Props> = ({
           disableRipple
         />
       </ListItemIcon>
-      <ListItemText primary={text} />
+      <Typography variant="body1">
+        {text}
+      </Typography>
       <ListItemSecondaryAction>
         <IconButton ref={deleteButton} edge="end" onClick={onDeleteButtonClick}>
           <DeleteIcon />

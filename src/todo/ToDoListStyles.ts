@@ -8,6 +8,7 @@ const useStyle = makeStyles((theme: Theme) => ({
   },
   list: {
     width: '100%',
+    paddingBottom: 0,
   },
   root: {
     minWidth: `calc(25vw + ${theme.spacing(4)}px)`,

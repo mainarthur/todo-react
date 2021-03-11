@@ -28,6 +28,9 @@ import User from '../models/User'
 import { err, log } from '../logging/logger'
 import ToDoListControls from './ToDoListControls'
 import useStyle from './ToDoListStyles'
+import ClassNames from './ClassNames'
+
+import './dnd.scss'
 
 type Props = {
   user: User
@@ -261,6 +264,11 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
     )
   })
 
+  todosElements.push(<div
+    key={ClassNames.BOTTOM_DROPABLE}
+    className={ClassNames.BOTTOM_DROPABLE}
+  />)
+
   return (
     <Grid item className={classes.root}>
       <ToDoListControls
@@ -268,13 +276,12 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
         onClearDoneError={onClearDoneError}
       />
       <Paper className={classes.paper}>
-        {todosElements.length > 0 ? <List className={classes.list}>{todosElements}</List> : (
+        {todosElements.length > 1 ? <List className={classes.list}>{todosElements}</List> : (
           <Typography variant="body1" className={classes.noToDoText}>
             Tasks you add appear here
           </Typography>
         )}
       </Paper>
-      <div className="ClassNames.BOTTOM_DROPABLE" />
       <ErrorSnackBar
         open={loadError}
         action={(
