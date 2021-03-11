@@ -1,8 +1,7 @@
-import createStyles from '@material-ui/core/styles/createStyles'
+import makeStyles from '@material-ui/core/styles/makeStyles'
 import { Theme } from '@material-ui/core/styles/createMuiTheme'
-import { WithStyles } from '@material-ui/core/styles/withStyles'
 
-const styles = (theme: Theme) => createStyles({
+const useStyle = makeStyles((theme: Theme) => ({
   root: {
     minHeight: '100vh',
   },
@@ -26,8 +25,6 @@ const styles = (theme: Theme) => createStyles({
     maxWidth: '133.75px',
     boxSizing: 'border-box',
   },
-})
+}))
 
-export type StyleProps = WithStyles<typeof styles>
-
-export default styles
+export default useStyle
