@@ -1,15 +1,12 @@
 import * as React from 'react'
-import { connect } from 'react-redux'
+import { useState } from 'react'
+import { useDispatch } from 'react-redux'
 
 import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton'
 import Paper from '@material-ui/core/Paper'
 import Input from '@material-ui/core/Input'
 import InputAdornment from '@material-ui/core/InputAdornment'
-
-import createStyles from '@material-ui/core/styles/createStyles'
-import { Theme } from '@material-ui/core/styles/createMuiTheme'
-import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles'
 
 import { Add } from '@material-ui/icons'
 
@@ -20,71 +17,38 @@ import NewToDoBody from '../api/bodies/NewToDoBody'
 import NewToDoResponse from '../api/responses/NewToDoResponse'
 
 import { addToDoAction } from '../redux/actions/toDoActions'
+import useStyle from './NewToDoStyles'
+import ToDo from '../models/ToDo'
 
-type State = {
-  newToDoText: string
-  invalidText: boolean
-}
+const NewToDo: React.FC = () => {
+  const classes = useStyle()
 
-interface DispatchProps {
-  addToDo: typeof addToDoAction
-}
+  const [text, setText] = useState('')
+  const [invalidText, setInvalidText] = useState(false)
 
-const styles = (theme: Theme) => createStyles({
-  addIcon: {
-    fill: theme.palette.secondary.main,
-  },
-  paper: {
-    minWidth: '25vw',
-    paddingRight: theme.spacing(2),
-    paddingLeft: theme.spacing(2),
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-  },
-  input: {
-    width: '100%',
-  },
-})
+  const dispatch = useDispatch()
 
-type Props = DispatchProps & WithStyles<typeof styles>
+  const addToDo = (toDo: ToDo) => dispatch(addToDoAction(toDo))
 
-class NewToDo extends React.Component<Props, State> {
-  constructor(props: Props | Readonly<Props>) {
-    super(props)
-
-    this.state = {
-      newToDoText: '',
-      invalidText: false,
+  const onSnackBarClose = () => {
+    if (invalidText) {
+      setInvalidText(false)
     }
   }
 
-  onFormSubmit = (ev: React.FormEvent<HTMLFormElement>) => {
-    ev.preventDefault()
-    this.onButtonClick()
-  };
-
-  onButtonClick = async (): Promise<void> => {
-    const { addToDo } = this.props
-    const { invalidText, newToDoText } = this.state
-
-    const toDoText = newToDoText.trim()
+  const onButtonClick = async (): Promise<void> => {
+    const toDoText = text.trim()
 
     if (toDoText === '') {
       if (!invalidText) {
-        this.setState({
-          invalidText: true,
-        })
+        setInvalidText(true)
       }
       return null
     }
 
-    this.setState({
-      newToDoText: '',
-    })
+    setText('')
     if (invalidText) {
-      this.setState({
-        invalidText: false,
-      })
+      setInvalidText(false)
     }
 
     const toDoResponse = await api<NewToDoResponse, NewToDoBody>({
@@ -100,84 +64,56 @@ class NewToDo extends React.Component<Props, State> {
     }
 
     return null
-  };
+  }
 
-  onTextChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const { invalidText } = this.state
+  const onTextChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     const { target: { value: newText } } = ev
 
     if (newText !== '') {
       if (invalidText) {
-        this.setState({
-          invalidText: false,
-        })
+        setInvalidText(false)
       }
     }
-    this.setState({
-      newToDoText: newText,
-    })
-  };
 
-  handleKeyPress = (ev: React.KeyboardEvent<HTMLInputElement>) => {
+    setText(newText)
+  }
+
+  const handleKeyPress = (ev: React.KeyboardEvent<HTMLInputElement>) => {
     if (ev.key === 'Enter') {
-      this.onButtonClick()
+      onButtonClick()
     }
   }
 
-  onSnackBarClose = () => {
-    const { invalidText } = this.state
-
-    if (invalidText) {
-      this.setState({
-        invalidText: false,
-      })
-    }
-  }
-
-  render(): JSX.Element {
-    const { classes } = this.props
-    const { invalidText, newToDoText: textFieldValue } = this.state
-
-    return (
-      <Grid item>
-        <Paper className={classes.paper}>
-          <Input
-            color="secondary"
-            className={classes.input}
-            onChange={this.onTextChange}
-            value={textFieldValue}
-            onKeyPress={this.handleKeyPress}
-            placeholder="New task"
-            endAdornment={
-              (
-                <InputAdornment position="end">
-                  <IconButton onClick={this.onButtonClick}>
-                    <Add className={classes.addIcon} />
-                  </IconButton>
-                </InputAdornment>
-              )
-            }
-          />
-        </Paper>
-        <ErrorSnackBar
-          open={invalidText}
-          autoHide
-          onClose={this.onSnackBarClose}
-        >
-          Text is required
-        </ErrorSnackBar>
-      </Grid>
-    )
-  }
+  return (
+    <Grid item>
+      <Paper className={classes.paper}>
+        <Input
+          color="secondary"
+          className={classes.input}
+          onChange={onTextChange}
+          value={text}
+          onKeyPress={handleKeyPress}
+          placeholder="New task"
+          endAdornment={
+            (
+              <InputAdornment position="end">
+                <IconButton onClick={onButtonClick}>
+                  <Add className={classes.addIcon} />
+                </IconButton>
+              </InputAdornment>
+            )
+          }
+        />
+      </Paper>
+      <ErrorSnackBar
+        open={invalidText}
+        autoHide
+        onClose={onSnackBarClose}
+      >
+        Text is required
+      </ErrorSnackBar>
+    </Grid>
+  )
 }
 
-const mapStateToProps = () => ({})
-
-const mapDispatchToProps: DispatchProps = {
-  addToDo: addToDoAction,
-}
-
-export default connect<{}, DispatchProps>(
-  mapStateToProps,
-  mapDispatchToProps,
-)(withStyles(styles)(NewToDo))
+export default NewToDo
