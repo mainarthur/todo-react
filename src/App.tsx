@@ -12,7 +12,7 @@ import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles'
 import NewToDo from './todo/NewToDo'
 import ToDoList from './todo/ToDoList'
 
-import { history } from './routing/RouterContext'
+import { history } from './routing/routerHistory'
 
 import { api, refreshTokens } from './api/api'
 import UserResponse from './api/responses/UserResponse'

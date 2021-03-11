@@ -1,4 +1,3 @@
-import { createContext } from 'react'
 import { createBrowserHistory, Location } from 'history'
 import * as qs from 'querystringify'
 
@@ -11,7 +10,3 @@ export function locationToRoute(location: Location<object>) {
     query: qs.parse(location.search),
   }
 }
-
-export const RouterContext = createContext({
-  route: locationToRoute(history.location),
-})

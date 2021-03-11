@@ -1,6 +1,7 @@
 import * as React from 'react'
-import { useContext } from 'react'
-import { RouterContext, history } from './RouterContext'
+import { useSelector } from 'react-redux'
+import { RootState } from '../redux/reducers'
+import { history } from './routerHistory'
 
 type Props = {
   to: string
@@ -15,7 +16,7 @@ const Link: React.FC<Props> = ({
   className,
   children,
 }: Props) => {
-  const context = useContext(RouterContext)
+  const context = useSelector((state: RootState) => state.router)
 
   const onAnchorClick = (ev: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
     const { route } = context

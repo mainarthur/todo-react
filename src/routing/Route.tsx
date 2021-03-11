@@ -1,20 +1,27 @@
 import * as React from 'react'
+import { useSelector } from 'react-redux'
 
-import { RouterContext } from './RouterContext'
+import { RootState } from '../redux/reducers'
 
 type Props = {
-  path: string
+  path: string,
+  children?: React.ReactNode
 }
 
-export default class Route extends React.PureComponent<Props> {
-  render() {
-    const { path, children } = this.props
-    const { route } = this.context
+const Route: React.FC<Props> = ({
+  path,
+  children,
+}: Props) => {
+  const routerContext = useSelector((state: RootState) => state.router)
+  const { route } = routerContext
 
-    if (path !== route.path) return <></>
+  if (path !== route.path) return <></>
 
-    return <>{children}</>
-  }
+  return <>{children}</>
 }
 
-Route.contextType = RouterContext
+Route.defaultProps = {
+  children: null,
+}
+
+export default Route

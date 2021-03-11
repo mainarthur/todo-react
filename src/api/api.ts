@@ -6,7 +6,7 @@ import AuthResponse from './responses/AuthResponse'
 
 import store from '../redux/store'
 import { deleteTokensAction, setAccessTokenAction, setRefreshTokenAction } from '../redux/actions/tokenActions'
-import { history } from '../routing/RouterContext'
+import { history } from '../routing/routerHistory'
 
 import { err } from '../logging/logger'
 

@@ -1,72 +1,64 @@
 import * as React from 'react'
-import { connect } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Update } from 'history'
 
 import setRouteAction from '../redux/actions/routerActions'
-import { RouterState } from '../redux/reducers/routerReducer'
 import { RootState } from '../redux/reducers'
 
-import { history, RouterContext, locationToRoute } from './RouterContext'
+import { history, locationToRoute } from './routerHistory'
+import Route from '../models/Route'
 
-interface DispatchProps {
-  setRoute: typeof setRouteAction
-}
-
-type OwnProps = {
+type Props = {
   routes: {
     [key: string]: {
       path: string
     }
   },
   NotFound: React.ReactNode,
+  children?: React.ReactNode,
 }
 
-type Props = RouterState & DispatchProps & OwnProps & { children?: React.ReactNode }
+const Router: React.FC<Props> = ({
+  routes: routesProps,
+  NotFound,
+  children,
+}: Props) => {
+  const dispatch = useDispatch()
+  const routesState = useSelector((state: RootState) => state.router)
 
-class Router extends React.Component<Props> {
-  routes: string[]
+  const setRoute = (route: Route) => dispatch(setRouteAction(route))
 
-  unlisten: () => void
+  const routes = Object.keys(routesProps).map((key) => routesProps[key].path)
 
-  constructor(props: Props | Readonly<Props>) {
-    super(props)
-    this.routes = Object.keys(props.routes).map((key) => props.routes[key].path)
-    this.unlisten = history.listen(this.handleRouteChange)
-    props.setRoute(locationToRoute(history.location))
-  }
-
-  componentWillUnmount() {
-    this.unlisten()
-  }
-
-  handleRouteChange = (update: Update<object>) => {
-    const { setRoute } = this.props
-
+  const handleRouteChange = (update: Update<object>) => {
     const route = locationToRoute(update.location)
     setRoute(route)
-  };
-
-  render() {
-    const { children, NotFound, route } = this.props
-    if (!route) {
-      return null
-    }
-    const routerContextValue = { route }
-    const is404 = this.routes.indexOf(route.path) === -1
-
-    return (
-      <RouterContext.Provider value={routerContextValue}>
-        {is404 ? NotFound : children}
-      </RouterContext.Provider>
-    )
   }
+
+  const unlisten = React.useMemo(() => history.listen(handleRouteChange), [history])
+
+  React.useEffect(() => {
+    setRoute(locationToRoute(history.location))
+    return () => unlisten()
+  }, [])
+
+  const { route } = routesState
+
+  if (!route) {
+    return null
+  }
+
+  const is404 = routes.indexOf(route.path) === -1
+
+  return (
+    <>
+      {is404 ? NotFound : children}
+    </>
+  )
 }
 
-const mapStateToProps = (state: RootState): RouterState => ({ ...state.router })
-
-const mapDispatchToProps: DispatchProps = {
-  setRoute: setRouteAction,
+Router.defaultProps = {
+  children: null,
 }
 
-export default connect<RouterState, DispatchProps, OwnProps>(mapStateToProps,
-  mapDispatchToProps)(Router)
+export default Router

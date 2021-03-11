@@ -13,7 +13,7 @@ import useStyle from '../common/authStyles'
 import ErrorSnackBar from '../common/ErrorSnackBar'
 
 import Link from '../routing/Link'
-import { history } from '../routing/RouterContext'
+import { history } from '../routing/routerHistory'
 
 import { api } from '../api/api'
 import RegisterBody from '../api/bodies/RegisterBody'
