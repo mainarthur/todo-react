@@ -6,14 +6,14 @@ import Button from '@material-ui/core/Button'
 import ButtonGroup from '@material-ui/core/ButtonGroup'
 import Container from '@material-ui/core/Container'
 
-import { setTodosAction } from '../redux/actions/toDoActions'
-import { RootState } from '../redux/reducers'
+import { setTodosAction } from '../../../redux/actions/toDoActions'
+import { RootState } from '../../../redux/reducers'
 
-import { api } from '../api/api'
-import DeleteResponse from '../api/responses/DeleteResponse'
+import { api } from '../../../api/api'
+import DeleteResponse from '../../../api/responses/DeleteResponse'
 
-import ToDo from '../models/ToDo'
-import useStyle from './ToDoListControlsStyles'
+import ToDo from '../../../models/ToDo'
+import useStyle from './styles'
 
 interface Props {
   onClearAllError(): void

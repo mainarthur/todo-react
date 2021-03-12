@@ -15,15 +15,15 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 
 import { Add } from '@material-ui/icons'
 
-import ErrorSnackBar from '../common/ErrorSnackBar'
+import ErrorSnackBar from '../../common/ErrorSnackBar'
 
-import { api } from '../api/api'
-import NewToDoBody from '../api/bodies/NewToDoBody'
-import NewToDoResponse from '../api/responses/NewToDoResponse'
+import { api } from '../../api/api'
+import NewToDoBody from '../../api/bodies/NewToDoBody'
+import NewToDoResponse from '../../api/responses/NewToDoResponse'
 
-import { addToDoAction } from '../redux/actions/toDoActions'
-import useStyle from './NewToDoStyles'
-import ToDo from '../models/ToDo'
+import { addToDoAction } from '../../redux/actions/toDoActions'
+import useStyle from './styles'
+import ToDo from '../../models/ToDo'
 
 const NewToDo: FC = () => {
   const classes = useStyle()

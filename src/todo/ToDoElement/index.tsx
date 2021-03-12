@@ -15,7 +15,7 @@ import ListItemText from '@material-ui/core/ListItemText'
 
 import DragHandleIcon from '@material-ui/icons/DragHandle'
 import DeleteIcon from '@material-ui/icons/Delete'
-import ClassNames from './ClassNames'
+import ClassNames from '../ClassNames'
 
 type Props = {
   id: string
