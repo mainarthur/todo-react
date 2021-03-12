@@ -1,6 +1,7 @@
 import {
   put,
   takeEvery,
+  delay,
 } from 'redux-saga/effects'
 
 import { api } from '../../api/api'
@@ -16,7 +17,7 @@ function* authRequested(action: AuthRequestAction) {
     payload,
     authType,
   } = action
-  yield new Promise((res) => setTimeout(res, 10000))
+  yield delay(10000)
   const endpoint = authType === AuthTypes.REGISTRATION ? '/register' : '/login'
   const authResponse: AuthResponse = yield api<AuthResponse, AuthBody>({
     endpoint: `/auth${endpoint}`,

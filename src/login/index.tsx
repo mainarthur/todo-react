@@ -169,7 +169,7 @@ const Login: FC = () => {
                 disabled={buttonDisabled}
               >
                 Login
-                {loading && <CircularProgress size="1.5rem" style={{ marginLeft: '4px' }} />}
+                {loading && <CircularProgress size="1.5rem" className={classes.progressBar} />}
               </Button>
             </Grid>
             <Grid item>

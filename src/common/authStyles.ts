@@ -25,6 +25,9 @@ const useStyle = makeStyles((theme: Theme) => ({
     maxWidth: '133.75px',
     boxSizing: 'border-box',
   },
+  progressBar: {
+    marginLeft: theme.spacing(0.5),
+  },
 }))
 
 export default useStyle
