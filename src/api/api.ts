@@ -3,9 +3,6 @@ import Response from './Response'
 
 import RefreshTokenBody from './bodies/RefreshTokenBody'
 import AuthResponse from './responses/AuthResponse'
-
-import store from '../redux/store'
-import { deleteTokensAction, setAccessTokenAction, setRefreshTokenAction } from '../redux/actions/tokenActions'
 import { history } from '../routing/routerHistory'
 
 import { err } from '../logging/logger'
@@ -71,8 +68,6 @@ export const refreshTokens = async (): Promise<boolean> => {
 
       localStorage.setItem('access_token', accessToken)
       localStorage.setItem('refresh_token', refreshToken)
-      store.dispatch(setAccessTokenAction(accessToken))
-      store.dispatch(setRefreshTokenAction(refreshToken))
 
       return true
     }
@@ -81,7 +76,6 @@ export const refreshTokens = async (): Promise<boolean> => {
   }
 
   localStorage.clear()
-  store.dispatch(deleteTokensAction())
   history.push('/login')
 
   return false

@@ -1,11 +1,19 @@
-import { createStore } from 'redux'
+import { createStore, applyMiddleware } from 'redux'
+import { composeWithDevTools } from 'redux-devtools-extension'
+
+import createSagaMiddleware from 'redux-saga'
+
 import rootReducer from './reducers'
 
-/* eslint-disable no-underscore-dangle */
+import rootSaga from './sagas'
+
+const sagaMiddleware = createSagaMiddleware()
+
 const store = createStore(
   rootReducer,
-  (window as any).__REDUX_DEVTOOLS_EXTENSION__ && (window as any).__REDUX_DEVTOOLS_EXTENSION__(),
+  composeWithDevTools(applyMiddleware(sagaMiddleware)),
 )
-/* eslint-enable */
+
+sagaMiddleware.run(rootSaga)
 
 export default store

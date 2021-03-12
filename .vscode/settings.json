@@ -2,5 +2,6 @@
   "eslint.workingDirectories": [
     "./{PATH_TO_CLIENT}"
   ],
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

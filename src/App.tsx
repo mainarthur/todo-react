@@ -13,51 +13,41 @@ import ToDoList from './todo/ToDoList'
 
 import { history } from './routing/routerHistory'
 
-import { api, refreshTokens } from './api/api'
-import UserResponse from './api/responses/UserResponse'
-
 import setUserAction from './redux/actions/appActions'
 import { RootState } from './redux/reducers'
 
 import User from './models/User'
 
-import { err } from './logging/logger'
+import { setAccessTokenAction, setRefreshTokenAction } from './redux/actions/tokenActions'
 
 const App: FC = () => {
-  if (localStorage.getItem('access_token') == null) {
-    history.push('/login')
-    return null
-  }
-
   const classes = useStyle()
 
   const { user } = useSelector((state: RootState) => state.app)
+  const tokens = useSelector((state: RootState) => state.tokens)
+
   const dispatch = useDispatch()
 
   const setUser = (newUser: User) => dispatch(setUserAction(newUser))
+  const setAccessToken = (token: string) => dispatch(setAccessTokenAction(token))
+  const setRefreshToken = (token: string) => dispatch(setRefreshTokenAction(token))
 
   useEffect(() => {
-    (async () => {
-      try {
-        await refreshTokens()
-        if (!user) {
-          const userResponse = await api<UserResponse, {}>({
-            endpoint: '/user',
-          })
+    if (localStorage.getItem('access_token') == null) {
+      history.push('/login')
+    } else {
+      if (!user) {
 
-          if (userResponse.status) {
-            setUser((userResponse as UserResponse).result)
-          } else if (user) {
-            setUser(null)
-          }
-        }
-      } catch (e) {
-        err(e)
       }
-    })()
 
-    return () => {
-      setUser(null)
+      if (tokens.accessToken === '' || tokens.refreshToken === '') {
+        setAccessToken(localStorage.getItem('access_token'))
+        setRefreshToken(localStorage.getItem('refresh_token'))
+      }
+
+      return () => {
+        setUser(null)
+      }
     }
   }, [])
 

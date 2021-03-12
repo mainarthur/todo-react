@@ -1,12 +1,13 @@
 import * as React from 'react'
-import { useState, FC } from 'react'
-import { useDispatch } from 'react-redux'
+import { useState, FC, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 import useStyle from '../common/authStyles'
 
@@ -15,22 +16,17 @@ import ErrorSnackBar from '../common/ErrorSnackBar'
 import Link from '../routing/Link'
 import { history } from '../routing/routerHistory'
 
-import { api } from '../api/api'
-import LoginBody from '../api/bodies/LoginBody'
-import AuthResponse from '../api/responses/AuthResponse'
-
-import { setAccessTokenAction, setRefreshTokenAction } from '../redux/actions/tokenActions'
-
 import { isValidEmail, isValidPassword } from '../utils'
 import onChange from '../common/onChange'
 import validateTextFields from '../common/validateTextFields'
+import { authClearAction, authRequestAction } from '../redux/actions/authActions'
+import AuthBody from '../api/bodies/AuthBody'
+import { AuthTypes } from '../redux/constants'
+import { RootState } from '../redux/reducers'
+
+const authType = AuthTypes.LOGIN
 
 const Login: FC = () => {
-  if (localStorage.getItem('access_token')) {
-    history.push('/')
-    return null
-  }
-
   const classes = useStyle()
 
   const [emailState, setEmail] = useState('')
@@ -41,15 +37,18 @@ const Login: FC = () => {
 
   const [serverError, setServerError] = useState(false)
 
+  const { loading, error, ok } = useSelector((state: RootState) => state.auth[authType])
+
+  const buttonDisabled = loading || ok
+
   const dispatch = useDispatch()
 
-  const setAccessToken = (token: string) => {
-    localStorage.setItem('access_token', token)
-    dispatch(setAccessTokenAction(token))
+  const authRequest = (payload: AuthBody) => {
+    dispatch(authRequestAction(payload, authType))
   }
-  const setRefreshToken = (token: string) => {
-    localStorage.setItem('refresh_token', token)
-    dispatch(setRefreshTokenAction(token))
+
+  const clearAuthState = () => {
+    dispatch(authClearAction(authType))
   }
 
   const onEmailChange = onChange(
@@ -89,32 +88,27 @@ const Login: FC = () => {
       return
     }
 
-    const authResponse = await api<AuthResponse, LoginBody>({
-      endpoint: '/auth/login',
-      method: 'POST',
-      body: {
-        email, password,
-      },
+    authRequest({
+      email,
+      password,
     })
-
-    if (authResponse.status) {
-      const auth = (authResponse as AuthResponse)
-      const {
-        access_token: accessToken,
-        refresh_token: refreshToken,
-      } = auth
-
-      setAccessToken(accessToken)
-      setRefreshToken(refreshToken)
-
-      if (serverError) {
-        setServerError(false)
-      }
-      history.push('/')
-    } else if (!serverError) {
-      setServerError(true)
-    }
   }
+
+  useEffect(() => {
+    if (localStorage.getItem('access_token')) {
+      history.push('/')
+    }
+
+    return () => {
+      clearAuthState()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (ok) {
+      history.push('/')
+    }
+  }, [ok])
 
   return (
     <Grid
@@ -172,8 +166,10 @@ const Login: FC = () => {
                 variant="contained"
                 color="secondary"
                 onClick={onLoginButtonClick}
+                disabled={buttonDisabled}
               >
                 Login
+                {loading && <CircularProgress size="1.5rem" style={{ marginLeft: '4px' }} />}
               </Button>
             </Grid>
             <Grid item>
@@ -186,7 +182,7 @@ const Login: FC = () => {
         </Paper>
       </Grid>
       <ErrorSnackBar
-        open={serverError}
+        open={error}
         autoHide
         onClose={onSnackBarClose}
       >

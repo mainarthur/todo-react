@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useState, useEffect, FC } from 'react'
+import { useState, useEffect, FC, useMemo } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import List from '@material-ui/core/List'
@@ -248,7 +248,7 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
     }
   }, [user])
 
-  const todosElements = todos.map((toDo) => {
+  const todosElements = useMemo(() => todos.map((toDo) => {
     const { _id: tId } = toDo
 
     return (
@@ -262,7 +262,7 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
         onPositionChange={onToDoPositionChanged}
       />
     )
-  })
+  }), [user, todos])
 
   todosElements.push(<div
     key={ClassNames.BOTTOM_DROPABLE}
