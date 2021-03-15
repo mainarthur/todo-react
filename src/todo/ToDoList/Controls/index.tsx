@@ -14,6 +14,8 @@ import DeleteResponse from '../../../api/responses/DeleteResponse'
 
 import ToDo from '../../../models/ToDo'
 import useStyle from './styles'
+import DeleteManyResponse from '../../../api/responses/DeleteManyResponse'
+import DeleteManyBody from '../../../api/bodies/DeleteManyBody'
 
 interface Props {
   onClearAllError(): void
@@ -32,58 +34,43 @@ const ToDoListControls: FC<Props> = ({
   const setToDos = (newTodos: ToDo[]) => dispatch(setTodosAction(newTodos))
 
   const onClearAllClick = async () => {
-    const faliedToDeleteIndexes: Array<number> = []
-
-    for (let i = 0; i < todos.length; i += 1) {
-      const toDo = todos[i]
-      const { _id: toDoId } = toDo
-      // eslint-disable-next-line no-await-in-loop
-      const response = await api<DeleteResponse, {}>({
-        endpoint: `/todo/${toDoId}`,
-        method: 'DELETE',
-      })
-
-      if (!response.status) {
-        faliedToDeleteIndexes.push(i)
-      }
-    }
-
-    setToDos(todos.filter((e, i) => faliedToDeleteIndexes.indexOf(i) !== -1))
-
-    if (faliedToDeleteIndexes.length > 0) {
+    const response = await api<DeleteManyResponse, DeleteManyBody>({
+      endpoint: '/todo/',
+      method: 'DELETE',
+      body: {
+        todos: todos.map((toDo) => {
+          const { _id: toDoId } = toDo
+          return toDoId
+        }),
+      },
+    })
+    if (response.status) {
+      localStorage.setItem('lastupdate', (response as DeleteManyResponse).lastUpdate.toString())
+      setToDos([])
+    } else {
       onClearAllError()
     }
   }
 
   const onClearDoneClick = async () => {
-    const faliedToDeleteIndexes: Array<number> = []
-
     const doneTodos = todos.filter((toDo) => toDo.done)
     const undoneTodos = todos.filter((toDo) => !toDo.done)
 
-    for (let i = 0; i < doneTodos.length; i += 1) {
-      const toDo = doneTodos[i]
-      const { _id: toDoId } = toDo
-
-      // eslint-disable-next-line no-await-in-loop
-      const response = await api<DeleteResponse, {}>({
-        endpoint: `/todo/${toDoId}`,
-        method: 'DELETE',
-      })
-
-      if (!response.status) {
-        faliedToDeleteIndexes.push(i)
-      }
-    }
-
-    const rest = doneTodos.filter((e, i) => faliedToDeleteIndexes.indexOf(i) !== -1)
-
-    const newTodos = [...undoneTodos, ...rest]
-
-    setToDos(newTodos)
-
-    if (faliedToDeleteIndexes.length > 0) {
-      onClearDoneError()
+    const response = await api<DeleteManyResponse, DeleteManyBody>({
+      endpoint: '/todo/',
+      method: 'DELETE',
+      body: {
+        todos: doneTodos.map((toDo) => {
+          const { _id: toDoId } = toDo
+          return toDoId
+        }),
+      },
+    })
+    if (response.status) {
+      localStorage.setItem('lastupdate', (response as DeleteManyResponse).lastUpdate.toString())
+      setToDos(undoneTodos)
+    } else {
+      onClearAllError()
     }
   }
 
