@@ -4,6 +4,7 @@ import {
   FC,
   useEffect,
   useCallback,
+  useMemo,
 } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -47,34 +48,35 @@ const Login: FC = () => {
 
   const dispatch = useDispatch()
 
-  const authRequest = (payload: AuthBody) => {
+  const authRequest = useCallback((payload: AuthBody) => {
     dispatch(authRequestAction(payload, authType))
-  }
+  }, [dispatch])
 
   const clearAuthState = useCallback(() => {
     dispatch(authClearAction(authType))
   }, [dispatch])
 
-  const onEmailChange = onChange(
+  const onEmailChange = useMemo(() => onChange(
     () => invalidEmail,
     setEmail,
     setInvalidEmail,
     isValidEmail,
-  )
-  const onPasswordChange = onChange(
+  ), [invalidEmail, setEmail, setInvalidEmail])
+
+  const onPasswordChange = useMemo(() => onChange(
     () => invalidPassword,
     setPassword,
     setInvalidPassword,
     isValidPassword,
-  )
+  ), [invalidPassword, setPassword, setInvalidPassword])
 
-  const onSnackBarClose = () => {
+  const onSnackBarClose = useCallback(() => {
     if (error) {
       clearAuthState()
     }
-  }
+  }, [error, clearAuthState])
 
-  const onLoginButtonClick = async () => {
+  const onLoginButtonClick = useCallback(async () => {
     const email = emailState.trim()
     const password = passwordState.trim()
 
@@ -96,12 +98,21 @@ const Login: FC = () => {
       email,
       password,
     })
-  }
+  }, [
+    emailState,
+    passwordState,
+    invalidEmail,
+    invalidPassword,
+    authRequest,
+    setInvalidPassword,
+    setInvalidEmail,
+  ])
 
   useEffect(() => {
     if (localStorage.getItem('access_token')) {
       history.push('/')
     }
+    clearAuthState()
 
     return () => {
       clearAuthState()
@@ -178,7 +189,7 @@ const Login: FC = () => {
             </Grid>
             <Grid item>
               <Typography variant="body2">
-                <Link to="/register">Register </Link>
+                <Link disabled={buttonDisabled} to="/register">Register </Link>
                 <span>if you don&apos;t have an account yet.</span>
               </Typography>
             </Grid>

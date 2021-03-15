@@ -9,6 +9,7 @@ type Props = {
   onClick?(ev: MouseEvent<HTMLAnchorElement>): void,
   className?: string,
   children?: ReactNode
+  disabled?: boolean
 }
 
 const Link: FC<Props> = ({
@@ -16,13 +17,18 @@ const Link: FC<Props> = ({
   onClick,
   className,
   children,
+  disabled,
 }: Props) => {
   const context = useSelector((state: RootState) => state.router)
 
   const onAnchorClick = (ev: MouseEvent<HTMLAnchorElement>) => {
-    const { route } = context
-
     ev.preventDefault()
+
+    if (disabled) {
+      return
+    }
+
+    const { route } = context
 
     if (onClick) {
       onClick(ev)
@@ -50,6 +56,7 @@ Link.defaultProps = {
   onClick: () => null,
   children: null,
   className: null,
+  disabled: false,
 }
 
 export default Link

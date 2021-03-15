@@ -17,7 +17,7 @@ function* authRequested(action: AuthRequestAction) {
     payload,
     authType,
   } = action
-  yield delay(10000)
+  yield delay(100)
   const endpoint = authType === AuthTypes.REGISTRATION ? '/register' : '/login'
   const authResponse: AuthResponse = yield api<AuthResponse, AuthBody>({
     endpoint: `/auth${endpoint}`,

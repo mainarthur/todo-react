@@ -4,6 +4,7 @@ import {
   FC,
   useEffect,
   useCallback,
+  useMemo,
 } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -57,34 +58,34 @@ const Register: FC = () => {
     dispatch(authClearAction(authType))
   }, [dispatch])
 
-  const onEmailChange = onChange(
+  const onEmailChange = useMemo(() => onChange(
     () => invalidEmail,
     setEmail,
     setInvalidEmail,
     isValidEmail,
-  )
+  ), [invalidEmail, setEmail, setInvalidEmail])
 
-  const onPasswordChange = onChange(
+  const onPasswordChange = useMemo(() => onChange(
     () => invalidPassword,
     setPassword,
     setInvalidPassword,
     isValidPassword,
-  )
+  ), [invalidPassword, setPassword, setInvalidPassword])
 
-  const onNameChange = onChange(
+  const onNameChange = useMemo(() => onChange(
     () => invalidName,
     setName,
     setInvalidName,
     isValidName,
-  )
+  ), [invalidName, setName, setInvalidName])
 
-  const onSnackBarClose = () => {
+  const onSnackBarClose = useCallback(() => {
     if (error) {
       clearAuthState()
     }
-  }
+  }, [error, clearAuthState])
 
-  const onRegisterButtonClick = async () => {
+  const onRegisterButtonClick = useCallback(async () => {
     const name = nameState.trim()
     const email = emailState.trim()
     const password = passwordState.trim()
@@ -113,12 +114,24 @@ const Register: FC = () => {
       password,
       name,
     })
-  }
+  }, [
+    nameState,
+    emailState,
+    passwordState,
+    invalidName,
+    invalidEmail,
+    invalidPassword,
+    authRequest,
+    setInvalidName,
+    setInvalidPassword,
+    setInvalidEmail,
+  ])
 
   useEffect(() => {
     if (localStorage.getItem('access_token')) {
       history.push('/')
     }
+    clearAuthState()
 
     return () => {
       clearAuthState()
@@ -210,7 +223,7 @@ const Register: FC = () => {
             <Grid item>
               <Typography variant="body2">
                 <span>Already have an account?</span>
-                <Link to="/login">Login</Link>
+                <Link disabled={buttonDisabled} to="/login">Login</Link>
               </Typography>
             </Grid>
           </Grid>
