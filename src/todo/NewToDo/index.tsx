@@ -28,8 +28,8 @@ import { RootState } from '../../redux/reducers'
 const NewToDo: FC = () => {
   const classes = useStyle()
 
-  const [text, setText] = useState('')
-  const [invalidText, setInvalidText] = useState(false)
+  const [newTaskText, setNewTaskText] = useState('')
+  const [isInvalidText, setIsInvalidText] = useState(false)
 
   const prevOk = useRef(false)
   const inputRef = useRef<HTMLDivElement>(null)
@@ -55,38 +55,38 @@ const NewToDo: FC = () => {
   )
 
   const onSnackBarClose = useCallback(() => {
-    if (invalidText) {
-      setInvalidText(false)
+    if (isInvalidText) {
+      setIsInvalidText(false)
     }
-  }, [invalidText, setInvalidText])
+  }, [isInvalidText, setIsInvalidText])
 
   const onButtonClick = useCallback(async () => {
-    const toDoText = text.trim()
+    const toDoText = newTaskText.trim()
 
     if (toDoText === '') {
-      if (!invalidText) {
-        setInvalidText(true)
+      if (!isInvalidText) {
+        setIsInvalidText(true)
       }
     } else {
-      if (invalidText) {
-        setInvalidText(false)
+      if (isInvalidText) {
+        setIsInvalidText(false)
       }
 
       newToDoRequest(toDoText)
     }
-  }, [invalidText, text, setInvalidText, newToDoRequest])
+  }, [isInvalidText, newTaskText, setIsInvalidText, newToDoRequest])
 
   const onTextChange = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
     const { target: { value: newText } } = ev
 
     if (newText !== '') {
-      if (invalidText) {
-        setInvalidText(false)
+      if (isInvalidText) {
+        setIsInvalidText(false)
       }
     }
 
-    setText(newText)
-  }, [invalidText, setInvalidText, setText])
+    setNewTaskText(newText)
+  }, [isInvalidText, setIsInvalidText, setNewTaskText])
 
   const handleKeyPress = useCallback((ev: KeyboardEvent<HTMLInputElement>) => {
     if (ev.key === 'Enter') {
@@ -96,7 +96,7 @@ const NewToDo: FC = () => {
 
   useEffect(() => {
     if (ok && !prevOk.current) {
-      setText('')
+      setNewTaskText('')
       if (inputRef.current) {
         const input = inputRef.current.querySelector('input')
 
@@ -116,7 +116,7 @@ const NewToDo: FC = () => {
           color="secondary"
           className={classes.input}
           onChange={onTextChange}
-          value={text}
+          value={newTaskText}
           onKeyPress={handleKeyPress}
           placeholder="New task"
           disabled={appDisabled}
@@ -132,7 +132,7 @@ const NewToDo: FC = () => {
         />
       </Paper>
       <ErrorSnackBar
-        open={invalidText}
+        open={isInvalidText}
         autoHide
         onClose={onSnackBarClose}
       >

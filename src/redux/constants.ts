@@ -35,3 +35,15 @@ export enum AuthTypes {
   LOGIN = 'LOGIN',
   REGISTRATION = 'REGISTRATION',
 }
+
+export enum Requester {
+  APP = 'APP',
+
+}
+
+export enum RequestsAction {
+  REQUESTED = 'REQUESTED',
+  SUCCEEDED = 'SUCCEEDED',
+  FAILED = 'FAILED',
+  CLEAR = 'CLEAR',
+}
