@@ -1,5 +1,10 @@
 import * as React from 'react'
-import { useState, FC, useEffect } from 'react'
+import {
+  useState,
+  FC,
+  useEffect,
+  useCallback,
+} from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import Grid from '@material-ui/core/Grid'
@@ -19,6 +24,7 @@ import { history } from '../routing/routerHistory'
 import { isValidEmail, isValidPassword } from '../utils'
 import onChange from '../common/onChange'
 import validateTextFields from '../common/validateTextFields'
+
 import { authClearAction, authRequestAction } from '../redux/actions/authActions'
 import AuthBody from '../api/bodies/AuthBody'
 import { AuthTypes } from '../redux/constants'
@@ -35,8 +41,6 @@ const Login: FC = () => {
   const [invalidEmail, setInvalidEmail] = useState(false)
   const [invalidPassword, setInvalidPassword] = useState(false)
 
-  const [serverError, setServerError] = useState(false)
-
   const { loading, error, ok } = useSelector((state: RootState) => state.auth[authType])
 
   const buttonDisabled = loading || ok
@@ -47,9 +51,9 @@ const Login: FC = () => {
     dispatch(authRequestAction(payload, authType))
   }
 
-  const clearAuthState = () => {
+  const clearAuthState = useCallback(() => {
     dispatch(authClearAction(authType))
-  }
+  }, [dispatch])
 
   const onEmailChange = onChange(
     () => invalidEmail,
@@ -65,8 +69,8 @@ const Login: FC = () => {
   )
 
   const onSnackBarClose = () => {
-    if (serverError) {
-      setServerError(false)
+    if (error) {
+      clearAuthState()
     }
   }
 
@@ -102,7 +106,7 @@ const Login: FC = () => {
     return () => {
       clearAuthState()
     }
-  }, [])
+  }, [clearAuthState])
 
   useEffect(() => {
     if (ok) {

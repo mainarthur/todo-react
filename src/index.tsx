@@ -9,7 +9,7 @@ import { green } from '@material-ui/core/colors'
 import ToDoAppBar from './common/ToDoAppBar'
 import App from './App'
 import Login from './login'
-import Register from './register/Register'
+import Register from './register'
 import NotFound from './common/NotFound'
 
 import Router from './routing/Router'

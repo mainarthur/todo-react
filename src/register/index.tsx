@@ -1,12 +1,18 @@
 import * as React from 'react'
-import { useState, FC } from 'react'
-import { useDispatch } from 'react-redux'
+import {
+  useState,
+  FC,
+  useEffect,
+  useCallback,
+} from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 import useStyle from '../common/authStyles'
 
@@ -15,21 +21,18 @@ import ErrorSnackBar from '../common/ErrorSnackBar'
 import Link from '../routing/Link'
 import { history } from '../routing/routerHistory'
 
-import { api } from '../api/api'
-import AuthResponse from '../api/responses/AuthResponse'
-
-import { setAccessTokenAction, setRefreshTokenAction } from '../redux/actions/tokenActions'
-
 import { isValidEmail, isValidPassword, isValidName } from '../utils'
 import onChange from '../common/onChange'
 import validateTextFields from '../common/validateTextFields'
 
-const Register: FC = () => {
-  if (localStorage.getItem('access_token')) {
-    history.push('/')
-    return null
-  }
+import { authClearAction, authRequestAction } from '../redux/actions/authActions'
+import AuthBody from '../api/bodies/AuthBody'
+import { AuthTypes } from '../redux/constants'
+import { RootState } from '../redux/reducers'
 
+const authType = AuthTypes.REGISTRATION
+
+const Register: FC = () => {
   const classes = useStyle()
 
   const [nameState, setName] = useState('')
@@ -40,18 +43,19 @@ const Register: FC = () => {
   const [invalidEmail, setInvalidEmail] = useState(false)
   const [invalidPassword, setInvalidPassword] = useState(false)
 
-  const [serverError, setServerError] = useState(false)
+  const { loading, error, ok } = useSelector((state: RootState) => state.auth[authType])
+
+  const buttonDisabled = loading || ok
 
   const dispatch = useDispatch()
 
-  const setAccessToken = (token: string) => {
-    localStorage.setItem('access_token', token)
-    dispatch(setAccessTokenAction(token))
-  }
-  const setRefreshToken = (token: string) => {
-    localStorage.setItem('refresh_token', token)
-    dispatch(setRefreshTokenAction(token))
-  }
+  const authRequest = useCallback((payload: AuthBody) => {
+    dispatch(authRequestAction(payload, authType))
+  }, [dispatch])
+
+  const clearAuthState = useCallback(() => {
+    dispatch(authClearAction(authType))
+  }, [dispatch])
 
   const onEmailChange = onChange(
     () => invalidEmail,
@@ -75,8 +79,8 @@ const Register: FC = () => {
   )
 
   const onSnackBarClose = () => {
-    if (serverError) {
-      setServerError(false)
+    if (error) {
+      clearAuthState()
     }
   }
 
@@ -104,32 +108,28 @@ const Register: FC = () => {
       return
     }
 
-    const authResponse = await api<AuthResponse, RegisterBody>({
-      endpoint: '/auth/register',
-      method: 'POST',
-      body: {
-        email, password, name,
-      },
+    authRequest({
+      email,
+      password,
+      name,
     })
-
-    if (authResponse.status) {
-      const auth = (authResponse as AuthResponse)
-      const {
-        access_token: accessToken,
-        refresh_token: refreshToken,
-      } = auth
-
-      setAccessToken(accessToken)
-      setRefreshToken(refreshToken)
-
-      if (serverError) {
-        setServerError(false)
-      }
-      history.push('/')
-    } else if (!serverError) {
-      setServerError(true)
-    }
   }
+
+  useEffect(() => {
+    if (localStorage.getItem('access_token')) {
+      history.push('/')
+    }
+
+    return () => {
+      clearAuthState()
+    }
+  }, [clearAuthState])
+
+  useEffect(() => {
+    if (ok) {
+      history.push('/')
+    }
+  }, [ok])
 
   return (
     <Grid
@@ -201,8 +201,10 @@ const Register: FC = () => {
                 variant="contained"
                 color="secondary"
                 onClick={onRegisterButtonClick}
+                disabled={buttonDisabled}
               >
                 Register
+                {loading && <CircularProgress size="1.5rem" className={classes.progressBar} />}
               </Button>
             </Grid>
             <Grid item>
@@ -215,7 +217,7 @@ const Register: FC = () => {
         </Paper>
       </Grid>
       <ErrorSnackBar
-        open={serverError}
+        open={error}
         autoHide
         onClose={onSnackBarClose}
       >

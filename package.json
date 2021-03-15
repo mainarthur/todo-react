@@ -1,12 +1,9 @@
 {
   "name": "todo-react",
   "scripts": {
-    "start": "npm run webpack; npm run server",
-    "server": "npx servor ./static index.html 3000 --reload --browser",
-    "webpack": "webpack",
-    "dev": "nodemon --watch src/ -e ts,tsx,js,jsx,scss,css,sass --exec npm run webpack",
-    "test": "jest",
-    "start:hotdev": "webpack serve --hot"
+    "start": "webpack serve --open --hot --config webpack.dev.js",
+    "build": "webpack --config webpack.prod.js",
+    "start:build": "serve -s static/build -l 3000"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.13.5",
@@ -37,13 +34,15 @@
     "path": "^0.12.7",
     "react-test-renderer": "^17.0.1",
     "sass-loader": "^11.0.1",
+    "serve": "^11.3.2",
     "style-loader": "^2.0.0",
     "ts-loader": "^8.0.17",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.2",
     "webpack": "^5.24.4",
     "webpack-cli": "^4.5.0",
-    "webpack-dev-server": "^3.11.2"
+    "webpack-dev-server": "^3.11.2",
+    "webpack-merge": "^5.7.3"
   },
   "dependencies": {
     "@material-ui/core": "^4.11.3",

@@ -1,4 +1,4 @@
-import { createStore, applyMiddleware } from 'redux'
+import { createStore, applyMiddleware, StoreEnhancer } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension'
 
 import createSagaMiddleware from 'redux-saga'
@@ -9,9 +9,13 @@ import rootSaga from './sagas'
 
 const sagaMiddleware = createSagaMiddleware()
 
+const compose = process.env.NODE_ENV === 'production' ? (a: StoreEnhancer<{
+  dispatch: unknown
+}, {}>) => a : composeWithDevTools
+
 const store = createStore(
   rootReducer,
-  composeWithDevTools(applyMiddleware(sagaMiddleware)),
+  compose(applyMiddleware(sagaMiddleware)),
 )
 
 sagaMiddleware.run(rootSaga)

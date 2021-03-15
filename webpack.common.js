@@ -1,4 +1,5 @@
 const path = require('path')
+// eslint-disable-next-line import/no-extraneous-dependencies
 const HtmlWebPackPlugin = require('html-webpack-plugin')
 
 const config = {
@@ -10,7 +11,6 @@ const config = {
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
   },
-  mode: 'development',
   module: {
     rules: [
       {
@@ -23,11 +23,6 @@ const config = {
         use: ['style-loader', 'css-loader', 'sass-loader'],
       },
     ],
-  },
-  devServer: {
-    historyApiFallback: true,
-    port: 3000,
-    disableHostCheck: true,
   },
   plugins: [
     new HtmlWebPackPlugin({
