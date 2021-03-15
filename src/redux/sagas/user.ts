@@ -5,11 +5,14 @@ import {
 } from 'redux-saga/effects'
 
 import { api } from '../../api/api'
+import { AppAction } from '../constants'
+
+function* userRequested() {
+
+}
 
 function* watchUser() {
-  yield null
-
-  return null
+  yield takeEvery(AppAction.REQUESTED_USER, userRequested)
 }
 
 export default watchUser

@@ -43,10 +43,9 @@ const App: FC = () => {
       if (!user) {
 
       }
-
-      return () => {
-        setUser(null)
-      }
+    }
+    return () => {
+      setUser(null)
     }
   }, [])
 
