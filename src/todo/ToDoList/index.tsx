@@ -241,7 +241,7 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
     }
   }, [loadError, setLoadError, setToDos])
 
-  const onReloadTodosClick = async () => {
+  const onReloadTodosClick = useCallback(async () => {
     if (user) {
       try {
         await loadTodos(user)
@@ -252,7 +252,7 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
         err(e)
       }
     }
-  }
+  }, [user, loadError, setLoadError, loadTodos])
 
   useEffect(() => {
     setToDos([])
