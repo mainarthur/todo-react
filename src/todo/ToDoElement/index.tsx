@@ -15,7 +15,6 @@ import ListItemText from '@material-ui/core/ListItemText'
 
 import DragHandleIcon from '@material-ui/icons/DragHandle'
 import DeleteIcon from '@material-ui/icons/Delete'
-import ClassNames from '../ClassNames'
 
 type Props = {
   id: string
@@ -24,6 +23,7 @@ type Props = {
   onPositionChange(id: string, nextId: string, prevId: string): void
   text: string
   done: boolean
+  bottomDndClassName: string
 }
 
 const getToDoIdByElement = (elem: Element) => elem?.querySelector('div[id]')?.id ?? null
@@ -35,6 +35,7 @@ const ToDoElement: FC<Props> = ({
   onDelete,
   onStatusChange,
   onPositionChange,
+  bottomDndClassName,
 }: Props) => {
   const listItem = useRef<HTMLDivElement>(null)
   const checkBox = useRef<HTMLButtonElement>(null)
@@ -112,7 +113,7 @@ const ToDoElement: FC<Props> = ({
         currentDropable = elementBelow
 
         if (li.parentElement.contains(currentDropable)) {
-          if (currentDropable.classList.contains(ClassNames.BOTTOM_DROPABLE)) {
+          if (currentDropable.classList.contains(bottomDndClassName)) {
             currentDropable.before(ghostDiv)
           } else {
             let i = 0

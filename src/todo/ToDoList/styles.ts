@@ -20,6 +20,10 @@ const useStyle = makeStyles((theme: Theme) => ({
     padding: theme.spacing(5),
     textAlign: 'center',
   },
+  bottomDnd: {
+    height: theme.spacing(1),
+    width: '100%',
+  },
 }))
 
 export default useStyle

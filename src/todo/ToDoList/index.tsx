@@ -34,9 +34,6 @@ import User from '../../models/User'
 import { err, log } from '../../logging/logger'
 import ToDoListControls from './Controls'
 import useStyle from './styles'
-import ClassNames from '../ClassNames'
-
-import './dnd.scss'
 
 type Props = {
   user: User
@@ -274,17 +271,18 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
           onDelete={onToDoDeleted}
           onStatusChange={onToDoStatusChanged}
           onPositionChange={onToDoPositionChanged}
+          bottomDndClassName={classes.bottomDnd}
         />
       )
     })
 
     elements.push(<div
-      key={ClassNames.BOTTOM_DROPABLE}
-      className={ClassNames.BOTTOM_DROPABLE}
+      key={classes.bottomDnd}
+      className={classes.bottomDnd}
     />)
 
     return elements
-  }, [todos, onToDoDeleted, onToDoStatusChanged, onToDoPositionChanged])
+  }, [classes.bottomDnd, todos, onToDoDeleted, onToDoStatusChanged, onToDoPositionChanged])
 
   return (
     <Grid item className={classes.root}>
