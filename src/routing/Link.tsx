@@ -1,5 +1,10 @@
 import * as React from 'react'
-import { ReactNode, FC, MouseEvent } from 'react'
+import {
+  ReactNode,
+  FC,
+  MouseEvent,
+  useCallback,
+} from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from '../redux/reducers'
 import { history } from './routerHistory'
@@ -21,7 +26,7 @@ const Link: FC<Props> = ({
 }: Props) => {
   const context = useSelector((state: RootState) => state.router)
 
-  const onAnchorClick = (ev: MouseEvent<HTMLAnchorElement>) => {
+  const onAnchorClick = useCallback((ev: MouseEvent<HTMLAnchorElement>) => {
     ev.preventDefault()
 
     if (disabled) {
@@ -39,7 +44,7 @@ const Link: FC<Props> = ({
     }
 
     history.push(to)
-  }
+  }, [context, disabled, onClick, to])
 
   return (
     <a
