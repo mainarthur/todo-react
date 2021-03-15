@@ -160,7 +160,7 @@ const ToDoElement: FC<Props> = ({
     return () => {
       li.removeEventListener('mousedown', onMouseDown)
     }
-  }, [])
+  })
 
   return (
     <ListItem

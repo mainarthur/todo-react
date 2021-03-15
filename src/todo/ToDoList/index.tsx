@@ -4,6 +4,7 @@ import {
   useEffect,
   FC,
   useMemo,
+  useCallback,
 } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -55,38 +56,45 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
   const classes = useStyle()
 
   const todos = useSelector((state: RootState) => state.todos)
+  const {
+    loading: appLoading,
+    error: appError,
+  } = useSelector((state: RootState) => state.app)
+
+  const appDisabled = appLoading || appError
+
   const dispatch = useDispatch()
 
-  const setToDos = (newToDos: ToDo[]) => dispatch(setTodosAction(newToDos))
+  const setToDos = useCallback((newToDos: ToDo[]) => dispatch(setTodosAction(newToDos)), [dispatch])
 
-  const getToDoById = (id: string): ToDo => todos.find((toDo: ToDo) => {
+  const getToDoById = useCallback((id: string): ToDo => todos.find((toDo: ToDo) => {
     const { _id: tId } = toDo
 
     return tId === id
-  })
+  }), [todos])
 
   const [errorCode, setErrorCode] = useState(ErrorCodes.None)
   const [loadError, setLoadError] = useState(false)
 
-  const onCloseSnackBar = () => {
+  const onCloseSnackBar = useCallback(() => {
     if (errorCode !== ErrorCodes.None) {
       setErrorCode(ErrorCodes.None)
     }
-  }
+  }, [errorCode, setErrorCode])
 
-  const onClearAllError = () => {
+  const onClearAllError = useCallback(() => {
     if (errorCode !== ErrorCodes.ClearAll) {
       setErrorCode(ErrorCodes.ClearAll)
     }
-  }
+  }, [errorCode, setErrorCode])
 
-  const onClearDoneError = () => {
+  const onClearDoneError = useCallback(() => {
     if (errorCode !== ErrorCodes.ClearDone) {
       setErrorCode(ErrorCodes.ClearDone)
     }
-  }
+  }, [errorCode, setErrorCode])
 
-  const onToDoPositionChanged = async (id: string, nextId: string, prevId: string) => {
+  const onToDoPositionChanged = useCallback(async (id: string, nextId: string, prevId: string) => {
     const prevTodo = getToDoById(prevId)
     const nextTodo = getToDoById(nextId)
 
@@ -126,9 +134,9 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
         setErrorCode(ErrorCodes.PositionChange)
       }
     }
-  }
+  }, [errorCode, setErrorCode, getToDoById, setToDos, todos])
 
-  const onToDoStatusChanged = async (toDoId: string, newStatus: boolean) => {
+  const onToDoStatusChanged = useCallback(async (toDoId: string, newStatus: boolean) => {
     const response = await api<UpdateToDoResponse, UpdateToDoBody>({
       endpoint: '/todo',
       method: 'PATCH',
@@ -154,9 +162,9 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
     } else if (errorCode !== ErrorCodes.StatusChange) {
       setErrorCode(ErrorCodes.StatusChange)
     }
-  }
+  }, [errorCode, setErrorCode, setToDos, todos])
 
-  const onToDoDeleted = async (toDoId: string) => {
+  const onToDoDeleted = useCallback(async (toDoId: string) => {
     const response = await api<DeleteResponse, {}>({
       endpoint: `/todo/${toDoId}`,
       method: 'DELETE',
@@ -173,9 +181,9 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
     } else if (errorCode !== ErrorCodes.Delete) {
       setErrorCode(ErrorCodes.Delete)
     }
-  }
+  }, [errorCode, setErrorCode, setToDos, todos])
 
-  const loadTodos = async (newUser: User) => {
+  const loadTodos = useCallback(async (newUser: User) => {
     if (newUser) {
       const { _id: userId } = newUser
       const db = await connectDB(`todo-${userId}`)
@@ -231,7 +239,7 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
         })
       }
     }
-  }
+  }, [loadError, setLoadError, setToDos])
 
   const onReloadTodosClick = async () => {
     if (user) {
@@ -251,28 +259,32 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
     if (user) {
       loadTodos(user)
     }
-  }, [user, setToDos])
+  }, [user, setToDos, loadTodos])
 
-  const todosElements = useMemo(() => todos.map((toDo) => {
-    const { _id: tId } = toDo
+  const todosElements = useMemo(() => {
+    const elements = todos.map((toDo) => {
+      const { _id: tId } = toDo
 
-    return (
-      <ToDoElement
-        key={tId}
-        id={tId}
-        text={toDo.text}
-        done={toDo.done}
-        onDelete={onToDoDeleted}
-        onStatusChange={onToDoStatusChanged}
-        onPositionChange={onToDoPositionChanged}
-      />
-    )
-  }), [user, todos])
+      return (
+        <ToDoElement
+          key={tId}
+          id={tId}
+          text={toDo.text}
+          done={toDo.done}
+          onDelete={onToDoDeleted}
+          onStatusChange={onToDoStatusChanged}
+          onPositionChange={onToDoPositionChanged}
+        />
+      )
+    })
 
-  todosElements.push(<div
-    key={ClassNames.BOTTOM_DROPABLE}
-    className={ClassNames.BOTTOM_DROPABLE}
-  />)
+    elements.push(<div
+      key={ClassNames.BOTTOM_DROPABLE}
+      className={ClassNames.BOTTOM_DROPABLE}
+    />)
+
+    return elements
+  }, [todos, onToDoDeleted, onToDoStatusChanged, onToDoPositionChanged])
 
   return (
     <Grid item className={classes.root}>
@@ -281,10 +293,14 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
         onClearDoneError={onClearDoneError}
       />
       <Paper className={classes.paper}>
-        {todosElements.length > 1 ? <List className={classes.list}>{todosElements}</List> : (
-          <Typography variant="body1" className={classes.noToDoText}>
-            Tasks you add appear here
-          </Typography>
+        {!appDisabled && (
+          <>
+            {todosElements.length > 1 ? <List className={classes.list}>{todosElements}</List> : (
+              <Typography variant="body1" className={classes.noToDoText}>
+                Tasks you add appear here
+              </Typography>
+            )}
+          </>
         )}
       </Paper>
       <ErrorSnackBar

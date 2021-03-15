@@ -5,7 +5,7 @@ import {
   KeyboardEvent,
   FC,
 } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton'
@@ -24,12 +24,20 @@ import NewToDoResponse from '../../api/responses/NewToDoResponse'
 import { addToDoAction } from '../../redux/actions/toDoActions'
 import useStyle from './styles'
 import ToDo from '../../models/ToDo'
+import { RootState } from '../../redux/reducers'
 
 const NewToDo: FC = () => {
   const classes = useStyle()
 
   const [text, setText] = useState('')
   const [invalidText, setInvalidText] = useState(false)
+
+  const {
+    loading,
+    error,
+  } = useSelector((state: RootState) => state.app)
+
+  const disabled = loading || error
 
   const dispatch = useDispatch()
 
@@ -99,10 +107,11 @@ const NewToDo: FC = () => {
           value={text}
           onKeyPress={handleKeyPress}
           placeholder="New task"
+          disabled={disabled}
           endAdornment={
             (
               <InputAdornment position="end">
-                <IconButton onClick={onButtonClick}>
+                <IconButton disabled={disabled} onClick={onButtonClick}>
                   <Add className={classes.addIcon} />
                 </IconButton>
               </InputAdornment>

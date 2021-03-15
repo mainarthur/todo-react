@@ -16,19 +16,21 @@ import { history } from './routing/routerHistory'
 import { RootState } from './redux/reducers'
 
 import { setAccessTokenAction, setRefreshTokenAction } from './redux/actions/tokenActions'
-import { setUserAction, userRequestAction } from './redux/actions/appActions'
-import User from './models/User'
+import { userRequestAction } from './redux/actions/appActions'
 
 const App: FC = () => {
   const classes = useStyle()
 
-  const { user } = useSelector((state: RootState) => state.app)
+  const {
+    user,
+    loading,
+  } = useSelector((state: RootState) => state.app)
+
   const { refreshToken, accessToken } = useSelector((state: RootState) => state.tokens)
 
   const dispatch = useDispatch()
 
   const userRequest = useCallback(() => dispatch(userRequestAction()), [dispatch])
-  const setUser = useCallback((newUser: User) => dispatch(setUserAction(newUser)), [dispatch])
   const setAccessToken = useCallback(
     (token: string) => dispatch(setAccessTokenAction(token)),
     [dispatch],
@@ -46,14 +48,11 @@ const App: FC = () => {
         setAccessToken(localStorage.getItem('access_token'))
         setRefreshToken(localStorage.getItem('refresh_token'))
       }
-      if (!user) {
+      if (!user && !loading) {
         userRequest()
       }
     }
-    return () => {
-      setUser(null)
-    }
-  }, [user, refreshToken, accessToken, setUser, setRefreshToken, setAccessToken, userRequest])
+  })
 
   return (
     <Box>
