@@ -6,6 +6,7 @@ import {
   FC,
   useRef,
   useEffect,
+  useCallback,
 } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -30,6 +31,9 @@ const NewToDo: FC = () => {
   const [text, setText] = useState('')
   const [invalidText, setInvalidText] = useState(false)
 
+  const prevOk = useRef(false)
+  const inputRef = useRef<HTMLDivElement>(null)
+
   const {
     loading: appLoading,
     error: appError,
@@ -41,21 +45,22 @@ const NewToDo: FC = () => {
     ok,
   } = useSelector((state: RootState) => state.newToDo)
 
-  const appDisabled = appLoading || appError || loading
-
-  const prevOk = useRef(false)
-
   const dispatch = useDispatch()
 
-  const newToDoRequest = (newToDoText: string) => dispatch(newToDoRequestAction(newToDoText))
+  const appDisabled = appLoading || appError || loading
 
-  const onSnackBarClose = () => {
+  const newToDoRequest = useCallback(
+    (newToDoText: string) => dispatch(newToDoRequestAction(newToDoText)),
+    [dispatch],
+  )
+
+  const onSnackBarClose = useCallback(() => {
     if (invalidText) {
       setInvalidText(false)
     }
-  }
+  }, [invalidText, setInvalidText])
 
-  const onButtonClick = async () => {
+  const onButtonClick = useCallback(async () => {
     const toDoText = text.trim()
 
     if (toDoText === '') {
@@ -69,9 +74,9 @@ const NewToDo: FC = () => {
 
       newToDoRequest(toDoText)
     }
-  }
+  }, [invalidText, text, setInvalidText, newToDoRequest])
 
-  const onTextChange = (ev: ChangeEvent<HTMLInputElement>) => {
+  const onTextChange = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
     const { target: { value: newText } } = ev
 
     if (newText !== '') {
@@ -81,17 +86,24 @@ const NewToDo: FC = () => {
     }
 
     setText(newText)
-  }
+  }, [invalidText, setInvalidText, setText])
 
-  const handleKeyPress = (ev: KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyPress = useCallback((ev: KeyboardEvent<HTMLInputElement>) => {
     if (ev.key === 'Enter') {
       onButtonClick()
     }
-  }
+  }, [onButtonClick])
 
   useEffect(() => {
     if (ok && !prevOk.current) {
       setText('')
+      if (inputRef.current) {
+        const input = inputRef.current.querySelector('input')
+
+        if (input) {
+          input.focus()
+        }
+      }
     }
     prevOk.current = ok
   }, [ok])
@@ -100,6 +112,7 @@ const NewToDo: FC = () => {
     <Grid item>
       <Paper className={classes.paper}>
         <Input
+          ref={inputRef}
           color="secondary"
           className={classes.input}
           onChange={onTextChange}

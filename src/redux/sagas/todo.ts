@@ -1,7 +1,6 @@
 import {
   put,
   takeEvery,
-  delay,
 } from 'redux-saga/effects'
 
 import { api } from '../../api/api'
@@ -12,7 +11,6 @@ import { ToDoAction } from '../constants'
 import { NewToDoRequestAction } from '../types/todoTypes'
 
 function* newToDoRequested(action: NewToDoRequestAction) {
-  yield delay(1000)
   const toDoResponse: NewToDoResponse = yield api<NewToDoResponse, NewToDoBody>({
     endpoint: '/todo',
     method: 'POST',
