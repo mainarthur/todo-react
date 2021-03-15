@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { FC } from 'react'
+import { FC, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import AppBar from '@material-ui/core/AppBar'
@@ -20,11 +20,13 @@ const ToDoAppBar: FC = () => {
   const { accessToken } = useSelector((state: RootState) => state.tokens)
   const dispatch = useDispatch()
 
-  const onLogOutClick = () => {
-    dispatch(deleteTokensAction())
+  const deleteTokens = useCallback(() => dispatch(deleteTokensAction()), [dispatch])
+
+  const onLogOutClick = useCallback(() => {
+    deleteTokens()
     localStorage.clear()
     history.push('/login')
-  }
+  }, [deleteTokens])
 
   return (
     <AppBar>
