@@ -4,6 +4,7 @@ import {
   FC,
   useEffect,
   useMemo,
+  useCallback,
 } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Update } from 'history'
@@ -32,21 +33,21 @@ const Router: FC<Props> = ({
   const dispatch = useDispatch()
   const routesState = useSelector((state: RootState) => state.router)
 
-  const setRoute = (route: Route) => dispatch(setRouteAction(route))
+  const setRoute = useCallback((route: Route) => dispatch(setRouteAction(route)), [dispatch])
 
   const routes = Object.keys(routesProps).map((key) => routesProps[key].path)
 
-  const handleRouteChange = (update: Update<object>) => {
+  const handleRouteChange = useCallback((update: Update<object>) => {
     const route = locationToRoute(update.location)
     setRoute(route)
-  }
+  }, [setRoute])
 
-  const unlisten = useMemo(() => history.listen(handleRouteChange), [history])
+  const unlisten = useMemo(() => history.listen(handleRouteChange), [handleRouteChange])
 
   useEffect(() => {
     setRoute(locationToRoute(history.location))
     return () => unlisten()
-  }, [])
+  }, [setRoute, unlisten])
 
   const { route } = routesState
 
