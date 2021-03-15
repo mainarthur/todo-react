@@ -1,3 +1,3 @@
-export default interface RefreshTokenBody {
+export default interface NewToDoBody {
   text: string
 }

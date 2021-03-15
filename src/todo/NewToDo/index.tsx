@@ -4,6 +4,8 @@ import {
   ChangeEvent,
   KeyboardEvent,
   FC,
+  useRef,
+  useEffect,
 } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -12,18 +14,14 @@ import IconButton from '@material-ui/core/IconButton'
 import Paper from '@material-ui/core/Paper'
 import Input from '@material-ui/core/Input'
 import InputAdornment from '@material-ui/core/InputAdornment'
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 import { Add } from '@material-ui/icons'
 
 import ErrorSnackBar from '../../common/ErrorSnackBar'
 
-import { api } from '../../api/api'
-import NewToDoBody from '../../api/bodies/NewToDoBody'
-import NewToDoResponse from '../../api/responses/NewToDoResponse'
-
-import { addToDoAction } from '../../redux/actions/toDoActions'
+import { newToDoRequestAction } from '../../redux/actions/toDoActions'
 import useStyle from './styles'
-import ToDo from '../../models/ToDo'
 import { RootState } from '../../redux/reducers'
 
 const NewToDo: FC = () => {
@@ -33,15 +31,23 @@ const NewToDo: FC = () => {
   const [invalidText, setInvalidText] = useState(false)
 
   const {
-    loading,
-    error,
+    loading: appLoading,
+    error: appError,
   } = useSelector((state: RootState) => state.app)
 
-  const disabled = loading || error
+  const {
+    loading,
+    error,
+    ok,
+  } = useSelector((state: RootState) => state.newToDo)
+
+  const appDisabled = appLoading || appError || loading
+
+  const prevOk = useRef(false)
 
   const dispatch = useDispatch()
 
-  const addToDo = (toDo: ToDo) => dispatch(addToDoAction(toDo))
+  const newToDoRequest = (newToDoText: string) => dispatch(newToDoRequestAction(newToDoText))
 
   const onSnackBarClose = () => {
     if (invalidText) {
@@ -49,34 +55,20 @@ const NewToDo: FC = () => {
     }
   }
 
-  const onButtonClick = async (): Promise<void> => {
+  const onButtonClick = async () => {
     const toDoText = text.trim()
 
     if (toDoText === '') {
       if (!invalidText) {
         setInvalidText(true)
       }
-      return null
+    } else {
+      if (invalidText) {
+        setInvalidText(false)
+      }
+
+      newToDoRequest(toDoText)
     }
-
-    setText('')
-    if (invalidText) {
-      setInvalidText(false)
-    }
-
-    const toDoResponse = await api<NewToDoResponse, NewToDoBody>({
-      endpoint: '/todo',
-      method: 'POST',
-      body: {
-        text: toDoText,
-      },
-    })
-
-    if (toDoResponse.status) {
-      addToDo((toDoResponse as NewToDoResponse).result)
-    }
-
-    return null
   }
 
   const onTextChange = (ev: ChangeEvent<HTMLInputElement>) => {
@@ -97,6 +89,13 @@ const NewToDo: FC = () => {
     }
   }
 
+  useEffect(() => {
+    if (ok && !prevOk.current) {
+      setText('')
+    }
+    prevOk.current = ok
+  }, [ok])
+
   return (
     <Grid item>
       <Paper className={classes.paper}>
@@ -107,12 +106,12 @@ const NewToDo: FC = () => {
           value={text}
           onKeyPress={handleKeyPress}
           placeholder="New task"
-          disabled={disabled}
+          disabled={appDisabled}
           endAdornment={
             (
               <InputAdornment position="end">
-                <IconButton disabled={disabled} onClick={onButtonClick}>
-                  <Add className={classes.addIcon} />
+                <IconButton disabled={appDisabled} onClick={onButtonClick}>
+                  {loading ? <CircularProgress size="1.5rem" /> : <Add className={classes.addIcon} />}
                 </IconButton>
               </InputAdornment>
             )
@@ -125,6 +124,13 @@ const NewToDo: FC = () => {
         onClose={onSnackBarClose}
       >
         Text is required
+      </ErrorSnackBar>
+      <ErrorSnackBar
+        open={error}
+        autoHide
+        onClose={onSnackBarClose}
+      >
+        Can&apos;t add new toDo
       </ErrorSnackBar>
     </Grid>
   )
