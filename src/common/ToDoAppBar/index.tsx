@@ -9,11 +9,11 @@ import Typography from '@material-ui/core/Typography'
 
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
 
-import { deleteTokensAction } from '../redux/actions/tokenActions'
-import { RootState } from '../redux/reducers'
+import { deleteTokensAction } from '../../redux/actions/tokenActions'
+import { RootState } from '../../redux/reducers'
 
-import { history } from '../routing/routerHistory'
-import useStyle from './ToDoAppBarStyles'
+import { history } from '../../routing/routerHistory'
+import useStyle from './styles'
 
 const ToDoAppBar: FC = () => {
   const classes = useStyle()

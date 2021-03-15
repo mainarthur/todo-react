@@ -4,7 +4,7 @@ import { ReactNode, FC } from 'react'
 import Alert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
 
-import SlideDown from './SlideDown'
+import SlideDown from '../SlideDown'
 
 interface Props {
   open: boolean

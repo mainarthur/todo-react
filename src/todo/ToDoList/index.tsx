@@ -1,5 +1,10 @@
 import * as React from 'react'
-import { useState, useEffect, FC, useMemo } from 'react'
+import {
+  useState,
+  useEffect,
+  FC,
+  useMemo,
+} from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import List from '@material-ui/core/List'
@@ -246,7 +251,7 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
     if (user) {
       loadTodos(user)
     }
-  }, [user])
+  }, [user, setToDos])
 
   const todosElements = useMemo(() => todos.map((toDo) => {
     const { _id: tId } = toDo

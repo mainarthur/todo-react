@@ -37,17 +37,21 @@ export default function authReducer(state = initialState, action: AuthActions): 
       newState[action.authType] = { ...initialState[action.authType] }
       return newState
     case AuthAction.REQUESTED_AUTH:
+      newState[action.authType].ok = false
+      newState[action.authType].error = false
       newState[action.authType].loading = true
 
       return newState
     case AuthAction.REQUESTED_AUTH_FAILED:
-      newState[action.authType].loading = false
+      newState[action.authType].ok = false
       newState[action.authType].error = true
+      newState[action.authType].loading = false
 
       return newState
     case AuthAction.REQUESTED_AUTH_SUCCEEDED:
-      newState[action.authType].loading = false
       newState[action.authType].ok = true
+      newState[action.authType].error = false
+      newState[action.authType].loading = false
 
       return newState
     default:

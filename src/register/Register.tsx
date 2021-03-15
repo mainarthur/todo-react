@@ -16,7 +16,6 @@ import Link from '../routing/Link'
 import { history } from '../routing/routerHistory'
 
 import { api } from '../api/api'
-import RegisterBody from '../api/bodies/RegisterBody'
 import AuthResponse from '../api/responses/AuthResponse'
 
 import { setAccessTokenAction, setRefreshTokenAction } from '../redux/actions/tokenActions'

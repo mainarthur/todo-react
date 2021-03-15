@@ -36,13 +36,12 @@ const App: FC = () => {
     if (localStorage.getItem('access_token') == null) {
       history.push('/login')
     } else {
-      if (!user) {
-
-      }
-
       if (tokens.accessToken === '' || tokens.refreshToken === '') {
         setAccessToken(localStorage.getItem('access_token'))
         setRefreshToken(localStorage.getItem('refresh_token'))
+      }
+      if (!user) {
+
       }
 
       return () => {
