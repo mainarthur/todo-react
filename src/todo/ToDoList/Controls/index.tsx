@@ -10,7 +10,6 @@ import { setTodosAction } from '../../../redux/actions/toDoActions'
 import { RootState } from '../../../redux/reducers'
 
 import { api } from '../../../api/api'
-import DeleteResponse from '../../../api/responses/DeleteResponse'
 
 import ToDo from '../../../models/ToDo'
 import useStyle from './styles'
@@ -70,7 +69,7 @@ const ToDoListControls: FC<Props> = ({
       localStorage.setItem('lastupdate', (response as DeleteManyResponse).lastUpdate.toString())
       setToDos(undoneTodos)
     } else {
-      onClearAllError()
+      onClearDoneError()
     }
   }
 

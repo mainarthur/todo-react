@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useEffect, FC } from 'react'
+import { useEffect, FC, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import Toolbar from '@material-ui/core/Toolbar'
@@ -13,41 +13,47 @@ import ToDoList from './todo/ToDoList'
 
 import { history } from './routing/routerHistory'
 
-import setUserAction from './redux/actions/appActions'
 import { RootState } from './redux/reducers'
 
-import User from './models/User'
-
 import { setAccessTokenAction, setRefreshTokenAction } from './redux/actions/tokenActions'
+import { setUserAction, userRequestAction } from './redux/actions/appActions'
+import User from './models/User'
 
 const App: FC = () => {
   const classes = useStyle()
 
   const { user } = useSelector((state: RootState) => state.app)
-  const tokens = useSelector((state: RootState) => state.tokens)
+  const { refreshToken, accessToken } = useSelector((state: RootState) => state.tokens)
 
   const dispatch = useDispatch()
 
-  const setUser = (newUser: User) => dispatch(setUserAction(newUser))
-  const setAccessToken = (token: string) => dispatch(setAccessTokenAction(token))
-  const setRefreshToken = (token: string) => dispatch(setRefreshTokenAction(token))
+  const userRequest = useCallback(() => dispatch(userRequestAction()), [dispatch])
+  const setUser = useCallback((newUser: User) => dispatch(setUserAction(newUser)), [dispatch])
+  const setAccessToken = useCallback(
+    (token: string) => dispatch(setAccessTokenAction(token)),
+    [dispatch],
+  )
+  const setRefreshToken = useCallback(
+    (token: string) => dispatch(setRefreshTokenAction(token)),
+    [dispatch],
+  )
 
   useEffect(() => {
     if (localStorage.getItem('access_token') == null) {
       history.push('/login')
     } else {
-      if (tokens.accessToken === '' || tokens.refreshToken === '') {
+      if (accessToken === '' || refreshToken === '') {
         setAccessToken(localStorage.getItem('access_token'))
         setRefreshToken(localStorage.getItem('refresh_token'))
       }
       if (!user) {
-
+        userRequest()
       }
     }
     return () => {
       setUser(null)
     }
-  }, [])
+  }, [user, refreshToken, accessToken, setUser, setRefreshToken, setAccessToken, userRequest])
 
   return (
     <Box>

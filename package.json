@@ -1,7 +1,7 @@
 {
   "name": "todo-react",
   "scripts": {
-    "start": "webpack serve --open --hot --config webpack.dev.js",
+    "start": "webpack serve --hot --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
     "start:build": "serve -s static/build -l 3000"
   },
