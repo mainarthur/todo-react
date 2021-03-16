@@ -69,19 +69,19 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
     if (errorCode !== ErrorCodes.None) {
       setErrorCode(ErrorCodes.None)
     }
-  }, [errorCode, setErrorCode])
+  }, [errorCode])
 
   const onClearAllError = useCallback(() => {
     if (errorCode !== ErrorCodes.ClearAll) {
       setErrorCode(ErrorCodes.ClearAll)
     }
-  }, [errorCode, setErrorCode])
+  }, [errorCode])
 
   const onClearDoneError = useCallback(() => {
     if (errorCode !== ErrorCodes.ClearDone) {
       setErrorCode(ErrorCodes.ClearDone)
     }
-  }, [errorCode, setErrorCode])
+  }, [errorCode])
 
   const onToDoPositionChanged = useCallback(async (id: string, nextId: string, prevId: string) => {
     const prevTodo = getToDoById(prevId)
@@ -123,7 +123,7 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
         setErrorCode(ErrorCodes.PositionChange)
       }
     }
-  }, [errorCode, setErrorCode, getToDoById, dispatch, todos])
+  }, [errorCode, getToDoById, dispatch, todos])
 
   const onToDoStatusChanged = useCallback(async (toDoId: string, newStatus: boolean) => {
     const response = await api<UpdateToDoResponse, UpdateToDoBody>({
@@ -151,7 +151,7 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
     } else if (errorCode !== ErrorCodes.StatusChange) {
       setErrorCode(ErrorCodes.StatusChange)
     }
-  }, [errorCode, setErrorCode, dispatch, todos])
+  }, [errorCode, dispatch, todos])
 
   const onToDoDeleted = useCallback(async (toDoId: string) => {
     const response = await api<DeleteResponse, {}>({
@@ -170,7 +170,7 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
     } else if (errorCode !== ErrorCodes.Delete) {
       setErrorCode(ErrorCodes.Delete)
     }
-  }, [errorCode, setErrorCode, dispatch, todos])
+  }, [errorCode, dispatch, todos])
 
   const loadTodos = useCallback(async (newUser: User) => {
     if (newUser && !isLoading && !isToDosLoaded) {
@@ -223,7 +223,7 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
         }
       }
     }
-  }, [user, loadError, setLoadError, loadTodos])
+  }, [user, loadError, loadTodos])
 
   useEffect(() => {
     dispatch(setTodosAction([]))

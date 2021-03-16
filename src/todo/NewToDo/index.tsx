@@ -57,7 +57,7 @@ const NewToDo: FC = () => {
     if (requestStatus === RequestStatus.ERROR) {
       setRequestStatus(RequestStatus.NONE)
     }
-  }, [isInvalidText, setIsInvalidText, requestStatus, setRequestStatus])
+  }, [isInvalidText, requestStatus])
 
   const onButtonClick = useCallback(async () => {
     const toDoText = newTaskText.trim()
@@ -88,8 +88,6 @@ const NewToDo: FC = () => {
   }, [
     isInvalidText,
     newTaskText,
-    setIsInvalidText,
-    setRequestStatus,
     dispatch,
   ])
 
@@ -103,7 +101,7 @@ const NewToDo: FC = () => {
     }
 
     setNewTaskText(newText)
-  }, [isInvalidText, setIsInvalidText, setNewTaskText])
+  }, [isInvalidText])
 
   const handleKeyPress = useCallback((ev: KeyboardEvent<HTMLInputElement>) => {
     if (ev.key === 'Enter') {

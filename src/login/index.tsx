@@ -51,20 +51,20 @@ const Login: FC = () => {
     setEmail,
     setIsInvalidEmail,
     isValidEmail,
-  ), [isInvalidEmail, setEmail, setIsInvalidEmail])
+  ), [isInvalidEmail])
 
   const onPasswordChange = useMemo(() => onChange(
     () => isInvalidPassword,
     setPassword,
     setIsInvalidPassword,
     isValidPassword,
-  ), [isInvalidPassword, setPassword, setIsInvalidPassword])
+  ), [isInvalidPassword])
 
   const onSnackBarClose = useCallback(() => {
     if (requestStatus === RequestStatus.ERROR) {
       setRequestStatus(RequestStatus.NONE)
     }
-  }, [requestStatus, setRequestStatus])
+  }, [requestStatus])
 
   const onLoginButtonClick = useCallback(async () => {
     const email = emailState.trim()
@@ -102,10 +102,6 @@ const Login: FC = () => {
     isInvalidEmail,
     isInvalidPassword,
     dispatch,
-    setIsInvalidPassword,
-    setIsInvalidEmail,
-    setRequestStatus,
-    setLoading,
   ])
 
   useEffect(() => {

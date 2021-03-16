@@ -45,7 +45,7 @@ const ToDoListControls: FC<Props> = ({
     } finally {
       setIsLoading(false)
     }
-  }, [dispatch, todos, setIsLoading, onClearAllError])
+  }, [dispatch, todos, onClearAllError])
 
   const onClearDoneClick = useCallback(async () => {
     const doneTodos = todos.filter((toDo) => toDo.done)
@@ -66,7 +66,7 @@ const ToDoListControls: FC<Props> = ({
     } finally {
       setIsLoading(false)
     }
-  }, [dispatch, todos, setIsLoading, onClearDoneError])
+  }, [dispatch, todos, onClearDoneError])
 
   return (
     <Container className={classes.controls}>

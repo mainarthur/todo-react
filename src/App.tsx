@@ -50,7 +50,7 @@ const App: FC = () => {
         })()
       }
     }
-  }, [accessToken, refreshToken, user, loading, setLoading, dispatch])
+  }, [accessToken, refreshToken, user, loading, dispatch])
 
   return (
     <Box>

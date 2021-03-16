@@ -53,27 +53,27 @@ const Register: FC = () => {
     setEmail,
     setIsInvalidEmail,
     isValidEmail,
-  ), [isInvalidEmail, setEmail, setIsInvalidEmail])
+  ), [isInvalidEmail])
 
   const onPasswordChange = useMemo(() => onChange(
     () => isInvalidPassword,
     setPassword,
     setIsInvalidPassword,
     isValidPassword,
-  ), [isInvalidPassword, setPassword, setIsInvalidPassword])
+  ), [isInvalidPassword])
 
   const onNameChange = useMemo(() => onChange(
     () => isInvalidName,
     setName,
     setIsInvalidName,
     isValidName,
-  ), [isInvalidName, setName, setIsInvalidName])
+  ), [isInvalidName])
 
   const onSnackBarClose = useCallback(() => {
     if (requestStatus === RequestStatus.ERROR) {
       setRequestStatus(RequestStatus.NONE)
     }
-  }, [requestStatus, setRequestStatus])
+  }, [requestStatus])
 
   const onRegisterButtonClick = useCallback(async () => {
     const name = nameState.trim()
@@ -119,12 +119,7 @@ const Register: FC = () => {
     isInvalidName,
     isInvalidEmail,
     isInvalidPassword,
-    setIsInvalidName,
-    setIsInvalidPassword,
-    setIsInvalidEmail,
     dispatch,
-    setRequestStatus,
-    setLoading,
   ])
 
   useEffect(() => {
