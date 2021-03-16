@@ -8,7 +8,7 @@ import {
   useEffect,
   useCallback,
 } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton'
@@ -24,7 +24,6 @@ import ErrorSnackBar from '../../common/ErrorSnackBar'
 import useStyle from './styles'
 
 import { addToDoAction, newToDoAction } from '../../redux/actions/toDoActions'
-import { RootState } from '../../redux/reducers'
 import { RequestStatus } from '../../redux/constants'
 import { createAsyncAction } from '../../redux/helpers'
 
@@ -41,14 +40,9 @@ const NewToDo: FC = () => {
 
   const inputRef = useRef<HTMLDivElement>(null)
 
-  const {
-    loading: appLoading,
-    error: appError,
-  } = useSelector((state: RootState) => state.app)
-
   const dispatch = useDispatch()
 
-  const appDisabled = appLoading || appError || loading
+  const isControlsDisabled = loading
 
   const onSnackBarClose = useCallback(() => {
     if (isInvalidText) {
@@ -136,11 +130,11 @@ const NewToDo: FC = () => {
           value={newTaskText}
           onKeyPress={handleKeyPress}
           placeholder="New task"
-          disabled={appDisabled}
+          disabled={isControlsDisabled}
           endAdornment={
             (
               <InputAdornment position="end">
-                <IconButton disabled={appDisabled} onClick={onButtonClick}>
+                <IconButton disabled={isControlsDisabled} onClick={onButtonClick}>
                   {loading ? <CircularProgress size="1.5rem" /> : <Add className={classes.addIcon} />}
                 </IconButton>
               </InputAdornment>
