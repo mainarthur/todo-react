@@ -24,7 +24,7 @@ export const deleteManyToDosAction = createAction<DeleteManyBody>(
 )
 
 export const deleteToDoAction = createAction<DeleteToDoPayload>(
-  ToDoAction.REQUEST_DELETE_MANY_TODOS,
+  ToDoAction.REQUEST_DELETE_TODO,
 )
 
 export const setLoadingPartAction = createAction<SetLoadingPartPayload>(ToDoAction.SET_LOADING_PART)

@@ -18,12 +18,10 @@ import ToDoElement from '../ToDoElement'
 
 import { api } from '../../api/api'
 import UpdateToDoBody from '../../api/bodies/UpdateToDoBody'
-import DeleteResponse from '../../api/responses/DeleteResponse'
-import UpdateToDoResponse from '../../api/responses/UpdateToDoResponse'
 
 import { connectDB, defaultStoreName } from '../../indexeddb/connect'
 
-import { requestTodosAction, setTodosAction } from '../../redux/actions/toDoActions'
+import { deleteToDoAction, requestTodosAction, setTodosAction, updateToDoAction } from '../../redux/actions/toDoActions'
 import { RootState } from '../../redux/reducers'
 
 import ToDo from '../../models/ToDo'
@@ -98,34 +96,16 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
         newPosition = (prevTodo.position + nextTodo.position) / 2
       }
 
-      const newTodos = todos.map((toDo) => {
-        const { _id: tId } = toDo
-        if (tId === id) {
-          const newTodo = { ...toDo }
-          newTodo.loadingPart = LoadingPart.DRAG_HANDLER
-          return newTodo
-        }
-
-        return toDo
-      })
-
-      dispatch(setTodosAction(newTodos))
-
-      const response = await api<UpdateToDoResponse, UpdateToDoBody>({
-        endpoint: '/todo',
-        method: 'PATCH',
-        body: {
+      try {
+        await createAsyncAction<ToDo, UpdateToDoBody>(dispatch, updateToDoAction({
           _id: id,
           position: newPosition,
-        },
-      })
+        }))
 
-      if (response.status) {
-        const newTodosAfterUpdate = todos.map((toDo) => {
+        const newTodos = todos.map((toDo) => {
           const { _id: tId } = toDo
           if (tId === id) {
             const newTodo = { ...toDo }
-            newTodo.loadingPart = LoadingPart.NONE
             newTodo.position = newPosition
             return newTodo
           }
@@ -133,61 +113,42 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
           return toDo
         })
 
-        dispatch(setTodosAction(newTodosAfterUpdate))
-      } else if (errorCode !== ErrorCodes.PositionChange) {
+        dispatch(setTodosAction(newTodos))
+      } catch (err) {
         setErrorCode(ErrorCodes.PositionChange)
       }
     }
-  }, [errorCode, getToDoById, dispatch, todos])
+  }, [getToDoById, dispatch, todos])
 
   const onToDoStatusChanged = useCallback(async (toDoId: string, newStatus: boolean) => {
-    const newTodos = todos.map((t) => {
-      const { _id: tId } = t
-      if (tId === toDoId) {
-        const newTodo = { ...t }
-        newTodo.loadingPart = LoadingPart.CHECKBOX
-        return newTodo
-      }
-
-      return t
-    })
-
-    dispatch(setTodosAction(newTodos))
-    const response = await api<UpdateToDoResponse, UpdateToDoBody>({
-      endpoint: '/todo',
-      method: 'PATCH',
-      body: {
+    try {
+      await createAsyncAction<ToDo, UpdateToDoBody>(dispatch, updateToDoAction({
         _id: toDoId,
         done: newStatus,
-      },
-    })
+      }))
 
-    if (response.status) {
-      const newTodosAfterUpdate = todos.map((toDo) => {
+      const newTodos = todos.map((toDo) => {
         const { _id: tId } = toDo
         if (tId === toDoId) {
           const newTodo = { ...toDo }
           newTodo.done = newStatus
-          newTodo.loadingPart = LoadingPart.NONE
           return newTodo
         }
 
         return toDo
       })
 
-      dispatch(setTodosAction(newTodosAfterUpdate))
-    } else if (errorCode !== ErrorCodes.StatusChange) {
+      dispatch(setTodosAction(newTodos))
+    } catch (err) {
       setErrorCode(ErrorCodes.StatusChange)
     }
-  }, [errorCode, dispatch, todos])
+  }, [dispatch, todos])
 
   const onToDoDeleted = useCallback(async (toDoId: string) => {
-    const response = await api<DeleteResponse, {}>({
-      endpoint: `/todo/${toDoId}`,
-      method: 'DELETE',
-    })
-
-    if (response.status) {
+    try {
+      await createAsyncAction(dispatch, deleteToDoAction({
+        toDoId,
+      }))
       const newTodos = todos.filter((t) => {
         const { _id: tId } = t
 
@@ -195,10 +156,11 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
       })
 
       dispatch(setTodosAction(newTodos))
-    } else if (errorCode !== ErrorCodes.Delete) {
+    } catch (err) {
+      console.log(err)
       setErrorCode(ErrorCodes.Delete)
     }
-  }, [errorCode, dispatch, todos])
+  }, [dispatch, todos])
 
   const loadTodos = useCallback(async (newUser: User) => {
     if (newUser && !isLoading && !isToDosLoaded) {
