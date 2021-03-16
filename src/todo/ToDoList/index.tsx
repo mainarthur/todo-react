@@ -98,6 +98,19 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
         newPosition = (prevTodo.position + nextTodo.position) / 2
       }
 
+      const newTodos = todos.map((toDo) => {
+        const { _id: tId } = toDo
+        if (tId === id) {
+          const newTodo = { ...toDo }
+          newTodo.loadingPart = LoadingPart.DRAG_HANDLER
+          return newTodo
+        }
+
+        return toDo
+      })
+
+      dispatch(setTodosAction(newTodos))
+
       const response = await api<UpdateToDoResponse, UpdateToDoBody>({
         endpoint: '/todo',
         method: 'PATCH',
@@ -108,10 +121,11 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
       })
 
       if (response.status) {
-        const newTodos = todos.map((toDo) => {
+        const newTodosAfterUpdate = todos.map((toDo) => {
           const { _id: tId } = toDo
           if (tId === id) {
             const newTodo = { ...toDo }
+            newTodo.loadingPart = LoadingPart.NONE
             newTodo.position = newPosition
             return newTodo
           }
@@ -119,7 +133,7 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
           return toDo
         })
 
-        dispatch(setTodosAction(newTodos))
+        dispatch(setTodosAction(newTodosAfterUpdate))
       } else if (errorCode !== ErrorCodes.PositionChange) {
         setErrorCode(ErrorCodes.PositionChange)
       }
@@ -127,6 +141,18 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
   }, [errorCode, getToDoById, dispatch, todos])
 
   const onToDoStatusChanged = useCallback(async (toDoId: string, newStatus: boolean) => {
+    const newTodos = todos.map((t) => {
+      const { _id: tId } = t
+      if (tId === toDoId) {
+        const newTodo = { ...t }
+        newTodo.loadingPart = LoadingPart.CHECKBOX
+        return newTodo
+      }
+
+      return t
+    })
+
+    dispatch(setTodosAction(newTodos))
     const response = await api<UpdateToDoResponse, UpdateToDoBody>({
       endpoint: '/todo',
       method: 'PATCH',
@@ -137,18 +163,19 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
     })
 
     if (response.status) {
-      const newTodos = todos.map((t) => {
-        const { _id: tId } = t
+      const newTodosAfterUpdate = todos.map((toDo) => {
+        const { _id: tId } = toDo
         if (tId === toDoId) {
-          const newTodo = { ...t }
+          const newTodo = { ...toDo }
           newTodo.done = newStatus
+          newTodo.loadingPart = LoadingPart.NONE
           return newTodo
         }
 
-        return t
+        return toDo
       })
 
-      dispatch(setTodosAction(newTodos))
+      dispatch(setTodosAction(newTodosAfterUpdate))
     } else if (errorCode !== ErrorCodes.StatusChange) {
       setErrorCode(ErrorCodes.StatusChange)
     }
@@ -237,6 +264,11 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
     }
   }, [user, dispatch, loadTodos])
 
+  const isListDisabled = todos.reduce(
+    (accumulator, toDo) => accumulator || toDo.loadingPart !== LoadingPart.NONE,
+    false,
+  ) || false
+
   return (
     <Grid item className={classes.root}>
       <ToDoListControls
@@ -261,6 +293,7 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
                       onStatusChange={onToDoStatusChanged}
                       onPositionChange={onToDoPositionChanged}
                       bottomDndClassName={classes.bottomDnd}
+                      disabled={isListDisabled}
                       loadingPart={toDo.loadingPart}
                     />
                   )

@@ -27,6 +27,7 @@ type Props = {
   done: boolean
   bottomDndClassName: string
   loadingPart: LoadingPart
+  disabled: boolean
 }
 
 const getToDoIdByElement = (elem: Element) => elem?.querySelector('div[id]')?.id ?? null
@@ -39,6 +40,7 @@ const ToDoElement: FC<Props> = ({
   onStatusChange,
   onPositionChange,
   bottomDndClassName,
+  disabled,
   loadingPart,
 }: Props) => {
   const listItem = useRef<HTMLDivElement>(null)
@@ -68,7 +70,7 @@ const ToDoElement: FC<Props> = ({
         return
       }
 
-      if (loadingPart !== LoadingPart.NONE) {
+      if (disabled) {
         return
       }
 
@@ -178,7 +180,7 @@ const ToDoElement: FC<Props> = ({
       role={undefined}
       dense
       button
-      disabled={loadingPart !== LoadingPart.NONE}
+      disabled={disabled}
     >
       <ListItemIcon ref={checkBox}>
         <ComponentProgressBar loading={loadingPart === LoadingPart.CHECKBOX}>
@@ -194,12 +196,12 @@ const ToDoElement: FC<Props> = ({
       </ListItemIcon>
       <ListItemText primary={text} />
       <ListItemSecondaryAction>
-        <IconButton ref={deleteButton} edge="end" onClick={onDeleteButtonClick}>
+        <IconButton disabled={disabled} ref={deleteButton} edge="end" onClick={onDeleteButtonClick}>
           <ComponentProgressBar loading={loadingPart === LoadingPart.DELETE_BUTTON}>
             <DeleteIcon />
           </ComponentProgressBar>
         </IconButton>
-        <IconButton ref={dragElement} edge="end">
+        <IconButton ref={dragElement} disabled={disabled} edge="end">
           <ComponentProgressBar loading={loadingPart === LoadingPart.DRAG_HANDLER}>
             <DragHandleIcon />
           </ComponentProgressBar>
