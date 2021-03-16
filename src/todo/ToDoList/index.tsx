@@ -62,8 +62,6 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
 
   const dispatch = useDispatch()
 
-  const setToDos = useCallback((newToDos: ToDo[]) => dispatch(setTodosAction(newToDos)), [dispatch])
-
   const getToDoById = useCallback((id: string): ToDo => todos.find((toDo: ToDo) => {
     const { _id: tId } = toDo
 
@@ -126,12 +124,12 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
           return toDo
         })
 
-        setToDos(newTodos)
+        dispatch(setTodosAction(newTodos))
       } else if (errorCode !== ErrorCodes.PositionChange) {
         setErrorCode(ErrorCodes.PositionChange)
       }
     }
-  }, [errorCode, setErrorCode, getToDoById, setToDos, todos])
+  }, [errorCode, setErrorCode, getToDoById, dispatch, todos])
 
   const onToDoStatusChanged = useCallback(async (toDoId: string, newStatus: boolean) => {
     const response = await api<UpdateToDoResponse, UpdateToDoBody>({
@@ -155,11 +153,11 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
         return t
       })
 
-      setToDos(newTodos)
+      dispatch(setTodosAction(newTodos))
     } else if (errorCode !== ErrorCodes.StatusChange) {
       setErrorCode(ErrorCodes.StatusChange)
     }
-  }, [errorCode, setErrorCode, setToDos, todos])
+  }, [errorCode, setErrorCode, dispatch, todos])
 
   const onToDoDeleted = useCallback(async (toDoId: string) => {
     const response = await api<DeleteResponse, {}>({
@@ -174,11 +172,11 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
         return tId !== toDoId
       })
 
-      setToDos(newTodos)
+      dispatch(setTodosAction(newTodos))
     } else if (errorCode !== ErrorCodes.Delete) {
       setErrorCode(ErrorCodes.Delete)
     }
-  }, [errorCode, setErrorCode, setToDos, todos])
+  }, [errorCode, setErrorCode, dispatch, todos])
 
   const loadTodos = useCallback(async (newUser: User) => {
     if (newUser) {
@@ -232,11 +230,11 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
         const store = transaction.objectStore(defaultStoreName).index('position')
         const todosRequest = store.getAll()
         todosRequest.addEventListener('success', () => {
-          setToDos(todosRequest.result)
+          dispatch(setTodosAction(todosRequest.result))
         })
       }
     }
-  }, [loadError, setLoadError, setToDos])
+  }, [loadError, setLoadError, dispatch])
 
   const onReloadTodosClick = useCallback(async () => {
     if (user) {
@@ -252,11 +250,11 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
   }, [user, loadError, setLoadError, loadTodos])
 
   useEffect(() => {
-    setToDos([])
+    dispatch(setTodosAction([]))
     if (user) {
       loadTodos(user)
     }
-  }, [user, setToDos, loadTodos])
+  }, [user, dispatch, loadTodos])
 
   const todosElements = useMemo(() => {
     const elements = todos.map((toDo) => {

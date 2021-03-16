@@ -21,10 +21,14 @@ import store from './redux/store'
 const theme = createMuiTheme({
   palette: {
     primary: {
-      main: green[500],
+      main: '#0d47a1',
+      light: '#5472d3',
+      dark: '#002171',
     },
     secondary: {
-      main: '#F39C12',
+      main: '#bf360c',
+      light: '#f9683a',
+      dark: '#870000',
     },
   },
 })

@@ -1,7 +1,6 @@
 export enum AppAction {
   REQUEST_USER = 'REQUEST_USER',
   SET_USER = 'SET_USER',
-  FETCH_USER = 'FETCH_USER',
 }
 
 export enum ToDoAction {

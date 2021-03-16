@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useEffect, FC, useCallback } from 'react'
+import { useEffect, FC, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import Toolbar from '@material-ui/core/Toolbar'
@@ -16,43 +16,41 @@ import { history } from './routing/routerHistory'
 import { RootState } from './redux/reducers'
 
 import { setAccessTokenAction, setRefreshTokenAction } from './redux/actions/tokenActions'
-import { userRequestAction } from './redux/actions/appActions'
+import { requestUserAction, setUserAction } from './redux/actions/appActions'
+import { createAsyncAction } from './redux/helpers'
+import User from './models/User'
 
 const App: FC = () => {
   const classes = useStyle()
 
-  const {
-    user,
-    loading,
-  } = useSelector((state: RootState) => state.app)
+  const [loading, setLoading] = useState(false)
 
+  const { user } = useSelector((state: RootState) => state.app)
   const { refreshToken, accessToken } = useSelector((state: RootState) => state.tokens)
 
   const dispatch = useDispatch()
-
-  const userRequest = useCallback(() => dispatch(userRequestAction()), [dispatch])
-  const setAccessToken = useCallback(
-    (token: string) => dispatch(setAccessTokenAction(token)),
-    [dispatch],
-  )
-  const setRefreshToken = useCallback(
-    (token: string) => dispatch(setRefreshTokenAction(token)),
-    [dispatch],
-  )
 
   useEffect(() => {
     if (localStorage.getItem('access_token') == null) {
       history.push('/login')
     } else {
       if (accessToken === '' || refreshToken === '') {
-        setAccessToken(localStorage.getItem('access_token'))
-        setRefreshToken(localStorage.getItem('refresh_token'))
+        dispatch(setAccessTokenAction(localStorage.getItem('access_token')))
+        dispatch(setRefreshTokenAction(localStorage.getItem('refresh_token')))
       }
       if (!user && !loading) {
-        userRequest()
+        setLoading(true);
+        (async () => {
+          try {
+            const loadedUser = await createAsyncAction<User>(dispatch, requestUserAction())
+            dispatch(setUserAction(loadedUser))
+          } finally {
+            setLoading(false)
+          }
+        })()
       }
     }
-  })
+  }, [accessToken, refreshToken, user, loading, setLoading, dispatch])
 
   return (
     <Box>

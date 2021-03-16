@@ -6,7 +6,7 @@ import {
   useCallback,
   useMemo,
 } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
@@ -26,12 +26,9 @@ import { isValidEmail, isValidPassword } from '../utils'
 import onChange from '../common/onChange'
 import validateTextFields from '../common/validateTextFields'
 
-import { authClearAction, authRequestAction } from '../redux/actions/authActions'
-import AuthBody from '../api/bodies/AuthBody'
-import { AuthTypes } from '../redux/constants'
-import { RootState } from '../redux/reducers'
-
-const authType = AuthTypes.LOGIN
+import { loginRequestAction } from '../redux/actions/authActions'
+import { RequestStatus } from '../redux/constants'
+import { createAsyncAction } from '../redux/helpers'
 
 const Login: FC = () => {
   const classes = useStyle()
@@ -39,42 +36,35 @@ const Login: FC = () => {
   const [emailState, setEmail] = useState('')
   const [passwordState, setPassword] = useState('')
 
-  const [invalidEmail, setInvalidEmail] = useState(false)
-  const [invalidPassword, setInvalidPassword] = useState(false)
+  const [isInvalidEmail, setIsInvalidEmail] = useState(false)
+  const [isInvalidPassword, setIsInvalidPassword] = useState(false)
 
-  const { loading, error, ok } = useSelector((state: RootState) => state.auth[authType])
-
-  const buttonDisabled = loading || ok
+  const [loading, setLoading] = useState(false)
+  const [requestStatus, setRequestStatus] = useState(RequestStatus.NONE)
 
   const dispatch = useDispatch()
 
-  const authRequest = useCallback((payload: AuthBody) => {
-    dispatch(authRequestAction(payload, authType))
-  }, [dispatch])
-
-  const clearAuthState = useCallback(() => {
-    dispatch(authClearAction(authType))
-  }, [dispatch])
+  const buttonsDisabled = loading || requestStatus === RequestStatus.OK
 
   const onEmailChange = useMemo(() => onChange(
-    () => invalidEmail,
+    () => isInvalidEmail,
     setEmail,
-    setInvalidEmail,
+    setIsInvalidEmail,
     isValidEmail,
-  ), [invalidEmail, setEmail, setInvalidEmail])
+  ), [isInvalidEmail, setEmail, setIsInvalidEmail])
 
   const onPasswordChange = useMemo(() => onChange(
-    () => invalidPassword,
+    () => isInvalidPassword,
     setPassword,
-    setInvalidPassword,
+    setIsInvalidPassword,
     isValidPassword,
-  ), [invalidPassword, setPassword, setInvalidPassword])
+  ), [isInvalidPassword, setPassword, setIsInvalidPassword])
 
   const onSnackBarClose = useCallback(() => {
-    if (error) {
-      clearAuthState()
+    if (requestStatus === RequestStatus.ERROR) {
+      setRequestStatus(RequestStatus.NONE)
     }
-  }, [error, clearAuthState])
+  }, [requestStatus, setRequestStatus])
 
   const onLoginButtonClick = useCallback(async () => {
     const email = emailState.trim()
@@ -82,48 +72,53 @@ const Login: FC = () => {
 
     if (!validateTextFields([{
       textFieldValue: email,
-      error: invalidEmail,
-      setError: setInvalidEmail,
+      error: isInvalidEmail,
+      setError: setIsInvalidEmail,
       validator: isValidEmail,
     }, {
       textFieldValue: password,
-      error: invalidPassword,
-      setError: setInvalidPassword,
+      error: isInvalidPassword,
+      setError: setIsInvalidPassword,
       validator: isValidPassword,
     }])) {
       return
     }
 
-    authRequest({
-      email,
-      password,
-    })
+    try {
+      setLoading(true)
+      await createAsyncAction(dispatch, loginRequestAction({
+        email,
+        password,
+      }))
+      setRequestStatus(RequestStatus.OK)
+    } catch (err) {
+      setRequestStatus(RequestStatus.ERROR)
+    } finally {
+      setLoading(false)
+    }
   }, [
     emailState,
     passwordState,
-    invalidEmail,
-    invalidPassword,
-    authRequest,
-    setInvalidPassword,
-    setInvalidEmail,
+    isInvalidEmail,
+    isInvalidPassword,
+    dispatch,
+    setIsInvalidPassword,
+    setIsInvalidEmail,
+    setRequestStatus,
+    setLoading,
   ])
 
   useEffect(() => {
     if (localStorage.getItem('access_token')) {
       history.push('/')
     }
-    clearAuthState()
-
-    return () => {
-      clearAuthState()
-    }
-  }, [clearAuthState])
+  })
 
   useEffect(() => {
-    if (ok) {
+    if (requestStatus === RequestStatus.OK) {
       history.push('/')
     }
-  }, [ok])
+  }, [requestStatus])
 
   return (
     <Grid
@@ -147,8 +142,8 @@ const Login: FC = () => {
               className={classes.gridItem}
             >
               <TextField
-                error={invalidEmail}
-                helperText={invalidEmail && 'Invalid email format'}
+                error={isInvalidEmail}
+                helperText={isInvalidEmail && 'Invalid email format'}
                 label="Email"
                 placeholder="test@gmail.com"
                 variant="outlined"
@@ -162,8 +157,8 @@ const Login: FC = () => {
               className={classes.gridItem}
             >
               <TextField
-                error={invalidPassword}
-                helperText={invalidPassword && 'Password is too weak'}
+                error={isInvalidPassword}
+                helperText={isInvalidPassword && 'Password is too weak'}
                 label="Password"
                 variant="outlined"
                 type="password"
@@ -181,7 +176,7 @@ const Login: FC = () => {
                 variant="contained"
                 color="secondary"
                 onClick={onLoginButtonClick}
-                disabled={buttonDisabled}
+                disabled={buttonsDisabled}
               >
                 Login
                 {loading && <CircularProgress size="1.5rem" className={classes.progressBar} />}
@@ -189,7 +184,7 @@ const Login: FC = () => {
             </Grid>
             <Grid item>
               <Typography variant="body2">
-                <Link disabled={buttonDisabled} to="/register">Register </Link>
+                <Link disabled={buttonsDisabled} to="/register">Register </Link>
                 <span>if you don&apos;t have an account yet.</span>
               </Typography>
             </Grid>
@@ -197,7 +192,7 @@ const Login: FC = () => {
         </Paper>
       </Grid>
       <ErrorSnackBar
-        open={error}
+        open={requestStatus === RequestStatus.ERROR}
         autoHide
         onClose={onSnackBarClose}
       >

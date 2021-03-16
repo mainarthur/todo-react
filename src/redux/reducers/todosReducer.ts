@@ -1,24 +1,20 @@
-import { ToDoAction } from '../constants'
-import ToDoActions from '../types/todoTypes'
-
 import ToDo from '../../models/ToDo'
+import Action from '../types/Action'
+import { addToDoAction, setTodosAction } from '../actions/toDoActions'
 
 export type TodosState = ToDo[]
 
 const initialState: TodosState = []
 
-export default function todosReducer(state = initialState, action: ToDoActions): TodosState {
+export default function todosReducer(state = initialState, action: Action): TodosState {
   let newState = [...state]
-  switch (action.type) {
-    case ToDoAction.ADD_TODO:
-      newState = newState.concat([{ ...action.payload }])
 
-      return newState
-    case ToDoAction.SET_TODOS:
-      newState = [...action.payload]
-
-      return newState
-    default:
-      return state
+  if (addToDoAction.match(action)) {
+    newState = newState.concat([{ ...action.payload }])
   }
+  if (setTodosAction.match(action)) {
+    newState = [...action.payload]
+  }
+
+  return newState
 }

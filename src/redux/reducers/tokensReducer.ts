@@ -1,5 +1,9 @@
-import { TokenAction } from '../constants'
-import TokenActions from '../types/tokenTypes'
+import {
+  deleteTokensAction,
+  setAccessTokenAction,
+  setRefreshTokenAction,
+} from '../actions/tokenActions'
+import Action from '../types/Action'
 
 export interface TokensState {
   accessToken: string
@@ -11,23 +15,21 @@ const initialState: TokensState = {
   refreshToken: '',
 }
 
-export default function tokensReducer(state = initialState, action: TokenActions) {
+export default function tokensReducer(state = initialState, action: Action) {
   const newState = { ...state }
-  switch (action.type) {
-    case TokenAction.SET_ACCESS_TOKEN:
-      newState.accessToken = action.payload
 
-      return newState
-    case TokenAction.SET_REFRESH_TOKEN:
-      newState.refreshToken = action.payload
-
-      return newState
-    case TokenAction.DELETE_TOKENS:
-      newState.refreshToken = ''
-      newState.accessToken = ''
-
-      return newState
-    default:
-      return newState
+  if (setAccessTokenAction.match(action)) {
+    newState.accessToken = action.payload
   }
+
+  if (setRefreshTokenAction.match(action)) {
+    newState.refreshToken = action.payload
+  }
+
+  if (deleteTokensAction.match(action)) {
+    newState.refreshToken = ''
+    newState.accessToken = ''
+  }
+
+  return newState
 }

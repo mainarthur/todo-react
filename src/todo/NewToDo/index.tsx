@@ -21,11 +21,15 @@ import { Add } from '@material-ui/icons'
 
 import ErrorSnackBar from '../../common/ErrorSnackBar'
 
-import { addToDoAction, /* newToDoRequestAction */ } from '../../redux/actions/toDoActions'
 import useStyle from './styles'
+
+import { addToDoAction, newToDoAction } from '../../redux/actions/toDoActions'
 import { RootState } from '../../redux/reducers'
-import requestNewToDo from '../../redux/actions/requests'
 import { RequestStatus } from '../../redux/constants'
+import { createAsyncAction } from '../../redux/helpers'
+
+import NewToDoBody from '../../api/bodies/NewToDoBody'
+import ToDo from '../../models/ToDo'
 
 const NewToDo: FC = () => {
   const classes = useStyle()
@@ -68,7 +72,11 @@ const NewToDo: FC = () => {
       }
       try {
         setLoading(true)
-        const newToDo = await requestNewToDo(dispatch, toDoText)
+
+        const newToDo = await createAsyncAction<ToDo, NewToDoBody>(dispatch, newToDoAction({
+          text: toDoText,
+        }))
+
         dispatch(addToDoAction(newToDo))
         setRequestStatus(RequestStatus.OK)
       } catch (err) {

@@ -1,7 +1,6 @@
-import { RouterAction } from '../constants'
-import RouterActions from '../types/routerTpes'
-
 import Route from '../../models/Route'
+import { setRouteAction } from '../actions/routerActions'
+import Action from '../types/Action'
 
 export type RouterState = {
   route: Route
@@ -11,14 +10,12 @@ const initialState: RouterState = {
   route: null,
 }
 
-export default function routerReducer(state = initialState, action: RouterActions): RouterState {
+export default function routerReducer(state = initialState, action: Action): RouterState {
   const newState = { ...state }
-  switch (action.type) {
-    case RouterAction.SET_ROUTE:
-      newState.route = { ...action.payload }
 
-      return newState
-    default:
-      return state
+  if (setRouteAction.match(action)) {
+    newState.route = { ...action.payload }
   }
+
+  return newState
 }
