@@ -1,20 +1,17 @@
 import * as React from 'react'
-import { FC } from 'react'
+import { FC, useState, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import Button from '@material-ui/core/Button'
 import ButtonGroup from '@material-ui/core/ButtonGroup'
 import Container from '@material-ui/core/Container'
 
-import { setTodosAction } from '../../../redux/actions/toDoActions'
+import { deleteManyToDosAction, setTodosAction } from '../../../redux/actions/toDoActions'
 import { RootState } from '../../../redux/reducers'
 
-import { api } from '../../../api/api'
-
-import ToDo from '../../../models/ToDo'
 import useStyle from './styles'
-import DeleteManyResponse from '../../../api/responses/DeleteManyResponse'
-import DeleteManyBody from '../../../api/bodies/DeleteManyBody'
+
+import { createAsyncAction } from '../../../redux/helpers'
 
 interface Props {
   onClearAllError(): void
@@ -30,52 +27,50 @@ const ToDoListControls: FC<Props> = ({
   const todos = useSelector((state: RootState) => state.todos)
   const dispatch = useDispatch()
 
-  const setToDos = (newTodos: ToDo[]) => dispatch(setTodosAction(newTodos))
+  const [isLoading, setIsLoading] = useState(false)
 
-  const onClearAllClick = async () => {
-    const response = await api<DeleteManyResponse, DeleteManyBody>({
-      endpoint: '/todo/',
-      method: 'DELETE',
-      body: {
+  const onClearAllClick = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const lastUpdate = await createAsyncAction<number>(dispatch, deleteManyToDosAction({
         todos: todos.map((toDo) => {
           const { _id: toDoId } = toDo
           return toDoId
         }),
-      },
-    })
-    if (response.status) {
-      localStorage.setItem('lastupdate', (response as DeleteManyResponse).lastUpdate.toString())
-      setToDos([])
-    } else {
+      }))
+      localStorage.setItem('lastupdate', lastUpdate.toString())
+      dispatch(setTodosAction([]))
+    } catch (e) {
       onClearAllError()
+    } finally {
+      setIsLoading(false)
     }
-  }
+  }, [dispatch, todos, setIsLoading, onClearAllError])
 
-  const onClearDoneClick = async () => {
+  const onClearDoneClick = useCallback(async () => {
     const doneTodos = todos.filter((toDo) => toDo.done)
     const undoneTodos = todos.filter((toDo) => !toDo.done)
 
-    const response = await api<DeleteManyResponse, DeleteManyBody>({
-      endpoint: '/todo/',
-      method: 'DELETE',
-      body: {
+    try {
+      setIsLoading(true)
+      const lastUpdate = await createAsyncAction<number>(dispatch, deleteManyToDosAction({
         todos: doneTodos.map((toDo) => {
           const { _id: toDoId } = toDo
           return toDoId
         }),
-      },
-    })
-    if (response.status) {
-      localStorage.setItem('lastupdate', (response as DeleteManyResponse).lastUpdate.toString())
-      setToDos(undoneTodos)
-    } else {
+      }))
+      localStorage.setItem('lastupdate', lastUpdate.toString())
+      dispatch(setTodosAction(undoneTodos))
+    } catch (e) {
       onClearDoneError()
+    } finally {
+      setIsLoading(false)
     }
-  }
+  }, [dispatch, todos, setIsLoading, onClearDoneError])
 
   return (
     <Container className={classes.controls}>
-      <ButtonGroup>
+      <ButtonGroup disabled={isLoading}>
         <Button
           variant="contained"
           color="secondary"

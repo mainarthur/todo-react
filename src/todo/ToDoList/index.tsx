@@ -3,7 +3,6 @@ import {
   useState,
   useEffect,
   FC,
-  useMemo,
   useCallback,
 } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
@@ -20,20 +19,19 @@ import ToDoElement from '../ToDoElement'
 import { api } from '../../api/api'
 import UpdateToDoBody from '../../api/bodies/UpdateToDoBody'
 import DeleteResponse from '../../api/responses/DeleteResponse'
-import ToDoListResponse from '../../api/responses/ToDoListResponse'
 import UpdateToDoResponse from '../../api/responses/UpdateToDoResponse'
 
 import { connectDB, defaultStoreName } from '../../indexeddb/connect'
 
-import { setTodosAction } from '../../redux/actions/toDoActions'
+import { requestTodosAction, setTodosAction } from '../../redux/actions/toDoActions'
 import { RootState } from '../../redux/reducers'
 
 import ToDo from '../../models/ToDo'
 import User from '../../models/User'
 
-import { err, log } from '../../logging/logger'
 import ToDoListControls from './Controls'
 import useStyle from './styles'
+import { createAsyncAction } from '../../redux/helpers'
 
 type Props = {
   user: User
@@ -53,12 +51,6 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
   const classes = useStyle()
 
   const todos = useSelector((state: RootState) => state.todos)
-  const {
-    loading: appLoading,
-    error: appError,
-  } = useSelector((state: RootState) => state.app)
-
-  const appDisabled = appLoading || appError
 
   const dispatch = useDispatch()
 
@@ -69,6 +61,8 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
   }), [todos])
 
   const [errorCode, setErrorCode] = useState(ErrorCodes.None)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isToDosLoaded, setIsToDosLoaded] = useState(false)
   const [loadError, setLoadError] = useState(false)
 
   const onCloseSnackBar = useCallback(() => {
@@ -179,52 +173,34 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
   }, [errorCode, setErrorCode, dispatch, todos])
 
   const loadTodos = useCallback(async (newUser: User) => {
-    if (newUser) {
+    if (newUser && !isLoading && !isToDosLoaded) {
+      setIsLoading(true)
       const { _id: userId } = newUser
       const db = await connectDB(`todo-${userId}`)
-
       try {
-        const response = await api<ToDoListResponse, {}>({
-          endpoint: `/todo${localStorage.getItem('lastUpdate') ? `?from=${localStorage.getItem('lastUpdate')}` : ''}`,
+        const loadedTodos = await createAsyncAction<ToDo[]>(dispatch, requestTodosAction())
+
+        loadedTodos.forEach((toDo: ToDo) => {
+          const { _id: toDoId } = toDo
+
+          const transaction = db.transaction(defaultStoreName, 'readwrite')
+          const store = transaction.objectStore(defaultStoreName)
+          if (!toDo.deleted) {
+            store.put(toDo)
+          } else {
+            store.delete(toDoId)
+          }
         })
 
-        log(response)
+        setIsToDosLoaded(true)
 
-        if (response.status) {
-          const todosResponse = response as ToDoListResponse
-          const { results: loadedTodos } = todosResponse
-          let maxLastUpdate = 0
-          const currentLastUpdate: number = parseInt(localStorage.getItem('lastUpdate'), 10)
-
-          if (!Number.isNaN(currentLastUpdate)) {
-            maxLastUpdate = Math.max(currentLastUpdate, maxLastUpdate)
-          }
-
-          loadedTodos.forEach((toDo: ToDo) => {
-            const { _id: toDoId } = toDo
-
-            if (toDo.lastUpdate) {
-              maxLastUpdate = Math.max(maxLastUpdate, toDo.lastUpdate)
-            }
-
-            const transaction = db.transaction(defaultStoreName, 'readwrite')
-            const store = transaction.objectStore(defaultStoreName)
-            if (!toDo.deleted) {
-              store.put(toDo)
-            } else {
-              store.delete(toDoId)
-            }
-          })
-
-          localStorage.setItem('lastUpdate', `${maxLastUpdate}`)
-        } else if (!loadError) {
-          setLoadError(true)
+        if (loadError) {
+          setLoadError(false)
         }
       } catch (e) {
         if (!loadError) {
           setLoadError(true)
         }
-        err(e)
       } finally {
         const transaction = db.transaction(defaultStoreName, 'readwrite')
         const store = transaction.objectStore(defaultStoreName).index('position')
@@ -232,9 +208,10 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
         todosRequest.addEventListener('success', () => {
           dispatch(setTodosAction(todosRequest.result))
         })
+        setIsLoading(false)
       }
     }
-  }, [loadError, setLoadError, dispatch])
+  }, [loadError, isLoading, isToDosLoaded, setIsToDosLoaded, setIsLoading, setLoadError, dispatch])
 
   const onReloadTodosClick = useCallback(async () => {
     if (user) {
@@ -244,7 +221,6 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
         if (!loadError) {
           setLoadError(true)
         }
-        err(e)
       }
     }
   }, [user, loadError, setLoadError, loadTodos])
@@ -256,32 +232,6 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
     }
   }, [user, dispatch, loadTodos])
 
-  const todosElements = useMemo(() => {
-    const elements = todos.map((toDo) => {
-      const { _id: tId } = toDo
-
-      return (
-        <ToDoElement
-          key={tId}
-          id={tId}
-          text={toDo.text}
-          done={toDo.done}
-          onDelete={onToDoDeleted}
-          onStatusChange={onToDoStatusChanged}
-          onPositionChange={onToDoPositionChanged}
-          bottomDndClassName={classes.bottomDnd}
-        />
-      )
-    })
-
-    elements.push(<div
-      key={classes.bottomDnd}
-      className={classes.bottomDnd}
-    />)
-
-    return elements
-  }, [classes.bottomDnd, todos, onToDoDeleted, onToDoStatusChanged, onToDoPositionChanged])
-
   return (
     <Grid item className={classes.root}>
       <ToDoListControls
@@ -289,9 +239,29 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
         onClearDoneError={onClearDoneError}
       />
       <Paper className={classes.paper}>
-        {!appDisabled && (
+        {(!isLoading || loadError) && (
           <>
-            {todosElements.length > 1 ? <List className={classes.list}>{todosElements}</List> : (
+            {todos.length > 0 ? (
+              <List className={classes.list}>
+                {todos.map((toDo) => {
+                  const { _id: tId } = toDo
+
+                  return (
+                    <ToDoElement
+                      key={tId}
+                      id={tId}
+                      text={toDo.text}
+                      done={toDo.done}
+                      onDelete={onToDoDeleted}
+                      onStatusChange={onToDoStatusChanged}
+                      onPositionChange={onToDoPositionChanged}
+                      bottomDndClassName={classes.bottomDnd}
+                    />
+                  )
+                })}
+                <div className={classes.bottomDnd} />
+              </List>
+            ) : (
               <Typography variant="body1" className={classes.noToDoText}>
                 Tasks you add appear here
               </Typography>

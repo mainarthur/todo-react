@@ -20,13 +20,11 @@ const ToDoAppBar: FC = () => {
   const { accessToken } = useSelector((state: RootState) => state.tokens)
   const dispatch = useDispatch()
 
-  const deleteTokens = useCallback(() => dispatch(deleteTokensAction()), [dispatch])
-
   const onLogOutClick = useCallback(() => {
-    deleteTokens()
+    dispatch(deleteTokensAction())
     localStorage.clear()
     history.push('/login')
-  }, [deleteTokens])
+  }, [dispatch])
 
   return (
     <AppBar>

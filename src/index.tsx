@@ -4,7 +4,6 @@ import { Provider as ReduxStoreProvider } from 'react-redux'
 
 import createMuiTheme from '@material-ui/core/styles/createMuiTheme'
 import { ThemeProvider } from '@material-ui/core/styles'
-import { green } from '@material-ui/core/colors'
 
 import ToDoAppBar from './common/ToDoAppBar'
 import App from './App'
