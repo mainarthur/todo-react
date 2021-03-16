@@ -16,12 +16,16 @@ import ErrorSnackBar from '../../common/ErrorSnackBar'
 import ReloadButton from '../../common/ReloadButton'
 import ToDoElement from '../ToDoElement'
 
-import { api } from '../../api/api'
 import UpdateToDoBody from '../../api/bodies/UpdateToDoBody'
 
 import { connectDB, defaultStoreName } from '../../indexeddb/connect'
 
-import { deleteToDoAction, requestTodosAction, setTodosAction, updateToDoAction } from '../../redux/actions/toDoActions'
+import {
+  deleteToDoAction,
+  requestTodosAction,
+  setTodosAction,
+  updateToDoAction,
+} from '../../redux/actions/toDoActions'
 import { RootState } from '../../redux/reducers'
 
 import ToDo from '../../models/ToDo'
