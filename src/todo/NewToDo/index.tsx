@@ -113,11 +113,13 @@ const NewToDo: FC = () => {
     if (requestStatus === RequestStatus.OK) {
       setNewTaskText('')
       if (inputRef.current) {
-        const input = inputRef.current.querySelector('input')
+        setTimeout(() => {
+          const input = inputRef.current.querySelector('input')
 
-        if (input !== document.activeElement) {
-          input.focus()
-        }
+          if (input !== document.activeElement) {
+            input.focus()
+          }
+        }, 0)
       }
       setRequestStatus(RequestStatus.NONE)
     }
