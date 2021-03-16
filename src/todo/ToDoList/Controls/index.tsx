@@ -12,8 +12,6 @@ import { RootState } from '../../../redux/reducers'
 import useStyle from './styles'
 
 import { createAsyncAction } from '../../../redux/helpers'
-import { LoadingPart } from '../../constants'
-import ToDo from '../../../models/ToDo'
 
 interface Props {
   onClearAllError(): void
@@ -34,16 +32,11 @@ const ToDoListControls: FC<Props> = ({
   const onClearAllClick = useCallback(async () => {
     try {
       setIsLoading(true)
-      const todosIds: string[] = []
-      const newToDos: ToDo[] = todos.map((toDo) => {
-        const { _id: toDoId } = toDo
-        todosIds.push(toDoId)
-
-        return { ...toDo, loadingPart: LoadingPart.DELETE_BUTTON }
-      })
-      dispatch(setTodosAction(newToDos))
       const lastUpdate = await createAsyncAction<number>(dispatch, deleteManyToDosAction({
-        todos: todosIds,
+        todos: todos.map((toDo) => {
+          const { _id: toDoId } = toDo
+          return toDoId
+        }),
       }))
       localStorage.setItem('lastupdate', lastUpdate.toString())
       dispatch(setTodosAction([]))
@@ -55,27 +48,16 @@ const ToDoListControls: FC<Props> = ({
   }, [dispatch, todos, onClearAllError])
 
   const onClearDoneClick = useCallback(async () => {
-    const undoneTodos: ToDo[] = []
+    const doneTodos = todos.filter((toDo) => toDo.done)
+    const undoneTodos = todos.filter((toDo) => !toDo.done)
 
-    setIsLoading(true)
-    const todosIds: string[] = []
-    const newToDos: ToDo[] = todos.map((toDo) => {
-      const { _id: toDoId, done } = toDo
-      if (done) {
-        todosIds.push(toDoId)
-
-        return { ...toDo, loadingPart: LoadingPart.DELETE_BUTTON }
-      }
-
-      undoneTodos.push(toDo)
-
-      return toDo
-    })
-
-    dispatch(setTodosAction(newToDos))
     try {
+      setIsLoading(true)
       const lastUpdate = await createAsyncAction<number>(dispatch, deleteManyToDosAction({
-        todos: todosIds,
+        todos: doneTodos.map((toDo) => {
+          const { _id: toDoId } = toDo
+          return toDoId
+        }),
       }))
       localStorage.setItem('lastupdate', lastUpdate.toString())
       dispatch(setTodosAction(undoneTodos))

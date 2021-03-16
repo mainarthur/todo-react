@@ -1,4 +1,5 @@
 import {
+  put,
   takeEvery,
 } from 'redux-saga/effects'
 
@@ -9,6 +10,8 @@ import DeleteManyResponse from '../../api/responses/DeleteManyResponse'
 import NewToDoResponse from '../../api/responses/NewToDoResponse'
 import ToDoListResponse from '../../api/responses/ToDoListResponse'
 import ToDo from '../../models/ToDo'
+import { LoadingPart } from '../../todo/constants'
+import { setLoadingPartAction } from '../actions/toDoActions'
 import { ToDoAction } from '../constants'
 import AsyncAction from '../types/AsyncAction'
 import DeleteToDoPayload from '../types/payloads/DeleteToDoPayload'
@@ -60,16 +63,31 @@ function* newToDoRequested(action: AsyncAction<ToDo, NewToDoBody>) {
 }
 
 function* deleteManyToDosRequested(action: AsyncAction<number, DeleteManyBody>) {
+  const {
+    payload,
+    next,
+  } = action
+
+  yield put(setLoadingPartAction({
+    ids: payload.todos,
+    loadingPart: LoadingPart.DELETE_BUTTON,
+  }))
+
   const response: DeleteManyResponse = yield api<DeleteManyResponse, DeleteManyBody>({
     endpoint: '/todo/',
     method: 'DELETE',
-    body: action.payload,
+    body: payload,
   })
 
+  yield put(setLoadingPartAction({
+    ids: payload.todos,
+    loadingPart: LoadingPart.NONE,
+  }))
+
   if (response.status) {
-    action.next(null, response.lastUpdate)
+    next(null, response.lastUpdate)
   } else {
-    action.next(response.error)
+    next(response.error)
   }
 }
 

@@ -7,6 +7,7 @@ import ToDo from '../../models/ToDo'
 import UpdateToDoBody from '../../api/bodies/UpdateToDoBody'
 import DeleteManyBody from '../../api/bodies/DeleteManyBody'
 import DeleteToDoPayload from '../types/payloads/DeleteToDoPayload'
+import SetLoadingPartPayload from '../types/payloads/SetLoadingPartPayload'
 
 export const setTodosAction = createAction<ToDo[]>(ToDoAction.SET_TODOS)
 
@@ -25,3 +26,5 @@ export const deleteManyToDosAction = createAction<DeleteManyBody>(
 export const deleteToDoAction = createAction<DeleteToDoPayload>(
   ToDoAction.REQUEST_DELETE_MANY_TODOS,
 )
+
+export const setLoadingPartAction = createAction<SetLoadingPartPayload>(ToDoAction.SET_LOADING_PART)
