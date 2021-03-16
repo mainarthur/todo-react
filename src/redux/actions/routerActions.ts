@@ -1,9 +1,9 @@
 import { RouterAction } from '../constants'
-import { SetRouteAction } from '../types/routerTpes'
-
 import Route from '../../models/Route'
+import { createAction } from '../helpers'
 
-export default (route: Route): SetRouteAction => ({
-  type: RouterAction.SET_ROUTE,
-  payload: route,
-})
+const setRouteAction = createAction<Route>(RouterAction.SET_ROUTE)
+
+export {
+  setRouteAction,
+}

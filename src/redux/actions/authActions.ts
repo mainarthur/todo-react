@@ -1,29 +1,9 @@
+import { createAction } from '../helpers'
+
+import { AuthAction } from '../constants'
+
 import AuthBody from '../../api/bodies/AuthBody'
-import { AuthAction, AuthTypes } from '../constants'
-import {
-  AuthFailedAction,
-  AuthRequestAction,
-  AuthSucceededAction,
-  AuthClearAction,
-} from '../types/authActions'
 
-export const authRequestAction = (payload: AuthBody, authType: AuthTypes): AuthRequestAction => ({
-  payload,
-  authType,
-  type: AuthAction.REQUESTED_AUTH,
-})
+export const loginRequestAction = createAction<AuthBody>(AuthAction.REQUESTED_LOGIN)
 
-export const authFailedAction = (authType: AuthTypes): AuthFailedAction => ({
-  authType,
-  type: AuthAction.REQUESTED_AUTH_FAILED,
-})
-
-export const authSucceededAction = (authType: AuthTypes): AuthSucceededAction => ({
-  authType,
-  type: AuthAction.REQUESTED_AUTH_SUCCEEDED,
-})
-
-export const authClearAction = (authType: AuthTypes): AuthClearAction => ({
-  authType,
-  type: AuthAction.CLEAR_STATE,
-})
+export const registerRequestAction = createAction<AuthBody>(AuthAction.REQUESTED_REGISTER)

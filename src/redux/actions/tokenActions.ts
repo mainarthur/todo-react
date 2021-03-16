@@ -1,16 +1,8 @@
 import { TokenAction } from '../constants'
-import { DeleteTokensAction, SetAccessTokenAction, SetRefreshTokenAction } from '../types/tokenTypes'
+import { createAction } from '../helpers'
 
-export const setRefreshTokenAction = (token: string): SetRefreshTokenAction => ({
-  type: TokenAction.SET_REFRESH_TOKEN,
-  payload: token,
-})
+export const setRefreshTokenAction = createAction<string>(TokenAction.SET_REFRESH_TOKEN)
 
-export const setAccessTokenAction = (token: string): SetAccessTokenAction => ({
-  type: TokenAction.SET_ACCESS_TOKEN,
-  payload: token,
-})
+export const setAccessTokenAction = createAction<string>(TokenAction.SET_ACCESS_TOKEN)
 
-export const deleteTokensAction = (): DeleteTokensAction => ({
-  type: TokenAction.DELETE_TOKENS,
-})
+export const deleteTokensAction = createAction(TokenAction.DELETE_TOKENS)

@@ -21,17 +21,20 @@ import { Add } from '@material-ui/icons'
 
 import ErrorSnackBar from '../../common/ErrorSnackBar'
 
-import { newToDoRequestAction } from '../../redux/actions/toDoActions'
+import { addToDoAction, /* newToDoRequestAction */ } from '../../redux/actions/toDoActions'
 import useStyle from './styles'
 import { RootState } from '../../redux/reducers'
+import requestNewToDo from '../../redux/actions/requests'
+import { RequestStatus } from '../../redux/constants'
 
 const NewToDo: FC = () => {
   const classes = useStyle()
 
   const [newTaskText, setNewTaskText] = useState('')
   const [isInvalidText, setIsInvalidText] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [requestStatus, setRequestStatus] = useState(RequestStatus.NONE)
 
-  const prevOk = useRef(false)
   const inputRef = useRef<HTMLDivElement>(null)
 
   const {
@@ -39,26 +42,18 @@ const NewToDo: FC = () => {
     error: appError,
   } = useSelector((state: RootState) => state.app)
 
-  const {
-    loading,
-    error,
-    ok,
-  } = useSelector((state: RootState) => state.newToDo)
-
   const dispatch = useDispatch()
 
   const appDisabled = appLoading || appError || loading
-
-  const newToDoRequest = useCallback(
-    (newToDoText: string) => dispatch(newToDoRequestAction(newToDoText)),
-    [dispatch],
-  )
 
   const onSnackBarClose = useCallback(() => {
     if (isInvalidText) {
       setIsInvalidText(false)
     }
-  }, [isInvalidText, setIsInvalidText])
+    if (requestStatus === RequestStatus.ERROR) {
+      setRequestStatus(RequestStatus.NONE)
+    }
+  }, [isInvalidText, setIsInvalidText, requestStatus, setRequestStatus])
 
   const onButtonClick = useCallback(async () => {
     const toDoText = newTaskText.trim()
@@ -71,10 +66,24 @@ const NewToDo: FC = () => {
       if (isInvalidText) {
         setIsInvalidText(false)
       }
-
-      newToDoRequest(toDoText)
+      try {
+        setLoading(true)
+        const newToDo = await requestNewToDo(dispatch, toDoText)
+        dispatch(addToDoAction(newToDo))
+        setRequestStatus(RequestStatus.OK)
+      } catch (err) {
+        setRequestStatus(RequestStatus.ERROR)
+      } finally {
+        setLoading(false)
+      }
     }
-  }, [isInvalidText, newTaskText, setIsInvalidText, newToDoRequest])
+  }, [
+    isInvalidText,
+    newTaskText,
+    setIsInvalidText,
+    setRequestStatus,
+    dispatch,
+  ])
 
   const onTextChange = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
     const { target: { value: newText } } = ev
@@ -95,18 +104,18 @@ const NewToDo: FC = () => {
   }, [onButtonClick])
 
   useEffect(() => {
-    if (ok && !prevOk.current) {
+    if (requestStatus === RequestStatus.OK) {
       setNewTaskText('')
       if (inputRef.current) {
         const input = inputRef.current.querySelector('input')
 
-        if (input) {
+        if (input !== document.activeElement) {
           input.focus()
         }
       }
+      setRequestStatus(RequestStatus.NONE)
     }
-    prevOk.current = ok
-  }, [ok])
+  }, [requestStatus])
 
   return (
     <Grid item>
@@ -139,11 +148,11 @@ const NewToDo: FC = () => {
         Text is required
       </ErrorSnackBar>
       <ErrorSnackBar
-        open={error}
+        open={requestStatus === RequestStatus.ERROR}
         autoHide
         onClose={onSnackBarClose}
       >
-        Can&apos;t add new toDo
+        Can&apos;t add new ToDo
       </ErrorSnackBar>
     </Grid>
   )

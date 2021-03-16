@@ -1,28 +1,27 @@
 import {
-  put,
   takeEvery,
 } from 'redux-saga/effects'
 
 import { api } from '../../api/api'
 import UserResponse from '../../api/responses/UserResponse'
-import { setUserAction, userSucceededAction, userFailedAction } from '../actions/appActions'
+import User from '../../models/User'
 import { AppAction } from '../constants'
+import AsyncAction from '../types/AsyncAction'
 
-function* userRequested() {
+function* userRequested(action: AsyncAction<User>) {
   const userResponse: UserResponse = yield api<UserResponse, {}>({
     endpoint: '/user',
   })
 
   if (userResponse.status) {
-    yield put(setUserAction(userResponse.result))
-    yield put(userSucceededAction())
+    action.next(null, userResponse.result)
   } else {
-    yield put(userFailedAction())
+    action.next(userResponse.error)
   }
 }
 
 function* watchUser() {
-  yield takeEvery(AppAction.REQUESTED_USER, userRequested)
+  yield takeEvery(AppAction.REQUEST_USER, userRequested)
 }
 
 export default watchUser

@@ -7,18 +7,18 @@ import {
 import { api } from '../../api/api'
 import AuthBody from '../../api/bodies/AuthBody'
 import AuthResponse from '../../api/responses/AuthResponse'
-import { authFailedAction, authSucceededAction } from '../actions/authActions'
 import { setAccessTokenAction, setRefreshTokenAction } from '../actions/tokenActions'
-import { AuthAction, AuthTypes } from '../constants'
-import { AuthRequestAction } from '../types/authActions'
+import { AuthAction } from '../constants'
+import AsyncAction from '../types/AsyncAction'
 
-function* authRequested(action: AuthRequestAction) {
+function* authRequested(action: AsyncAction<{}, AuthBody>) {
   const {
     payload,
-    authType,
+    type,
+    next,
   } = action
   yield delay(1000)
-  const endpoint = authType === AuthTypes.REGISTRATION ? '/register' : '/login'
+  const endpoint = type === AuthAction.REQUESTED_REGISTER ? '/register' : '/login'
   const authResponse: AuthResponse = yield api<AuthResponse, AuthBody>({
     endpoint: `/auth${endpoint}`,
     method: 'POST',
@@ -36,14 +36,15 @@ function* authRequested(action: AuthRequestAction) {
 
     yield put(setAccessTokenAction(accessToken))
     yield put(setRefreshTokenAction(refreshToken))
-    yield put(authSucceededAction(authType))
+    next()
   } else {
-    yield put(authFailedAction(authType))
+    next(authResponse.error)
   }
 }
 
 function* watchAuth() {
-  yield takeEvery(AuthAction.REQUESTED_AUTH, authRequested)
+  yield takeEvery(AuthAction.REQUESTED_LOGIN, authRequested)
+  yield takeEvery(AuthAction.REQUESTED_REGISTER, authRequested)
 }
 
 export default watchAuth

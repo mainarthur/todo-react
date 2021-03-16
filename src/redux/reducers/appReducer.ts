@@ -1,7 +1,6 @@
-import { AppAction } from '../constants'
-import AppActions from '../types/appTypes'
-
 import User from '../../models/User'
+import Action from '../types/Action'
+import { setUserAction } from '../actions/appActions'
 
 export type AppState = {
   loading: boolean
@@ -17,32 +16,12 @@ const initialState: AppState = {
   ok: false,
 }
 
-export default function appReducer(state = initialState, action: AppActions): AppState {
+export default function appReducer(state = initialState, action: Action): AppState {
   const newState = { ...state }
-  switch (action.type) {
-    case AppAction.SET_USER:
-      newState.user = { ...action.payload }
 
-      return newState
-    case AppAction.REQUESTED_USER:
-      newState.ok = false
-      newState.error = false
-      newState.loading = true
-
-      return newState
-    case AppAction.REQUESTED_USER_FAILED:
-      newState.ok = false
-      newState.error = true
-      newState.loading = false
-
-      return newState
-    case AppAction.REQUESTED_USER_SUCCEEDED:
-      newState.ok = true
-      newState.error = false
-      newState.loading = false
-
-      return newState
-    default:
-      return state
+  if (setUserAction.match(action)) {
+    newState.user = { ...action.payload }
   }
+
+  return newState
 }
