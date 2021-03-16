@@ -13,7 +13,6 @@ import Paper from '@material-ui/core/Paper'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
-import CircularProgress from '@material-ui/core/CircularProgress'
 
 import useStyle from '../common/authStyles'
 
@@ -29,6 +28,7 @@ import validateTextFields from '../common/validateTextFields'
 import { registerRequestAction } from '../redux/actions/authActions'
 import { RequestStatus } from '../redux/constants'
 import { createAsyncAction } from '../redux/helpers'
+import ComponentProgressBar from '../common/ComponentProgressBar'
 
 const Register: FC = () => {
   const classes = useStyle()
@@ -41,12 +41,12 @@ const Register: FC = () => {
   const [isInvalidEmail, setIsInvalidEmail] = useState(false)
   const [isInvalidPassword, setIsInvalidPassword] = useState(false)
 
-  const [loading, setLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [requestStatus, setRequestStatus] = useState(RequestStatus.NONE)
 
   const dispatch = useDispatch()
 
-  const buttonDisabled = loading || requestStatus === RequestStatus.OK
+  const buttonDisabled = isLoading || requestStatus === RequestStatus.OK
 
   const onEmailChange = useMemo(() => onChange(
     () => isInvalidEmail,
@@ -100,7 +100,7 @@ const Register: FC = () => {
     }
 
     try {
-      setLoading(true)
+      setIsLoading(true)
       await createAsyncAction(dispatch, registerRequestAction({
         name,
         email,
@@ -110,7 +110,7 @@ const Register: FC = () => {
     } catch (err) {
       setRequestStatus(RequestStatus.ERROR)
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }, [
     nameState,
@@ -207,7 +207,7 @@ const Register: FC = () => {
                 disabled={buttonDisabled}
               >
                 Register
-                {loading && <CircularProgress size="1.5rem" className={classes.progressBar} />}
+                <ComponentProgressBar loading={isLoading} className={classes.progressBar} />
               </Button>
             </Grid>
             <Grid item>

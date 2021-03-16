@@ -15,7 +15,6 @@ import IconButton from '@material-ui/core/IconButton'
 import Paper from '@material-ui/core/Paper'
 import Input from '@material-ui/core/Input'
 import InputAdornment from '@material-ui/core/InputAdornment'
-import CircularProgress from '@material-ui/core/CircularProgress'
 
 import { Add } from '@material-ui/icons'
 
@@ -29,20 +28,22 @@ import { createAsyncAction } from '../../redux/helpers'
 
 import NewToDoBody from '../../api/bodies/NewToDoBody'
 import ToDo from '../../models/ToDo'
+import ComponentProgressBar from '../../common/ComponentProgressBar'
+import { LoadingPart } from '../constants'
 
 const NewToDo: FC = () => {
   const classes = useStyle()
 
   const [newTaskText, setNewTaskText] = useState('')
   const [isInvalidText, setIsInvalidText] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [requestStatus, setRequestStatus] = useState(RequestStatus.NONE)
 
   const inputRef = useRef<HTMLDivElement>(null)
 
   const dispatch = useDispatch()
 
-  const isControlsDisabled = loading
+  const isControlsDisabled = isLoading
 
   const onSnackBarClose = useCallback(() => {
     if (isInvalidText) {
@@ -65,18 +66,20 @@ const NewToDo: FC = () => {
         setIsInvalidText(false)
       }
       try {
-        setLoading(true)
+        setIsLoading(true)
 
         const newToDo = await createAsyncAction<ToDo, NewToDoBody>(dispatch, newToDoAction({
           text: toDoText,
         }))
+
+        newToDo.loadingPart = LoadingPart.NONE
 
         dispatch(addToDoAction(newToDo))
         setRequestStatus(RequestStatus.OK)
       } catch (err) {
         setRequestStatus(RequestStatus.ERROR)
       } finally {
-        setLoading(false)
+        setIsLoading(false)
       }
     }
   }, [
@@ -135,7 +138,9 @@ const NewToDo: FC = () => {
             (
               <InputAdornment position="end">
                 <IconButton disabled={isControlsDisabled} onClick={onButtonClick}>
-                  {loading ? <CircularProgress size="1.5rem" /> : <Add className={classes.addIcon} />}
+                  <ComponentProgressBar loading={isLoading}>
+                    <Add className={classes.addIcon} />
+                  </ComponentProgressBar>
                 </IconButton>
               </InputAdornment>
             )

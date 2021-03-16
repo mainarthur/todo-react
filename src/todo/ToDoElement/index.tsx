@@ -15,6 +15,8 @@ import ListItemText from '@material-ui/core/ListItemText'
 
 import DragHandleIcon from '@material-ui/icons/DragHandle'
 import DeleteIcon from '@material-ui/icons/Delete'
+import { LoadingPart } from '../constants'
+import ComponentProgressBar from '../../common/ComponentProgressBar'
 
 type Props = {
   id: string
@@ -24,6 +26,7 @@ type Props = {
   text: string
   done: boolean
   bottomDndClassName: string
+  loadingPart: LoadingPart
 }
 
 const getToDoIdByElement = (elem: Element) => elem?.querySelector('div[id]')?.id ?? null
@@ -36,6 +39,7 @@ const ToDoElement: FC<Props> = ({
   onStatusChange,
   onPositionChange,
   bottomDndClassName,
+  loadingPart,
 }: Props) => {
   const listItem = useRef<HTMLDivElement>(null)
   const checkBox = useRef<HTMLButtonElement>(null)
@@ -61,6 +65,10 @@ const ToDoElement: FC<Props> = ({
       }
 
       if (!dragButton.contains(ev.target as Node)) {
+        return
+      }
+
+      if (loadingPart !== LoadingPart.NONE) {
         return
       }
 
@@ -170,24 +178,31 @@ const ToDoElement: FC<Props> = ({
       role={undefined}
       dense
       button
+      disabled={loadingPart !== LoadingPart.NONE}
     >
       <ListItemIcon ref={checkBox}>
-        <Checkbox
-          ref={checkBox}
-          onChange={onCheckBoxChange}
-          edge="start"
-          checked={done}
-          tabIndex={-1}
-          disableRipple
-        />
+        <ComponentProgressBar loading={loadingPart === LoadingPart.CHECKBOX}>
+          <Checkbox
+            ref={checkBox}
+            onChange={onCheckBoxChange}
+            edge="start"
+            checked={done}
+            tabIndex={-1}
+            disableRipple
+          />
+        </ComponentProgressBar>
       </ListItemIcon>
       <ListItemText primary={text} />
       <ListItemSecondaryAction>
         <IconButton ref={deleteButton} edge="end" onClick={onDeleteButtonClick}>
-          <DeleteIcon />
+          <ComponentProgressBar loading={loadingPart === LoadingPart.DELETE_BUTTON}>
+            <DeleteIcon />
+          </ComponentProgressBar>
         </IconButton>
         <IconButton ref={dragElement} edge="end">
-          <DragHandleIcon />
+          <ComponentProgressBar loading={loadingPart === LoadingPart.DRAG_HANDLER}>
+            <DragHandleIcon />
+          </ComponentProgressBar>
         </IconButton>
       </ListItemSecondaryAction>
     </ListItem>

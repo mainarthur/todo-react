@@ -1,3 +1,5 @@
+import { LoadingPart } from '../todo/constants'
+
 export default class ToDo {
   _id: string
 
@@ -14,4 +16,6 @@ export default class ToDo {
   position: number
 
   deleted: boolean
+
+  loadingPart: LoadingPart
 }

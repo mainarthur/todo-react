@@ -32,6 +32,7 @@ import User from '../../models/User'
 import ToDoListControls from './Controls'
 import useStyle from './styles'
 import { createAsyncAction } from '../../redux/helpers'
+import { LoadingPart } from '../constants'
 
 type Props = {
   user: User
@@ -206,7 +207,11 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
         const store = transaction.objectStore(defaultStoreName).index('position')
         const todosRequest = store.getAll()
         todosRequest.addEventListener('success', () => {
-          dispatch(setTodosAction(todosRequest.result))
+          dispatch(setTodosAction((todosRequest.result as ToDo[]).map((toDo) => {
+            const loadedToDo = { ...toDo }
+            loadedToDo.loadingPart = LoadingPart.NONE
+            return loadedToDo
+          })))
         })
         setIsLoading(false)
       }
@@ -256,6 +261,7 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
                       onStatusChange={onToDoStatusChanged}
                       onPositionChange={onToDoPositionChanged}
                       bottomDndClassName={classes.bottomDnd}
+                      loadingPart={toDo.loadingPart}
                     />
                   )
                 })}

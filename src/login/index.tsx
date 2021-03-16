@@ -13,7 +13,6 @@ import Paper from '@material-ui/core/Paper'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
-import CircularProgress from '@material-ui/core/CircularProgress'
 
 import useStyle from '../common/authStyles'
 
@@ -29,6 +28,7 @@ import validateTextFields from '../common/validateTextFields'
 import { loginRequestAction } from '../redux/actions/authActions'
 import { RequestStatus } from '../redux/constants'
 import { createAsyncAction } from '../redux/helpers'
+import ComponentProgressBar from '../common/ComponentProgressBar'
 
 const Login: FC = () => {
   const classes = useStyle()
@@ -39,12 +39,12 @@ const Login: FC = () => {
   const [isInvalidEmail, setIsInvalidEmail] = useState(false)
   const [isInvalidPassword, setIsInvalidPassword] = useState(false)
 
-  const [loading, setLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [requestStatus, setRequestStatus] = useState(RequestStatus.NONE)
 
   const dispatch = useDispatch()
 
-  const buttonsDisabled = loading || requestStatus === RequestStatus.OK
+  const buttonsDisabled = isLoading || requestStatus === RequestStatus.OK
 
   const onEmailChange = useMemo(() => onChange(
     () => isInvalidEmail,
@@ -85,7 +85,7 @@ const Login: FC = () => {
     }
 
     try {
-      setLoading(true)
+      setIsLoading(true)
       await createAsyncAction(dispatch, loginRequestAction({
         email,
         password,
@@ -94,7 +94,7 @@ const Login: FC = () => {
     } catch (err) {
       setRequestStatus(RequestStatus.ERROR)
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }, [
     emailState,
@@ -175,7 +175,7 @@ const Login: FC = () => {
                 disabled={buttonsDisabled}
               >
                 Login
-                {loading && <CircularProgress size="1.5rem" className={classes.progressBar} />}
+                <ComponentProgressBar loading={isLoading} className={classes.progressBar} />
               </Button>
             </Grid>
             <Grid item>
