@@ -161,7 +161,6 @@ const ToDoList: FC<Props> = ({ user }: Props) => {
 
       dispatch(setTodosAction(newTodos))
     } catch (err) {
-      console.log(err)
       setErrorCode(ErrorCodes.Delete)
     }
   }, [dispatch, todos])
