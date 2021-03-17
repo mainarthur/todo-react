@@ -9,10 +9,10 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 import { Update } from 'history'
 
-import { setRouteAction } from '../redux/actions/routerActions'
-import { RootState } from '../redux/reducers'
+import { setRouteAction } from '../../redux/actions/routerActions'
+import { RootState } from '../../redux/reducers'
 
-import { history, locationToRoute } from './routerHistory'
+import { history, locationToRoute } from '../routerHistory'
 
 type Props = {
   routes: {

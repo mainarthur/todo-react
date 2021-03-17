@@ -6,8 +6,8 @@ import {
   useCallback,
 } from 'react'
 import { useSelector } from 'react-redux'
-import { RootState } from '../redux/reducers'
-import { history } from './routerHistory'
+import { RootState } from '../../redux/reducers'
+import { history } from '../routerHistory'
 
 type Props = {
   to: string
