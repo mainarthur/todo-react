@@ -63,7 +63,9 @@ const App: FC = () => {
         Authorization: `Bearer ${accessToken}`,
       },
     })
+
     socket.on('dataTime', (data) => {
+      console.log(data)
       setResponse(data)
     })
 
