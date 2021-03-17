@@ -15,6 +15,12 @@
       2,
       "never"
     ],
-    "import/prefer-default-export": 0
+    "import/prefer-default-export": 0,
+    "import/no-cycle": [
+      2,
+      {
+        "maxDepth": 2
+      }
+    ]
   }
 }

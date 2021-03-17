@@ -6,6 +6,7 @@ import Toolbar from '@material-ui/core/Toolbar'
 import Grid from '@material-ui/core/Grid'
 import Box from '@material-ui/core/Box'
 
+import { io } from 'socket.io-client'
 import useStyle from './styles'
 
 import NewToDo from './todo/NewToDo'
@@ -19,6 +20,8 @@ import { setAccessTokenAction, setRefreshTokenAction } from './redux/actions/tok
 import { requestUserAction, setUserAction } from './redux/actions/appActions'
 import { createAsyncAction } from './redux/helpers'
 import User from './models/User'
+
+const ENDPOINT = 'http://api.todolist.local'
 
 const App: FC = () => {
   const classes = useStyle()
@@ -52,9 +55,30 @@ const App: FC = () => {
     }
   }, [accessToken, refreshToken, user, loading, dispatch])
 
+  const [response, setResponse] = useState('')
+
+  useEffect(() => {
+    const socket = io(ENDPOINT, {
+      extraHeaders: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+    socket.on('dataTime', (data) => {
+      setResponse(data)
+    })
+
+    return () => {
+      socket.disconnect()
+    }
+  }, [accessToken])
+
   return (
     <Box>
       <Toolbar />
+      <p>
+        It&apos;s
+        {response}
+      </p>
       <Grid
         container
         direction="column"
