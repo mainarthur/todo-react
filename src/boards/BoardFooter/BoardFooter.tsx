@@ -8,7 +8,11 @@ import Typography from '@material-ui/core/Typography'
 import useStyles from './styles'
 import InputAdd from '../InputAdd'
 
-const BoardFooter: FC = () => {
+type Props = {
+  boardId: string
+}
+
+const BoardFooter: FC<Props> = ({ boardId }: Props) => {
   const classes = useStyles()
 
   const [showInput, setShowInput] = useState(false)

@@ -10,16 +10,11 @@ import useStyles from './styles'
 import ToDo from '../../models/ToDo'
 
 type Props = {
-  boardId: string
+  todos: ToDo[]
 }
 
-const ToDoList: FC<Props> = ({ boardId }: Props) => {
+const ToDoList: FC<Props> = ({ todos }: Props) => {
   const classes = useStyles()
-  const todos: ToDo[] = useSelector()
-
-  useEffect(() => {
-
-  }, [boardId])
 
   return (
     <Grid className={classes.boardContent}>
