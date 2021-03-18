@@ -4,7 +4,10 @@ import { useSelector } from 'react-redux'
 
 import Grid from '@material-ui/core/Grid'
 
+import ToDoElement from '../ToDoElement'
+
 import useStyles from './styles'
+import ToDo from '../../models/ToDo'
 
 type Props = {
   boardId: string
@@ -12,11 +15,12 @@ type Props = {
 
 const ToDoList: FC<Props> = ({ boardId }: Props) => {
   const classes = useStyles()
-  const todos = useSelector()
+  const todos: ToDo[] = useSelector()
 
   useEffect(() => {
 
   }, [boardId])
+
   return (
     <Grid className={classes.boardContent}>
       {todos.map((toDo) => {

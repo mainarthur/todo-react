@@ -5,11 +5,17 @@ import { useSelector } from 'react-redux'
 import Divider from '@material-ui/core/Divider'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
+
+import BoardHeader from '../BoardHeader'
+import ToDoList from '../ToDoList'
+
 import useStyles from './styles'
+
+import Board from '../../models/Board'
 
 const BoardPage: FC = () => {
   const classes = useStyles()
-  const boards = useSelector()
+  const boards: Board[] = useSelector()
 
   return (
     <Grid container className={classes.root} spacing={3}>

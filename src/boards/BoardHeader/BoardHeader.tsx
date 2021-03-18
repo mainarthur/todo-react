@@ -8,6 +8,7 @@ import useStyles from './styles'
 
 type Props = {
   title: string
+  boardId: string
 }
 
 const BoardHeader: FC<Props> = ({ title }: Props) => {
