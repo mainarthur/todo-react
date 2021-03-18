@@ -1,10 +1,9 @@
 import makeStyles from '@material-ui/core/styles/makeStyles'
 
 const useStyles = makeStyles((theme) => ({
-  boardHeader: {
+  boardButton: {
     padding: theme.spacing(2),
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
   },
 }))
 

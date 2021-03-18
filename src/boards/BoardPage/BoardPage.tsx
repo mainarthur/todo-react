@@ -12,6 +12,7 @@ import ToDoList from '../ToDoList'
 import useStyles from './styles'
 
 import Board from '../../models/Board'
+import BoardFooter from '../BoardFooter'
 
 const BoardPage: FC = () => {
   const classes = useStyles()

@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import Toolbar from '@material-ui/core/Toolbar'
 import Box from '@material-ui/core/Box'
+import Grid from '@material-ui/core/Grid'
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 import { io } from 'socket.io-client'
 
@@ -24,7 +26,7 @@ const ENDPOINT = 'http://api.todolist.local'
 const App: FC = () => {
   const classes = useStyle()
 
-  const [loading, setLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const { user } = useSelector((state: RootState) => state.app)
   const { refreshToken, accessToken } = useSelector((state: RootState) => state.tokens)
@@ -39,19 +41,19 @@ const App: FC = () => {
         dispatch(setAccessTokenAction(localStorage.getItem('access_token')))
         dispatch(setRefreshTokenAction(localStorage.getItem('refresh_token')))
       }
-      if (!user && !loading) {
-        setLoading(true);
+      if (!user && !isLoading) {
+        setIsLoading(true);
         (async () => {
           try {
             const loadedUser = await createAsyncAction<User>(dispatch, requestUserAction())
             dispatch(setUserAction(loadedUser))
           } finally {
-            setLoading(false)
+            setIsLoading(false)
           }
         })()
       }
     }
-  }, [accessToken, refreshToken, user, loading, dispatch])
+  }, [accessToken, refreshToken, user, isLoading, dispatch])
 
   useEffect(() => {
     const socket = io(ENDPOINT, {
@@ -64,6 +66,20 @@ const App: FC = () => {
       socket.disconnect()
     }
   }, [accessToken])
+
+  if (!user || isLoading) {
+    return (
+      <Grid
+        container
+        justify="center"
+        alignItems="center"
+      >
+        <Grid item>
+          <CircularProgress size="10rem" />
+        </Grid>
+      </Grid>
+    )
+  }
 
   return (
     <>
