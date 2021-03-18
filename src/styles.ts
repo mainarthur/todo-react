@@ -1,12 +1,15 @@
 import makeStyles from '@material-ui/core/styles/makeStyles'
-import { Theme } from '@material-ui/core/styles/createMuiTheme'
 
-const useStyle = makeStyles((theme: Theme) => ({
+const useStyle = makeStyles(() => ({
   root: {
-    marginTop: theme.spacing(4),
-    marginLeft: 0,
-    marginRight: 0,
+    display: 'flex',
+  },
+  content: {
+    flex: '1 1 auto',
+    padding: '64px 15px 15px',
     width: '100%',
+    height: '100vh',
+    overflow: 'hidden',
   },
 }))
 

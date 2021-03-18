@@ -3,14 +3,11 @@ import { useEffect, FC, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import Toolbar from '@material-ui/core/Toolbar'
-import Grid from '@material-ui/core/Grid'
 import Box from '@material-ui/core/Box'
 
 import { io } from 'socket.io-client'
-import useStyle from './styles'
 
-import NewToDo from './todo/NewToDo'
-import ToDoList from './todo/ToDoList'
+import useStyle from './styles'
 
 import { history } from './routing/routerHistory'
 
@@ -20,6 +17,7 @@ import { setAccessTokenAction, setRefreshTokenAction } from './redux/actions/tok
 import { requestUserAction, setUserAction } from './redux/actions/appActions'
 import { createAsyncAction } from './redux/helpers'
 import User from './models/User'
+import BoardPage from './boards/BoardPage'
 
 const ENDPOINT = 'http://api.todolist.local'
 
@@ -55,18 +53,11 @@ const App: FC = () => {
     }
   }, [accessToken, refreshToken, user, loading, dispatch])
 
-  const [response, setResponse] = useState('')
-
   useEffect(() => {
     const socket = io(ENDPOINT, {
       extraHeaders: {
         Authorization: `Bearer ${accessToken}`,
       },
-    })
-
-    socket.on('dataTime', (data) => {
-      console.log(data)
-      setResponse(data)
     })
 
     return () => {
@@ -75,24 +66,14 @@ const App: FC = () => {
   }, [accessToken])
 
   return (
-    <Box>
+    <>
       <Toolbar />
-      <p>
-        It&apos;s
-        {response}
-      </p>
-      <Grid
-        container
-        direction="column"
-        justify="flex-start"
-        alignItems="center"
-        spacing={3}
-        className={classes.root}
-      >
-        <NewToDo />
-        <ToDoList user={user} />
-      </Grid>
-    </Box>
+      <Box className={classes.root}>
+        <main className={classes.content}>
+          <BoardPage />
+        </main>
+      </Box>
+    </>
   )
 }
 

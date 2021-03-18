@@ -2,6 +2,8 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { Provider as ReduxStoreProvider } from 'react-redux'
 
+import CssBaseline from '@material-ui/core/CssBaseline'
+
 import createMuiTheme from '@material-ui/core/styles/createMuiTheme'
 import { ThemeProvider } from '@material-ui/core/styles'
 
@@ -36,6 +38,7 @@ ReactDOM.render(
   <ThemeProvider theme={theme}>
     <ReduxStoreProvider store={store}>
       <Router routes={routes} NotFound={<NotFound />}>
+        <CssBaseline />
         <ToDoAppBar />
         <Route path={routes.home.path}>
           <App />

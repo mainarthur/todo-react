@@ -1,7 +1,5 @@
-export default class User {
+export default interface User {
   _id: string
-
   name: string
-
   email: string
 }
