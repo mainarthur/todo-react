@@ -20,9 +20,8 @@ import AsyncAction from '../types/AsyncAction'
 import BoardPayload from '../types/payloads/BoardPayload'
 import DeleteToDoPayload from '../types/payloads/DeleteToDoPayload'
 import { connectDB, getDatabaseName } from '../../indexeddb/connect'
-import NewToDoPayload from '../types/payloads/NewToDoPayload'
 import Database from '../../indexeddb/Database'
-import DeleteManyPayload from '../types/payloads/DeleteManyPayload'
+import BodyPayload from '../types/payloads/BodyPayload'
 
 const getLastUpdateFieldName = (boardId: string) => `lastUpdate-todos-${boardId}`
 const getStoreName = (boardId: string) => `todos-${boardId}`
@@ -99,7 +98,7 @@ function* requestTodos(action: AsyncAction<ToDo[], BoardPayload>) {
   return null
 }
 
-function* newToDoRequested(action: AsyncAction<ToDo, NewToDoPayload>) {
+function* newToDoRequested(action: AsyncAction<ToDo, BodyPayload<NewToDoBody>>) {
   const {
     next,
     payload: {
@@ -138,7 +137,7 @@ function* newToDoRequested(action: AsyncAction<ToDo, NewToDoPayload>) {
   }
 }
 
-function* deleteManyToDosRequested(action: AsyncAction<number, DeleteManyPayload>) {
+function* deleteManyToDosRequested(action: AsyncAction<number, BodyPayload<DeleteManyBody>>) {
   const {
     payload: {
       body,
