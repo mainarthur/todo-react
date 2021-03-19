@@ -70,6 +70,7 @@ const App: FC = () => {
   if (!user || isLoading) {
     return (
       <Grid
+        className={classes.rootProgressBar}
         container
         justify="center"
         alignItems="center"
@@ -82,14 +83,11 @@ const App: FC = () => {
   }
 
   return (
-    <>
-      <Toolbar />
-      <Box className={classes.root}>
-        <main className={classes.content}>
-          <BoardPage />
-        </main>
-      </Box>
-    </>
+    <Box className={classes.root}>
+      <main className={classes.content}>
+        <BoardPage />
+      </main>
+    </Box>
   )
 }
 
