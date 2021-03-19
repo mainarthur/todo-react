@@ -40,6 +40,9 @@ const useStyles = makeStyles((theme) => ({
   divider: {
     marginTop: theme.spacing(2),
   },
+  addNewBoardCard: {
+    height: 'fit-content',
+  },
 }))
 
 export default useStyles

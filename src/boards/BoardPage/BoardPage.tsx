@@ -11,6 +11,8 @@ import Divider from '@material-ui/core/Divider'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 
+import clsx from 'clsx'
+
 import BoardHeader from '../BoardHeader'
 import ToDoList from '../ToDoList'
 
@@ -18,14 +20,11 @@ import useStyles from './styles'
 
 import Board from '../../models/Board'
 import BoardFooter from '../BoardFooter'
-import { BoardsState } from '../../redux/reducers/boardsReducer'
 import { RootState } from '../../redux/reducers'
-import User from '../../models/User'
 import { createAsyncAction } from '../../redux/helpers'
 import { requestBoardsAction, setBoardsAction } from '../../redux/actions/boardsActions'
 import ErrorSnackBar from '../../common/ErrorSnackBar'
-import ReloadButton from '../../common/ReloadButton'
-import { connectDB, defaultStoreName, getDatabaseName } from '../../indexeddb/connect'
+import AddNewBoard from '../AddNewBoard'
 
 const BoardPage: FC = () => {
   const classes = useStyles()
@@ -41,34 +40,14 @@ const BoardPage: FC = () => {
 
   const loadBoards = useCallback(async () => {
     try {
-      const db = await connectDB(getDatabaseName(user.id))
-      const loadedBoards = await createAsyncAction<Board[]>(dispatch, requestBoardsAction())
+      const loadedBoards = await createAsyncAction<Board[]>(dispatch, requestBoardsAction(user))
 
-      for (let i = 0; i < loadedBoards.length; i += 1) {
-        const board = loadedBoards[i]
-
-        const transaction = db.transaction(defaultStoreName, 'readwrite')
-        const store = transaction.objectStore(defaultStoreName)
-
-        if (!board.deleted) {
-          store.put(board)
-        } else {
-          store.delete(board.id)
-        }
-      }
-
-      const transaction = db.transaction(defaultStoreName, 'readwrite')
-      const store = transaction.objectStore(defaultStoreName)
-      const boardsRequest = store.getAll()
-
-      boardsRequest.addEventListener('success', () => {
-        const allBoards: Board[] = boardsRequest.result
-
-        dispatch(setBoardsAction(allBoards))
-        setIsBoardsLoaded(true)
-      })
+      dispatch(setBoardsAction(loadedBoards))
+      setIsBoardsLoaded(true)
     } catch (err) {
-      setIsLoadError(true)
+      if (!isLoadError) {
+        setIsLoadError(true)
+      }
     } finally {
       if (isLoadError) {
         setIsLoadError(false)
@@ -92,11 +71,14 @@ const BoardPage: FC = () => {
             <Paper key={board.id} elevation={3} className={classes.boardCard}>
               <BoardHeader title={board.name} boardId={board.id} />
               <Divider />
-              <ToDoList todos={todos ?? []} />
+              <ToDoList todos={board.todos ?? []} />
               <Divider className={classes.divider} />
               <BoardFooter boardId={board.id} />
             </Paper>
           ))}
+          <Paper elevation={3} className={clsx(classes.boardCard, classes.addNewBoardCard)}>
+            <AddNewBoard />
+          </Paper>
         </Grid>
       </Grid>
       <ErrorSnackBar

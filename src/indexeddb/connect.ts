@@ -27,15 +27,15 @@ export function connectDB(
 
       if (!db.objectStoreNames.contains(storeName)) {
         store = db.createObjectStore(storeName, {
-          keyPath: '_id',
+          keyPath: 'id',
         })
       } else {
         store = openRequest.transaction.objectStore(storeName)
       }
 
       if (store) {
-        if (!store.indexNames.contains('_id')) {
-          store.createIndex('_id', '_id')
+        if (!store.indexNames.contains('id')) {
+          store.createIndex('id', 'id')
         }
         if (!store.indexNames.contains('position')) {
           store.createIndex('position', 'position')

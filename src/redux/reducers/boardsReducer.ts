@@ -3,7 +3,7 @@ import Action from '../types/Action'
 import { addToDoAction, setLoadingPartAction, setTodosAction } from '../actions/toDoActions'
 import Board from '../../models/Board'
 import todosReducer from './todosReducer'
-import { setBoardsAction } from '../actions/boardsActions'
+import { addBoardAction, setBoardsAction } from '../actions/boardsActions'
 
 export type BoardsState = Array<Board & { todos?: ToDo[] }>
 
@@ -12,8 +12,13 @@ const initialState: BoardsState = []
 export default function boardsReducer(state = initialState, action: Action): BoardsState {
   let newState = [...state]
 
+  if (addBoardAction.match(action)) {
+    newState = newState.concat([{ ...action.payload, todos: [] }])
+  }
+
   if (setBoardsAction.match(action)) {
     newState = [...action.payload]
+    newState = newState.map((board) => ({ ...board, todos: board.todos ?? [] }))
   }
 
   if (addToDoAction.match(action)) {

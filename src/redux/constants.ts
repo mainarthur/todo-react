@@ -17,6 +17,7 @@ export enum ToDoAction {
 export enum BoardAction {
   REQUEST_BOARDS = 'REQUEST_BOARDS',
   SET_BOARDS = 'SET_BOARDS',
+  ADD_BOARD = 'ADD_BOARD',
 }
 
 export enum RouterAction {

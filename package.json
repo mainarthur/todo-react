@@ -51,6 +51,7 @@
     "@types/koa": "^2.13.0",
     "@types/koa-static": "^4.0.1",
     "@types/sass": "^1.16.0",
+    "clsx": "^1.1.1",
     "history": "^5.0.0",
     "koa": "^2.13.1",
     "koa-static": "^5.0.0",

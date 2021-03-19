@@ -1,6 +1,5 @@
 import * as React from 'react'
 import {
-  FC,
   useState,
   forwardRef,
   useCallback,
@@ -9,7 +8,6 @@ import {
 } from 'react'
 
 import IconButton from '@material-ui/core/IconButton'
-import Paper from '@material-ui/core/Paper'
 import Input from '@material-ui/core/Input'
 import InputAdornment from '@material-ui/core/InputAdornment'
 
@@ -25,12 +23,16 @@ type Props = {
   loading?: boolean,
   disabled?: boolean,
   onAdd(text: string): void
+  placeholder?: string
+  onBlur?: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>
 }
 
-const InputAdd: FC<Props> = forwardRef(({
+const InputAdd = forwardRef(({
   loading,
   disabled,
-  onAdd: onButtonClick,
+  onAdd,
+  placeholder,
+  onBlur,
 }: Props, ref) => {
   const classes = useStyle()
   const [inputText, setInpuText] = useState('')
@@ -56,9 +58,9 @@ const InputAdd: FC<Props> = forwardRef(({
 
   const handleKeyPress = useCallback((ev: KeyboardEvent<HTMLInputElement>) => {
     if (ev.key === 'Enter') {
-      onButtonClick(inputText)
+      onAdd(inputText)
     }
-  }, [inputText, onButtonClick])
+  }, [inputText, onAdd])
 
   return (
     <>
@@ -69,12 +71,13 @@ const InputAdd: FC<Props> = forwardRef(({
         onChange={onTextChange}
         value={inputText}
         onKeyPress={handleKeyPress}
-        placeholder="New task"
+        placeholder={placeholder}
         disabled={disabled}
+        onBlur={onBlur}
         endAdornment={
           (
             <InputAdornment position="end">
-              <IconButton disabled={disabled} onClick={() => onButtonClick(inputText)}>
+              <IconButton disabled={disabled} onClick={() => onAdd(inputText)}>
                 <ComponentProgressBar loading={loading}>
                   <Add className={classes.addIcon} />
                 </ComponentProgressBar>
@@ -96,7 +99,9 @@ const InputAdd: FC<Props> = forwardRef(({
 
 InputAdd.defaultProps = {
   loading: false,
+  placeholder: 'New task',
   disabled: false,
+  onBlur: null,
 }
 
 export default InputAdd
