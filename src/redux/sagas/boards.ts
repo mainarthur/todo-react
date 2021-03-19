@@ -4,6 +4,7 @@ import NewBoardBody from '../../api/bodies/NewBoardBody'
 import BoardsResponse from '../../api/responses/BoardsResponse'
 import NewBoardResponse from '../../api/responses/NewBoardResponse'
 import { connectDB, defaultStoreName, getDatabaseName } from '../../indexeddb/connect'
+import Database from '../../indexeddb/Database'
 import Board from '../../models/Board'
 import User from '../../models/User'
 import { BoardAction } from '../constants'
@@ -26,11 +27,13 @@ function* requestBoards(action: AsyncAction<Board[], User>) {
     const { results: boards } = boardsResponse
     const currentLastUpdate: number = parseInt(localStorage.getItem(lastUpdateField), 10)
     let maxLastUpdate = 0
-    const db: IDBDatabase = yield connectDB(getDatabaseName(user.id))
+    const db: Database = yield connectDB(getDatabaseName(user.id))
 
     if (!Number.isNaN(currentLastUpdate)) {
       maxLastUpdate = Math.max(currentLastUpdate, maxLastUpdate)
     }
+
+    const promises: Promise<void>[] = []
 
     for (let i = 0; i < boards.length; i += 1) {
       const board = boards[i]
@@ -40,34 +43,36 @@ function* requestBoards(action: AsyncAction<Board[], User>) {
         maxLastUpdate = Math.max(lastUpdate, maxLastUpdate)
       }
 
-      const transaction = db.transaction(defaultStoreName, 'readwrite')
-      const store = transaction.objectStore(defaultStoreName)
+      const store = db.getStore(defaultStoreName)
 
       if (!board.deleted) {
-        store.put(board)
+        promises.push(store.put(board))
       } else {
-        store.delete(board.id)
+        promises.push(store.delete(board.id))
       }
+    }
+
+    try {
+      yield Promise.all(promises)
+    } catch (err) {
+      return next(err)
     }
 
     localStorage.setItem(lastUpdateField, `${maxLastUpdate}`)
 
-    const transaction = db.transaction(defaultStoreName, 'readwrite')
-    const store = transaction.objectStore(defaultStoreName)
-    const boardsRequest = store.getAll()
-
-    boardsRequest.addEventListener('success', () => {
-      const allBoards: Board[] = boardsRequest.result
+    try {
+      const store = db.getStore(defaultStoreName)
+      const allBoards: Board[] = yield store.getAll()
 
       next(null, allBoards)
-    })
-
-    boardsRequest.addEventListener('error', () => {
-      next(boardsRequest.error)
-    })
+    } catch (err) {
+      next(err)
+    }
   } else {
     next(boardsResponse.error)
   }
+
+  return null
 }
 
 function* requestNewBoard(action: AsyncAction<Board, NewBoardPayload>) {
@@ -88,15 +93,18 @@ function* requestNewBoard(action: AsyncAction<Board, NewBoardPayload>) {
   if (boardResponse.status) {
     const { result: board } = boardResponse
 
-    const db: IDBDatabase = yield connectDB(getDatabaseName(user.id))
+    const db: Database = yield connectDB(getDatabaseName(user.id))
 
-    const transaction = db.transaction(defaultStoreName, 'readwrite')
-    const store = transaction.objectStore(defaultStoreName)
-    store.put(board)
+    const store = db.getStore(defaultStoreName)
+    try {
+      yield store.put(board)
 
-    localStorage.setItem(lastUpdateField, `${board.lastUpdate}`)
+      localStorage.setItem(lastUpdateField, `${board.lastUpdate}`)
 
-    next(null, board)
+      next(null, board)
+    } catch (err) {
+      next(err)
+    }
   } else {
     next(boardResponse.error)
   }

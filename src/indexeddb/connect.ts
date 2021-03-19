@@ -1,3 +1,5 @@
+import Database from './Database'
+
 export const defaultStoreName = 'main-store'
 
 export const getDatabaseName = (userId: string) => `db-${userId}`
@@ -6,7 +8,7 @@ export function connectDB(
   name: string,
   version?: number,
   storeName: string = defaultStoreName,
-): Promise<IDBDatabase> {
+): Promise<Database> {
   return new Promise((res, rej) => {
     const openRequest = indexedDB.open(name, version)
 
@@ -18,7 +20,7 @@ export function connectDB(
         window.location.reload()
       })
 
-      res(db)
+      res(new Database(db))
     })
 
     openRequest.addEventListener('upgradeneeded', () => {

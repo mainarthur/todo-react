@@ -19,16 +19,25 @@ import { ToDoAction } from '../constants'
 import AsyncAction from '../types/AsyncAction'
 import BoardPayload from '../types/payloads/BoardPayload'
 import DeleteToDoPayload from '../types/payloads/DeleteToDoPayload'
+import { connectDB, getDatabaseName } from '../../indexeddb/connect'
+import NewToDoPayload from '../types/payloads/NewToDoPayload'
+import Database from '../../indexeddb/Database'
 
 const getLastUpdateFieldName = (boardId: string) => `lastUpdate-todos-${boardId}`
+const getStoreName = (boardId: string) => `todos-${boardId}`
 
 function* requestTodos(action: AsyncAction<ToDo[], BoardPayload>) {
   const {
     payload: {
       boardId,
+      user,
     },
     next,
   } = action
+
+  if (!user) {
+    return next(new Error('User not found'))
+  }
 
   const lastUpdateField = getLastUpdateFieldName(boardId)
 
@@ -40,33 +49,64 @@ function* requestTodos(action: AsyncAction<ToDo[], BoardPayload>) {
     const { results: loadedTodos } = todosResponse
     const currentLastUpdate: number = parseInt(localStorage.getItem(lastUpdateField), 10)
     let maxLastUpdate = 0
+    const db: Database = yield connectDB(getDatabaseName(user.id))
 
     if (!Number.isNaN(currentLastUpdate)) {
       maxLastUpdate = Math.max(currentLastUpdate, maxLastUpdate)
     }
 
-    loadedTodos.forEach((toDo: ToDo) => {
+    const promises: Promise<void>[] = []
+
+    for (let i = 0; i < loadedTodos.length; i += 1) {
+      const toDo = loadedTodos[i]
+
       const { lastUpdate } = toDo
 
       if (lastUpdate) {
         maxLastUpdate = Math.max(maxLastUpdate, lastUpdate)
       }
-    })
+
+      const store = db.getStore(getStoreName(boardId))
+
+      if (!toDo.deleted) {
+        promises.push(store.put(toDo))
+      } else {
+        promises.push(store.delete(toDo.id))
+      }
+    }
+
+    try {
+      yield Promise.all(promises)
+    } catch (err) {
+      return next(err)
+    }
 
     localStorage.setItem(lastUpdateField, `${maxLastUpdate}`)
 
-    next(null, loadedTodos)
+    const store = db.getStore(getStoreName(boardId))
+    try {
+      const todosRequest = yield store.getAll<ToDo>()
+
+      next(null, todosRequest)
+    } catch (err) {
+      return next(err)
+    }
   } else {
     next(todosResponse.error)
   }
+
+  return null
 }
 
-function* newToDoRequested(action: AsyncAction<ToDo, NewToDoBody>) {
+function* newToDoRequested(action: AsyncAction<ToDo, NewToDoPayload>) {
   const {
     next,
-    payload,
     payload: {
-      boardId,
+      body,
+      user,
+      body: {
+        boardId,
+      },
     },
   } = action
 
@@ -75,11 +115,15 @@ function* newToDoRequested(action: AsyncAction<ToDo, NewToDoBody>) {
   const toDoResponse: NewToDoResponse = yield api<NewToDoResponse, NewToDoBody>({
     endpoint: '/todo',
     method: 'POST',
-    body: payload,
+    body,
   })
 
   if (toDoResponse.status) {
     const { result: newToDoToAdd } = toDoResponse
+    const db: Database = yield connectDB(getDatabaseName(user.id))
+
+    const store = db.getStore(getStoreName(boardId))
+    store.put(newToDoToAdd)
 
     localStorage.setItem(lastUpdateField, `${newToDoToAdd.lastUpdate}`)
 
