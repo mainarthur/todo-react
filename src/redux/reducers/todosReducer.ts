@@ -23,8 +23,7 @@ export default function todosReducer(state = initialState, action: Action): Todo
       },
     } = action
     newState = newState.map((toDo) => {
-      const { _id: toDoId } = toDo
-      if (ids.indexOf(toDoId) !== -1) {
+      if (ids.indexOf(toDo.id) !== -1) {
         return { ...toDo, loadingPart }
       }
       return toDo

@@ -1,7 +1,7 @@
 import { LoadingPart } from '../common/constants'
 
 export default interface ToDo {
-  _id: string
+  id: string
   userId: string
   text: string
   done: boolean

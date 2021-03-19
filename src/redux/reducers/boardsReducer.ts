@@ -18,7 +18,7 @@ export default function boardsReducer(state = initialState, action: Action): Boa
 
   if (addToDoAction.match(action)) {
     newState = newState.map((board) => {
-      const { _id: boardId } = board
+      const { id: boardId } = board
       if (action.payload.boardId === boardId) {
         const newBoard = { ...board, todos: todosReducer(board.todos, action) }
 
@@ -30,7 +30,7 @@ export default function boardsReducer(state = initialState, action: Action): Boa
 
   if (setTodosAction.match(action)) {
     newState = newState.map((board) => {
-      const { _id: boardId } = board
+      const { id: boardId } = board
       if (action.payload.boardId === boardId) {
         const newBoard = { ...board, todos: todosReducer(board.todos, action) }
 
@@ -42,7 +42,7 @@ export default function boardsReducer(state = initialState, action: Action): Boa
 
   if (setLoadingPartAction.match(action)) {
     newState = newState.map((board) => {
-      const { _id: boardId } = board
+      const { id: boardId } = board
       if (action.payload.boardId === boardId) {
         const newBoard = { ...board, todos: todosReducer(board.todos, action) }
 

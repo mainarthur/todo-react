@@ -41,14 +41,11 @@ const BoardPage: FC = () => {
 
   const loadBoards = useCallback(async () => {
     try {
-      const { _id: userId } = user
-
-      const db = await connectDB(getDatabaseName(userId))
+      const db = await connectDB(getDatabaseName(user.id))
       const loadedBoards = await createAsyncAction<Board[]>(dispatch, requestBoardsAction())
 
       for (let i = 0; i < loadedBoards.length; i += 1) {
         const board = loadedBoards[i]
-        const { _id: boardId } = board
 
         const transaction = db.transaction(defaultStoreName, 'readwrite')
         const store = transaction.objectStore(defaultStoreName)
@@ -56,7 +53,7 @@ const BoardPage: FC = () => {
         if (!board.deleted) {
           store.put(board)
         } else {
-          store.delete(boardId)
+          store.delete(board.id)
         }
       }
 
@@ -91,19 +88,15 @@ const BoardPage: FC = () => {
     <Grid container className={classes.root} spacing={3}>
       <Grid container className={classes.boardsWrap}>
         <Grid className={classes.boardsContent}>
-          {boards && boards.map((board) => {
-            const { _id: boardId, name, todos } = board
-
-            return (
-              <Paper key={boardId} elevation={3} className={classes.boardCard}>
-                <BoardHeader title={name} boardId={boardId} />
-                <Divider />
-                <ToDoList todos={todos ?? []} />
-                <Divider className={classes.divider} />
-                <BoardFooter boardId={boardId} />
-              </Paper>
-            )
-          })}
+          {boards && boards.map((board) => (
+            <Paper key={board.id} elevation={3} className={classes.boardCard}>
+              <BoardHeader title={board.name} boardId={board.id} />
+              <Divider />
+              <ToDoList todos={todos ?? []} />
+              <Divider className={classes.divider} />
+              <BoardFooter boardId={board.id} />
+            </Paper>
+          ))}
         </Grid>
       </Grid>
       <ErrorSnackBar

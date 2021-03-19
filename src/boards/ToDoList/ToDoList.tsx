@@ -18,14 +18,11 @@ const ToDoList: FC<Props> = ({ todos }: Props) => {
 
   return (
     <Grid className={classes.boardContent}>
-      {todos.map((toDo) => {
-        const { _id: toDoId } = toDo
-        return (
-          <Grid key={toDoId} item xs={12}>
-            <ToDoElement toDo={toDo} />
-          </Grid>
-        )
-      })}
+      {todos.map((toDo) => (
+        <Grid key={toDo.id} item xs={12}>
+          <ToDoElement toDo={toDo} />
+        </Grid>
+      ))}
     </Grid>
   )
 }
