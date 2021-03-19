@@ -20,7 +20,7 @@ import AsyncAction from '../types/AsyncAction'
 import BoardPayload from '../types/payloads/BoardPayload'
 import DeleteToDoPayload from '../types/payloads/DeleteToDoPayload'
 
-const getLastUpdateFiledName = (boardId: string) => `lastUpdate-todos-${boardId}`
+const getLastUpdateFieldName = (boardId: string) => `lastUpdate-todos-${boardId}`
 
 function* requestTodos(action: AsyncAction<ToDo[], BoardPayload>) {
   const {
@@ -30,7 +30,7 @@ function* requestTodos(action: AsyncAction<ToDo[], BoardPayload>) {
     next,
   } = action
 
-  const lastUpdateField = getLastUpdateFiledName(boardId)
+  const lastUpdateField = getLastUpdateFieldName(boardId)
 
   const todosResponse: ToDoListResponse = yield api<ToDoListResponse, {}>({
     endpoint: `/todo?boardId=${boardId}${localStorage.getItem(lastUpdateField) ? `&from=${lastUpdateField}` : ''}`,
@@ -70,7 +70,7 @@ function* newToDoRequested(action: AsyncAction<ToDo, NewToDoBody>) {
     },
   } = action
 
-  const lastUpdateField = getLastUpdateFiledName(boardId)
+  const lastUpdateField = getLastUpdateFieldName(boardId)
 
   const toDoResponse: NewToDoResponse = yield api<NewToDoResponse, NewToDoBody>({
     endpoint: '/todo',
@@ -98,7 +98,7 @@ function* deleteManyToDosRequested(action: AsyncAction<number, DeleteManyBody>) 
     next,
   } = action
 
-  const lastUpdateField = getLastUpdateFiledName(boardId)
+  const lastUpdateField = getLastUpdateFieldName(boardId)
 
   yield put(setLoadingPartAction({
     ids: payload.todos,

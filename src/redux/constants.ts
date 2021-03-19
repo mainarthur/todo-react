@@ -18,6 +18,7 @@ export enum BoardAction {
   REQUEST_BOARDS = 'REQUEST_BOARDS',
   SET_BOARDS = 'SET_BOARDS',
   ADD_BOARD = 'ADD_BOARD',
+  REQUEST_NEW_BOARD = 'REQUEST_NEW_BOARD',
 }
 
 export enum RouterAction {
