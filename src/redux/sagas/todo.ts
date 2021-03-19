@@ -22,6 +22,7 @@ import DeleteToDoPayload from '../types/payloads/DeleteToDoPayload'
 import { connectDB, getDatabaseName } from '../../indexeddb/connect'
 import NewToDoPayload from '../types/payloads/NewToDoPayload'
 import Database from '../../indexeddb/Database'
+import DeleteManyPayload from '../types/payloads/DeleteManyPayload'
 
 const getLastUpdateFieldName = (boardId: string) => `lastUpdate-todos-${boardId}`
 const getStoreName = (boardId: string) => `todos-${boardId}`
@@ -123,21 +124,29 @@ function* newToDoRequested(action: AsyncAction<ToDo, NewToDoPayload>) {
     const db: Database = yield connectDB(getDatabaseName(user.id))
 
     const store = db.getStore(getStoreName(boardId))
-    store.put(newToDoToAdd)
+    try {
+      yield store.put(newToDoToAdd)
 
-    localStorage.setItem(lastUpdateField, `${newToDoToAdd.lastUpdate}`)
+      localStorage.setItem(lastUpdateField, `${newToDoToAdd.lastUpdate}`)
 
-    next(null, newToDoToAdd)
+      next(null, newToDoToAdd)
+    } catch (err) {
+      next(err)
+    }
   } else {
     next(toDoResponse.error)
   }
 }
 
-function* deleteManyToDosRequested(action: AsyncAction<number, DeleteManyBody>) {
+function* deleteManyToDosRequested(action: AsyncAction<number, DeleteManyPayload>) {
   const {
-    payload,
     payload: {
-      boardId,
+      body,
+      body: {
+        boardId,
+        todos,
+      },
+      user,
     },
     next,
   } = action
@@ -145,27 +154,35 @@ function* deleteManyToDosRequested(action: AsyncAction<number, DeleteManyBody>) 
   const lastUpdateField = getLastUpdateFieldName(boardId)
 
   yield put(setLoadingPartAction({
-    ids: payload.todos,
+    boardId,
+    ids: todos,
     loadingPart: LoadingPart.DELETE_BUTTON,
-    boardId: payload.boardId,
   }))
 
   const response: DeleteManyResponse = yield api<DeleteManyResponse, DeleteManyBody>({
+    body,
     endpoint: '/todo/',
     method: 'DELETE',
-    body: payload,
   })
 
   yield put(setLoadingPartAction({
-    ids: payload.todos,
+    boardId,
+    ids: todos,
     loadingPart: LoadingPart.NONE,
-    boardId: payload.boardId,
   }))
 
   if (response.status) {
-    localStorage.setItem(lastUpdateField, `${response.lastUpdate}`)
+    const db: Database = yield connectDB(getDatabaseName(user.id))
 
-    next(null, response.lastUpdate)
+    const store = db.getStore(getStoreName(boardId))
+    try {
+      yield Promise.all(todos.map((toDoId) => store.delete(toDoId)))
+      localStorage.setItem(lastUpdateField, `${response.lastUpdate}`)
+
+      next(null, response.lastUpdate)
+    } catch (err) {
+      next(err)
+    }
   } else {
     next(response.error)
   }
