@@ -14,6 +14,11 @@ export enum ToDoAction {
   ADD_TODO = 'ADD_TODO',
 }
 
+export enum BoardAction {
+  REQUEST_BOARDS = 'REQUEST_BOARDS',
+  SET_BOARDS = 'SET_BOARDS',
+}
+
 export enum RouterAction {
   SET_ROUTE = 'SET_ROUTE',
 }

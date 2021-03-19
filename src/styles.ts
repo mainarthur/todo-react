@@ -11,6 +11,9 @@ const useStyle = makeStyles(() => ({
     height: '100vh',
     overflow: 'hidden',
   },
+  rootProgressBar: {
+    height: '100',
+  },
 }))
 
 export default useStyle

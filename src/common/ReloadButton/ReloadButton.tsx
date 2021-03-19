@@ -7,10 +7,10 @@ import ReloadIcon from '@material-ui/icons/Cached'
 import useStyle from './styles'
 
 interface Props {
-  onReloadTodosClick(): void
+  onReloadClick(): void
 }
 
-const ReloadButton: FC<Props> = ({ onReloadTodosClick }: Props) => {
+const ReloadButton: FC<Props> = ({ onReloadClick: onReloadTodosClick }: Props) => {
   const classes = useStyle()
 
   return (

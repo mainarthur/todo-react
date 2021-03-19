@@ -1,4 +1,4 @@
-import { LoadingPart } from '../todo/constants'
+import { LoadingPart } from '../common/constants'
 
 export default interface ToDo {
   _id: string

@@ -13,20 +13,32 @@ import NewToDoResponse from '../../api/responses/NewToDoResponse'
 import ToDoListResponse from '../../api/responses/ToDoListResponse'
 import UpdateToDoResponse from '../../api/responses/UpdateToDoResponse'
 import ToDo from '../../models/ToDo'
-import { LoadingPart } from '../../todo/constants'
+import { LoadingPart } from '../../common/constants'
 import { setLoadingPartAction } from '../actions/toDoActions'
 import { ToDoAction } from '../constants'
 import AsyncAction from '../types/AsyncAction'
+import BoardPayload from '../types/payloads/BoardPayload'
 import DeleteToDoPayload from '../types/payloads/DeleteToDoPayload'
 
-function* requestTodos(action: AsyncAction<ToDo[]>) {
+const getLastUpdateFiledName = (boardId: string) => `lastUpdate-todos-${boardId}`
+
+function* requestTodos(action: AsyncAction<ToDo[], BoardPayload>) {
+  const {
+    payload: {
+      boardId,
+    },
+    next,
+  } = action
+
+  const lastUpdateField = getLastUpdateFiledName(boardId)
+
   const todosResponse: ToDoListResponse = yield api<ToDoListResponse, {}>({
-    endpoint: `/todo${localStorage.getItem('lastUpdate') ? `?from=${localStorage.getItem('lastUpdate')}` : ''}`,
+    endpoint: `/todo?boardId=${boardId}${localStorage.getItem(lastUpdateField) ? `&from=${lastUpdateField}` : ''}`,
   })
 
   if (todosResponse.status) {
     const { results: loadedTodos } = todosResponse
-    const currentLastUpdate: number = parseInt(localStorage.getItem('lastUpdate'), 10)
+    const currentLastUpdate: number = parseInt(localStorage.getItem(lastUpdateField), 10)
     let maxLastUpdate = 0
 
     if (!Number.isNaN(currentLastUpdate)) {
@@ -41,39 +53,57 @@ function* requestTodos(action: AsyncAction<ToDo[]>) {
       }
     })
 
-    localStorage.setItem('lastUpdate', `${maxLastUpdate}`)
+    localStorage.setItem(lastUpdateField, `${maxLastUpdate}`)
 
-    action.next(null, loadedTodos)
+    next(null, loadedTodos)
   } else {
-    action.next(todosResponse.error)
+    next(todosResponse.error)
   }
 }
 
 function* newToDoRequested(action: AsyncAction<ToDo, NewToDoBody>) {
+  const {
+    next,
+    payload,
+    payload: {
+      boardId,
+    },
+  } = action
+
+  const lastUpdateField = getLastUpdateFiledName(boardId)
+
   const toDoResponse: NewToDoResponse = yield api<NewToDoResponse, NewToDoBody>({
     endpoint: '/todo',
     method: 'POST',
-    body: action.payload,
+    body: payload,
   })
 
   if (toDoResponse.status) {
     const { result: newToDoToAdd } = toDoResponse
 
-    action.next(null, newToDoToAdd)
+    localStorage.setItem(lastUpdateField, `${newToDoToAdd.lastUpdate}`)
+
+    next(null, newToDoToAdd)
   } else {
-    action.next(toDoResponse.error)
+    next(toDoResponse.error)
   }
 }
 
 function* deleteManyToDosRequested(action: AsyncAction<number, DeleteManyBody>) {
   const {
     payload,
+    payload: {
+      boardId,
+    },
     next,
   } = action
+
+  const lastUpdateField = getLastUpdateFiledName(boardId)
 
   yield put(setLoadingPartAction({
     ids: payload.todos,
     loadingPart: LoadingPart.DELETE_BUTTON,
+    boardId: payload.boardId,
   }))
 
   const response: DeleteManyResponse = yield api<DeleteManyResponse, DeleteManyBody>({
@@ -85,9 +115,12 @@ function* deleteManyToDosRequested(action: AsyncAction<number, DeleteManyBody>) 
   yield put(setLoadingPartAction({
     ids: payload.todos,
     loadingPart: LoadingPart.NONE,
+    boardId: payload.boardId,
   }))
 
   if (response.status) {
+    localStorage.setItem(lastUpdateField, `${response.lastUpdate}`)
+
     next(null, response.lastUpdate)
   } else {
     next(response.error)
@@ -97,6 +130,7 @@ function* deleteManyToDosRequested(action: AsyncAction<number, DeleteManyBody>) 
 function* updateToDoRequested(action: AsyncAction<ToDo, UpdateToDoBody>) {
   const {
     payload: {
+      boardId,
       _id: toDoId,
       done,
     },
@@ -105,6 +139,7 @@ function* updateToDoRequested(action: AsyncAction<ToDo, UpdateToDoBody>) {
   } = action
 
   yield put(setLoadingPartAction({
+    boardId,
     ids: [toDoId],
     loadingPart: done !== undefined ? LoadingPart.CHECKBOX : LoadingPart.DRAG_HANDLER,
   }))
@@ -116,6 +151,7 @@ function* updateToDoRequested(action: AsyncAction<ToDo, UpdateToDoBody>) {
   })
 
   yield put(setLoadingPartAction({
+    boardId,
     ids: [toDoId],
     loadingPart: LoadingPart.NONE,
   }))
@@ -127,15 +163,17 @@ function* updateToDoRequested(action: AsyncAction<ToDo, UpdateToDoBody>) {
   }
 }
 
-function* deleteToDoRequested(action: AsyncAction<ToDo, DeleteToDoPayload>) {
+function* deleteToDoRequested(action: AsyncAction<ToDo, DeleteToDoPayload & BoardPayload>) {
   const {
     payload: {
       toDoId,
+      boardId,
     },
     next,
   } = action
 
   yield put(setLoadingPartAction({
+    boardId,
     ids: [toDoId],
     loadingPart: LoadingPart.DELETE_BUTTON,
   }))
@@ -146,6 +184,7 @@ function* deleteToDoRequested(action: AsyncAction<ToDo, DeleteToDoPayload>) {
   })
 
   yield put(setLoadingPartAction({
+    boardId,
     ids: [toDoId],
     loadingPart: LoadingPart.NONE,
   }))

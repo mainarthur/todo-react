@@ -1,8 +1,12 @@
 export const defaultStoreName = 'main-store'
 
-export function connectDB(name: string,
+export const getDatabaseName = (userId: string) => `db-${userId}`
+
+export function connectDB(
+  name: string,
   version?: number,
-  storeName: string = defaultStoreName): Promise<IDBDatabase> {
+  storeName: string = defaultStoreName,
+): Promise<IDBDatabase> {
   return new Promise((res, rej) => {
     const openRequest = indexedDB.open(name, version)
 
