@@ -23,8 +23,10 @@ import DeleteConfirmDialog from '../DeleteConfirmDialog'
 import ToDo from '../../models/ToDo'
 
 import { createAsyncAction } from '../../redux/helpers'
-import { requestUpdateToDoAction } from '../../redux/actions/toDoActions'
+import { requestDeleteToDosAction, requestUpdateToDoAction } from '../../redux/actions/toDoActions'
 import { RootState } from '../../redux/reducers'
+import { LoadingPart } from '../../common/constants'
+import ComponentProgressBar from '../../common/ComponentProgressBar'
 
 interface Props {
   toDo: ToDo
@@ -45,6 +47,8 @@ const EditToDoDialog: FC<Props> = ({
     loadingPart,
   } = toDo
 
+  const disabled = loadingPart !== LoadingPart.NONE
+
   const [isDeleteDialogOpened, setIsDeleteDialogOpened] = useState(false)
   const [isLoadError, setIsLoadError] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -60,9 +64,22 @@ const EditToDoDialog: FC<Props> = ({
     setIsDeleteDialogOpened(false)
   }, [])
 
-  const onDelete = useCallback(() => {
+  const onDelete = useCallback(async () => {
     setIsDeleteDialogOpened(false)
-  }, [])
+    try {
+      await createAsyncAction(dispacth, requestDeleteToDosAction({
+        user,
+        body: {
+          boardId,
+          todos: [id],
+        },
+      }))
+    } catch (err) {
+      if (!isLoadError) {
+        setIsLoadError(true)
+      }
+    }
+  }, [dispacth, id, user, boardId, isLoadError])
 
   const onStatusChange = useCallback(
     async (_event: ChangeEvent<HTMLInputElement>, checked: boolean) => {
@@ -100,10 +117,12 @@ const EditToDoDialog: FC<Props> = ({
           <FormControlLabel
             label={text}
             control={(
-              <Checkbox
-                checked={done}
-                onChange={onStatusChange}
-              />
+              <ComponentProgressBar loading={loadingPart === LoadingPart.CHECKBOX}>
+                <Checkbox
+                  checked={done}
+                  onChange={onStatusChange}
+                />
+              </ComponentProgressBar>
             )}
           />
         </DialogTitle>
@@ -112,17 +131,27 @@ const EditToDoDialog: FC<Props> = ({
         </DialogContent>
         <DialogActions>
           <Button
-            startIcon={<DeleteIcon />}
+            startIcon={(
+              <ComponentProgressBar loading={loadingPart === LoadingPart.DELETE_BUTTON}>
+                <DeleteIcon />
+              </ComponentProgressBar>
+            )}
             variant="outlined"
             color="secondary"
+            disabled={disabled}
             onClick={onOpenDeleteDialog}
           >
             Delete
           </Button>
           <Button
-            startIcon={<SaveIcon />}
+            startIcon={(
+              <ComponentProgressBar loading={loadingPart === LoadingPart.TEXT}>
+                <SaveIcon />
+              </ComponentProgressBar>
+            )}
             variant="contained"
             color="primary"
+            disabled={disabled}
           >
             Save
           </Button>
