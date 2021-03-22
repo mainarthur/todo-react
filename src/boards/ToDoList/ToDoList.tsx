@@ -52,6 +52,7 @@ const ToDoList: FC<Props> = ({ boardId }: Props) => {
         setIsLoadError(false)
       }
     } catch (err) {
+      console.log(err)
       if (!isLoadError) {
         setIsLoadError(true)
       }

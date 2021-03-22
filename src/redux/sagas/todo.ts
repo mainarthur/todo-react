@@ -24,7 +24,6 @@ import Database from '../../indexeddb/Database'
 import BodyPayload from '../types/payloads/BodyPayload'
 
 const getLastUpdateFieldName = (boardId: string) => `lastUpdate-todos-${boardId}`
-const getStoreName = (boardId: string) => `todos-${boardId}`
 
 function* requestTodos(action: AsyncAction<ToDo[], BoardPayload>) {
   const {
@@ -42,7 +41,7 @@ function* requestTodos(action: AsyncAction<ToDo[], BoardPayload>) {
   const lastUpdateField = getLastUpdateFieldName(boardId)
 
   const todosResponse: ToDoListResponse = yield api<ToDoListResponse, {}>({
-    endpoint: `/todo?boardId=${boardId}${localStorage.getItem(lastUpdateField) ? `&from=${lastUpdateField}` : ''}`,
+    endpoint: `/todo?boardId=${boardId}${localStorage.getItem(lastUpdateField) ? `&from=${localStorage.getItem(lastUpdateField)}` : ''}`,
   })
 
   try {
@@ -50,7 +49,7 @@ function* requestTodos(action: AsyncAction<ToDo[], BoardPayload>) {
       const { results: loadedTodos } = todosResponse
       const currentLastUpdate: number = parseInt(localStorage.getItem(lastUpdateField), 10)
       let maxLastUpdate = 0
-      const db: Database = yield connectDB(getDatabaseName(user.id))
+      const db: Database = yield connectDB(getDatabaseName(user.id, boardId))
 
       if (!Number.isNaN(currentLastUpdate)) {
         maxLastUpdate = Math.max(currentLastUpdate, maxLastUpdate)
@@ -67,7 +66,7 @@ function* requestTodos(action: AsyncAction<ToDo[], BoardPayload>) {
           maxLastUpdate = Math.max(maxLastUpdate, lastUpdate)
         }
 
-        const store = db.getStore(getStoreName(boardId))
+        const store = db.getStore()
 
         if (!toDo.deleted) {
           promises.push(store.put(toDo))
@@ -80,7 +79,7 @@ function* requestTodos(action: AsyncAction<ToDo[], BoardPayload>) {
 
       localStorage.setItem(lastUpdateField, `${maxLastUpdate}`)
 
-      const store = db.getStore(getStoreName(boardId))
+      const store = db.getStore()
       const todosRequest = yield store.getAll<ToDo>()
 
       next(null, todosRequest)
@@ -116,9 +115,9 @@ function* newToDoRequested(action: AsyncAction<ToDo, BodyPayload<NewToDoBody>>) 
 
     if (toDoResponse.status) {
       const { result: newToDoToAdd } = toDoResponse
-      const db: Database = yield connectDB(getDatabaseName(user.id))
+      const db: Database = yield connectDB(getDatabaseName(user.id, boardId))
 
-      const store = db.getStore(getStoreName(boardId))
+      const store = db.getStore()
       yield store.put(newToDoToAdd)
 
       localStorage.setItem(lastUpdateField, `${newToDoToAdd.lastUpdate}`)
@@ -167,9 +166,9 @@ function* deleteManyToDosRequested(action: AsyncAction<number, BodyPayload<Delet
     }))
 
     if (response.status) {
-      const db: Database = yield connectDB(getDatabaseName(user.id))
+      const db: Database = yield connectDB(getDatabaseName(user.id, boardId))
 
-      const store = db.getStore(getStoreName(boardId))
+      const store = db.getStore()
       yield Promise.all(todos.map((toDoId) => store.delete(toDoId)))
       localStorage.setItem(lastUpdateField, `${response.lastUpdate}`)
 
@@ -216,9 +215,9 @@ function* updateToDoRequested(action: AsyncAction<ToDo, BodyPayload<UpdateToDoBo
 
     if (updateResponse.status) {
       const { result: updatedToDo } = updateResponse
-      const db: Database = yield connectDB(getDatabaseName(user.id))
+      const db: Database = yield connectDB(getDatabaseName(user.id, boardId))
 
-      const store = db.getStore(getStoreName(boardId))
+      const store = db.getStore()
       yield store.put(updatedToDo)
 
       next(null, updatedToDo)
@@ -262,9 +261,9 @@ function* deleteToDoRequested(action: AsyncAction<ToDo, BodyPayload<DeleteToDoPa
 
     if (deleteResponse.status) {
       const { result: deletedToDo } = deleteResponse
-      const db: Database = yield connectDB(getDatabaseName(user.id))
+      const db: Database = yield connectDB(getDatabaseName(user.id, boardId))
 
-      const store = db.getStore(getStoreName(boardId))
+      const store = db.getStore()
       yield store.delete(deletedToDo.id)
 
       next(null, deletedToDo)

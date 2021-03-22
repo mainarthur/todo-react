@@ -2,12 +2,12 @@ import Database from './Database'
 
 export const defaultStoreName = 'main-store'
 
-export const getDatabaseName = (userId: string) => `db-${userId}`
+export const getDatabaseName = (userId: string, boardId?: string) => `db-${userId}${boardId ? `-${boardId}` : ''}`
 
 export function connectDB(
   name: string,
-  version?: number,
   storeName: string = defaultStoreName,
+  version: number = 2,
 ): Promise<Database> {
   return new Promise((res, rej) => {
     const openRequest = indexedDB.open(name, version)

@@ -44,7 +44,7 @@ function* requestBoards(action: AsyncAction<Board[], User>) {
           maxLastUpdate = Math.max(lastUpdate, maxLastUpdate)
         }
 
-        const store = db.getStore(defaultStoreName)
+        const store = db.getStore()
 
         if (!board.deleted) {
           promises.push(store.put(board))
@@ -57,7 +57,7 @@ function* requestBoards(action: AsyncAction<Board[], User>) {
 
       localStorage.setItem(lastUpdateField, `${maxLastUpdate}`)
 
-      const store = db.getStore(defaultStoreName)
+      const store = db.getStore()
       const allBoards: Board[] = yield store.getAll()
 
       next(null, allBoards)
@@ -91,7 +91,7 @@ function* requestNewBoard(action: AsyncAction<Board, BodyPayload<NewBoardBody>>)
 
       const db: Database = yield connectDB(getDatabaseName(user.id))
 
-      const store = db.getStore(defaultStoreName)
+      const store = db.getStore()
       yield store.put(board)
 
       localStorage.setItem(lastUpdateField, `${board.lastUpdate}`)
