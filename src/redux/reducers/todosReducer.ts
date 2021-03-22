@@ -7,6 +7,7 @@ import {
   setTodosAction,
   updateToDoAction,
 } from '../actions/toDoActions'
+import { LoadingPart } from '../../common/constants'
 
 export type TodosState = ToDo[]
 
@@ -16,7 +17,7 @@ export default function todosReducer(state = initialState, action: Action): Todo
   let newState = [...state]
 
   if (addToDoAction.match(action)) {
-    newState = newState.concat([{ ...action.payload }])
+    newState = newState.concat([{ ...action.payload, loadingPart: LoadingPart.NONE }])
   }
   if (setTodosAction.match(action)) {
     newState = [...action.payload.todos]
@@ -39,7 +40,7 @@ export default function todosReducer(state = initialState, action: Action): Todo
   if (updateToDoAction.match(action)) {
     newState = newState.map((toDo) => {
       if (toDo.id === action.payload.id) {
-        return { ...action.payload }
+        return { ...action.payload, loadingPart: LoadingPart.NONE }1
       }
 
       return toDo
