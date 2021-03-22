@@ -12,6 +12,8 @@ export enum ToDoAction {
   SET_LOADING_PART = 'SET_LOADING_PART',
   SET_TODOS = 'SET_TODOS',
   ADD_TODO = 'ADD_TODO',
+  UPDATE_TODO = 'UPDATE_TODO',
+  DELETE_MANY_TODOS = 'DELETE_MANY_TODOS',
 }
 
 export enum BoardAction {

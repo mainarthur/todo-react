@@ -8,17 +8,21 @@ import DeleteManyBody from '../../api/bodies/DeleteManyBody'
 import NewToDoBody from '../../api/bodies/NewToDoBody'
 import UpdateToDoBody from '../../api/bodies/UpdateToDoBody'
 import DeleteManyResponse from '../../api/responses/DeleteManyResponse'
-import DeleteResponse from '../../api/responses/DeleteResponse'
 import NewToDoResponse from '../../api/responses/NewToDoResponse'
 import ToDoListResponse from '../../api/responses/ToDoListResponse'
 import UpdateToDoResponse from '../../api/responses/UpdateToDoResponse'
 import ToDo from '../../models/ToDo'
 import { LoadingPart } from '../../common/constants'
-import { addToDoAction, setLoadingPartAction, setTodosAction } from '../actions/toDoActions'
+import {
+  addToDoAction,
+  deleteToDosAction,
+  setLoadingPartAction,
+  setTodosAction,
+  updateToDoAction,
+} from '../actions/toDoActions'
 import { ToDoAction } from '../constants'
 import AsyncAction from '../types/AsyncAction'
 import BoardPayload from '../types/payloads/BoardPayload'
-import DeleteToDoPayload from '../types/payloads/DeleteToDoPayload'
 import { connectDB, getDatabaseName } from '../../indexeddb/connect'
 import Database from '../../indexeddb/Database'
 import BodyPayload from '../types/payloads/BodyPayload'
@@ -179,6 +183,7 @@ function* deleteManyToDosRequested(action: AsyncAction<number, BodyPayload<Delet
       yield Promise.all(todos.map((toDoId) => store.delete(toDoId)))
       localStorage.setItem(lastUpdateField, `${response.lastUpdate}`)
 
+      yield put(deleteToDosAction(body))
       next(null, response.lastUpdate)
     } else {
       next(response.error)
@@ -227,55 +232,11 @@ function* updateToDoRequested(action: AsyncAction<ToDo, BodyPayload<UpdateToDoBo
       const store = db.getStore()
       yield store.put(updatedToDo)
 
+      yield put(updateToDoAction(updatedToDo))
+
       next(null, updatedToDo)
     } else {
       next(updateResponse.error)
-    }
-  } catch (err) {
-    next(err)
-  }
-}
-
-function* deleteToDoRequested(action: AsyncAction<ToDo, BodyPayload<DeleteToDoPayload>>) {
-  const {
-    payload: {
-      body: {
-        toDoId,
-        boardId,
-      },
-      user,
-    },
-    next,
-  } = action
-
-  try {
-    yield put(setLoadingPartAction({
-      boardId,
-      ids: [toDoId],
-      loadingPart: LoadingPart.DELETE_BUTTON,
-    }))
-
-    const deleteResponse: DeleteResponse = yield api<DeleteResponse, {}>({
-      endpoint: `/todo/${toDoId}`,
-      method: 'DELETE',
-    })
-
-    yield put(setLoadingPartAction({
-      boardId,
-      ids: [toDoId],
-      loadingPart: LoadingPart.NONE,
-    }))
-
-    if (deleteResponse.status) {
-      const { result: deletedToDo } = deleteResponse
-      const db: Database = yield connectDB(getDatabaseName(user.id, boardId))
-
-      const store = db.getStore()
-      yield store.delete(deletedToDo.id)
-
-      next(null, deletedToDo)
-    } else {
-      next(deleteResponse.error)
     }
   } catch (err) {
     next(err)
@@ -287,7 +248,6 @@ function* watchTodos() {
   yield takeEvery(ToDoAction.REQUEST_TODOS, requestTodos)
   yield takeEvery(ToDoAction.REQUEST_DELETE_MANY_TODOS, deleteManyToDosRequested)
   yield takeEvery(ToDoAction.REQUEST_UPDATE_TODO, updateToDoRequested)
-  yield takeEvery(ToDoAction.REQUEST_DELETE_TODO, deleteToDoRequested)
 }
 
 export default watchTodos

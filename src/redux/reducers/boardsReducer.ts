@@ -1,6 +1,12 @@
 import ToDo from '../../models/ToDo'
 import Action from '../types/Action'
-import { addToDoAction, setLoadingPartAction, setTodosAction } from '../actions/toDoActions'
+import {
+  addToDoAction,
+  deleteToDosAction,
+  setLoadingPartAction,
+  setTodosAction,
+  updateToDoAction,
+} from '../actions/toDoActions'
 import Board from '../../models/Board'
 import todosReducer from './todosReducer'
 import { addBoardAction, setBoardsAction } from '../actions/boardsActions'
@@ -21,31 +27,13 @@ export default function boardsReducer(state = initialState, action: Action): Boa
     newState = newState.map((board) => ({ ...board, todos: board.todos ?? [] }))
   }
 
-  if (addToDoAction.match(action)) {
-    newState = newState.map((board) => {
-      const { id: boardId } = board
-      if (action.payload.boardId === boardId) {
-        const newBoard = { ...board, todos: todosReducer(board.todos, action) }
-
-        return newBoard
-      }
-      return board
-    })
-  }
-
-  if (setTodosAction.match(action)) {
-    newState = newState.map((board) => {
-      const { id: boardId } = board
-      if (action.payload.boardId === boardId) {
-        const newBoard = { ...board, todos: todosReducer(board.todos, action) }
-
-        return newBoard
-      }
-      return board
-    })
-  }
-
-  if (setLoadingPartAction.match(action)) {
+  if (
+    addToDoAction.match(action)
+    || setTodosAction.match(action)
+    || setLoadingPartAction.match(action)
+    || deleteToDosAction.match(action)
+    || updateToDoAction.match(action)
+  ) {
     newState = newState.map((board) => {
       const { id: boardId } = board
       if (action.payload.boardId === boardId) {

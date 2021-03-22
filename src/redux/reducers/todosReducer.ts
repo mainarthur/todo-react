@@ -1,6 +1,12 @@
 import ToDo from '../../models/ToDo'
 import Action from '../types/Action'
-import { addToDoAction, setLoadingPartAction, setTodosAction } from '../actions/toDoActions'
+import {
+  addToDoAction,
+  deleteToDosAction,
+  setLoadingPartAction,
+  setTodosAction,
+  updateToDoAction,
+} from '../actions/toDoActions'
 
 export type TodosState = ToDo[]
 
@@ -28,6 +34,20 @@ export default function todosReducer(state = initialState, action: Action): Todo
       }
       return toDo
     })
+  }
+
+  if (updateToDoAction.match(action)) {
+    newState = newState.map((toDo) => {
+      if (toDo.id === action.payload.id) {
+        return { ...action.payload }
+      }
+
+      return toDo
+    })
+  }
+
+  if (deleteToDosAction.match(action)) {
+    newState = newState.filter(({ id }: ToDo) => action.payload.todos.indexOf(id) === -1)
   }
 
   return newState

@@ -5,7 +5,7 @@ import {
 } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import ToDo from '../../models/ToDo'
-import { newToDoAction } from '../../redux/actions/toDoActions'
+import { requestNewToDoAction } from '../../redux/actions/toDoActions'
 import { createAsyncAction } from '../../redux/helpers'
 import { RootState } from '../../redux/reducers'
 import AddNew from '../AddNew'
@@ -20,7 +20,7 @@ const BoardFooter: FC<Props> = ({ boardId }: Props) => {
   const dispatch = useDispatch()
 
   const onAdd = useCallback(async (text: string) => {
-    await createAsyncAction<ToDo>(dispatch, newToDoAction({
+    await createAsyncAction<ToDo>(dispatch, requestNewToDoAction({
       body: {
         boardId,
         text,
