@@ -7,7 +7,7 @@ import useStyle from './styles'
 
 export interface DialogTitleProps {
   children: React.ReactNode
-  onClose: () => void
+  onClose?: () => void
 }
 
 const DialogTitle = (({ children, onClose }: DialogTitleProps) => {
