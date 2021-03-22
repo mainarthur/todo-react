@@ -9,7 +9,7 @@ import Board from '../../models/Board'
 import User from '../../models/User'
 import { BoardAction } from '../constants'
 import AsyncAction from '../types/AsyncAction'
-import NewBoardPayload from '../types/payloads/NewBoardPayload'
+import BodyPayload from '../types/payloads/BodyPayload'
 
 const lastUpdateField = 'lastUpdate-boards'
 
@@ -19,63 +19,58 @@ function* requestBoards(action: AsyncAction<Board[], User>) {
     payload: user,
   } = action
 
-  const boardsResponse: BoardsResponse = yield api<BoardsResponse, {}>({
-    endpoint: `/board${localStorage.getItem(lastUpdateField) ? `?from=${localStorage.getItem(lastUpdateField)}` : ''}`,
-  })
+  try {
+    const boardsResponse: BoardsResponse = yield api<BoardsResponse, {}>({
+      endpoint: `/board${localStorage.getItem(lastUpdateField) ? `?from=${localStorage.getItem(lastUpdateField)}` : ''}`,
+    })
 
-  if (boardsResponse.status) {
-    const { results: boards } = boardsResponse
-    const currentLastUpdate: number = parseInt(localStorage.getItem(lastUpdateField), 10)
-    let maxLastUpdate = 0
-    const db: Database = yield connectDB(getDatabaseName(user.id))
+    if (boardsResponse.status) {
+      const { results: boards } = boardsResponse
+      const currentLastUpdate: number = parseInt(localStorage.getItem(lastUpdateField), 10)
+      let maxLastUpdate = 0
+      const db: Database = yield connectDB(getDatabaseName(user.id))
 
-    if (!Number.isNaN(currentLastUpdate)) {
-      maxLastUpdate = Math.max(currentLastUpdate, maxLastUpdate)
-    }
-
-    const promises: Promise<void>[] = []
-
-    for (let i = 0; i < boards.length; i += 1) {
-      const board = boards[i]
-      const { lastUpdate } = board
-
-      if (lastUpdate) {
-        maxLastUpdate = Math.max(lastUpdate, maxLastUpdate)
+      if (!Number.isNaN(currentLastUpdate)) {
+        maxLastUpdate = Math.max(currentLastUpdate, maxLastUpdate)
       }
 
-      const store = db.getStore(defaultStoreName)
+      const promises: Promise<void>[] = []
 
-      if (!board.deleted) {
-        promises.push(store.put(board))
-      } else {
-        promises.push(store.delete(board.id))
+      for (let i = 0; i < boards.length; i += 1) {
+        const board = boards[i]
+        const { lastUpdate } = board
+
+        if (lastUpdate) {
+          maxLastUpdate = Math.max(lastUpdate, maxLastUpdate)
+        }
+
+        const store = db.getStore(defaultStoreName)
+
+        if (!board.deleted) {
+          promises.push(store.put(board))
+        } else {
+          promises.push(store.delete(board.id))
+        }
       }
-    }
 
-    try {
       yield Promise.all(promises)
-    } catch (err) {
-      return next(err)
-    }
 
-    localStorage.setItem(lastUpdateField, `${maxLastUpdate}`)
+      localStorage.setItem(lastUpdateField, `${maxLastUpdate}`)
 
-    try {
       const store = db.getStore(defaultStoreName)
       const allBoards: Board[] = yield store.getAll()
 
       next(null, allBoards)
-    } catch (err) {
-      next(err)
+    } else {
+      next(boardsResponse.error)
     }
-  } else {
-    next(boardsResponse.error)
+  } catch (err) {
+    return next(err)
   }
-
   return null
 }
 
-function* requestNewBoard(action: AsyncAction<Board, NewBoardPayload>) {
+function* requestNewBoard(action: AsyncAction<Board, BodyPayload<NewBoardBody>>) {
   const {
     next,
     payload: {
@@ -84,29 +79,29 @@ function* requestNewBoard(action: AsyncAction<Board, NewBoardPayload>) {
     },
   } = action
 
-  const boardResponse: NewBoardResponse = yield api<NewBoardResponse, NewBoardBody>({
-    body,
-    endpoint: '/board',
-    method: 'POST',
-  })
+  try {
+    const boardResponse: NewBoardResponse = yield api<NewBoardResponse, NewBoardBody>({
+      body,
+      endpoint: '/board',
+      method: 'POST',
+    })
 
-  if (boardResponse.status) {
-    const { result: board } = boardResponse
+    if (boardResponse.status) {
+      const { result: board } = boardResponse
 
-    const db: Database = yield connectDB(getDatabaseName(user.id))
+      const db: Database = yield connectDB(getDatabaseName(user.id))
 
-    const store = db.getStore(defaultStoreName)
-    try {
+      const store = db.getStore(defaultStoreName)
       yield store.put(board)
 
       localStorage.setItem(lastUpdateField, `${board.lastUpdate}`)
 
       next(null, board)
-    } catch (err) {
-      next(err)
+    } else {
+      next(boardResponse.error)
     }
-  } else {
-    next(boardResponse.error)
+  } catch (err) {
+    next(err)
   }
 }
 

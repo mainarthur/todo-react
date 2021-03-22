@@ -45,56 +45,51 @@ function* requestTodos(action: AsyncAction<ToDo[], BoardPayload>) {
     endpoint: `/todo?boardId=${boardId}${localStorage.getItem(lastUpdateField) ? `&from=${lastUpdateField}` : ''}`,
   })
 
-  if (todosResponse.status) {
-    const { results: loadedTodos } = todosResponse
-    const currentLastUpdate: number = parseInt(localStorage.getItem(lastUpdateField), 10)
-    let maxLastUpdate = 0
-    const db: Database = yield connectDB(getDatabaseName(user.id))
+  try {
+    if (todosResponse.status) {
+      const { results: loadedTodos } = todosResponse
+      const currentLastUpdate: number = parseInt(localStorage.getItem(lastUpdateField), 10)
+      let maxLastUpdate = 0
+      const db: Database = yield connectDB(getDatabaseName(user.id))
 
-    if (!Number.isNaN(currentLastUpdate)) {
-      maxLastUpdate = Math.max(currentLastUpdate, maxLastUpdate)
-    }
-
-    const promises: Promise<void>[] = []
-
-    for (let i = 0; i < loadedTodos.length; i += 1) {
-      const toDo = loadedTodos[i]
-
-      const { lastUpdate } = toDo
-
-      if (lastUpdate) {
-        maxLastUpdate = Math.max(maxLastUpdate, lastUpdate)
+      if (!Number.isNaN(currentLastUpdate)) {
+        maxLastUpdate = Math.max(currentLastUpdate, maxLastUpdate)
       }
+
+      const promises: Promise<void>[] = []
+
+      for (let i = 0; i < loadedTodos.length; i += 1) {
+        const toDo = loadedTodos[i]
+
+        const { lastUpdate } = toDo
+
+        if (lastUpdate) {
+          maxLastUpdate = Math.max(maxLastUpdate, lastUpdate)
+        }
+
+        const store = db.getStore(getStoreName(boardId))
+
+        if (!toDo.deleted) {
+          promises.push(store.put(toDo))
+        } else {
+          promises.push(store.delete(toDo.id))
+        }
+      }
+
+      yield Promise.all(promises)
+
+      localStorage.setItem(lastUpdateField, `${maxLastUpdate}`)
 
       const store = db.getStore(getStoreName(boardId))
-
-      if (!toDo.deleted) {
-        promises.push(store.put(toDo))
-      } else {
-        promises.push(store.delete(toDo.id))
-      }
-    }
-
-    try {
-      yield Promise.all(promises)
-    } catch (err) {
-      return next(err)
-    }
-
-    localStorage.setItem(lastUpdateField, `${maxLastUpdate}`)
-
-    const store = db.getStore(getStoreName(boardId))
-    try {
       const todosRequest = yield store.getAll<ToDo>()
 
       next(null, todosRequest)
-    } catch (err) {
-      return next(err)
+    } else {
+      next(todosResponse.error)
     }
-  } else {
-    next(todosResponse.error)
+  } catch (err) {
+    return next(err)
   }
-
   return null
 }
 
@@ -112,28 +107,28 @@ function* newToDoRequested(action: AsyncAction<ToDo, BodyPayload<NewToDoBody>>) 
 
   const lastUpdateField = getLastUpdateFieldName(boardId)
 
-  const toDoResponse: NewToDoResponse = yield api<NewToDoResponse, NewToDoBody>({
-    endpoint: '/todo',
-    method: 'POST',
-    body,
-  })
+  try {
+    const toDoResponse: NewToDoResponse = yield api<NewToDoResponse, NewToDoBody>({
+      endpoint: '/todo',
+      method: 'POST',
+      body,
+    })
 
-  if (toDoResponse.status) {
-    const { result: newToDoToAdd } = toDoResponse
-    const db: Database = yield connectDB(getDatabaseName(user.id))
+    if (toDoResponse.status) {
+      const { result: newToDoToAdd } = toDoResponse
+      const db: Database = yield connectDB(getDatabaseName(user.id))
 
-    const store = db.getStore(getStoreName(boardId))
-    try {
+      const store = db.getStore(getStoreName(boardId))
       yield store.put(newToDoToAdd)
 
       localStorage.setItem(lastUpdateField, `${newToDoToAdd.lastUpdate}`)
 
       next(null, newToDoToAdd)
-    } catch (err) {
-      next(err)
+    } else {
+      next(toDoResponse.error)
     }
-  } else {
-    next(toDoResponse.error)
+  } catch (err) {
+    next(err)
   }
 }
 
@@ -152,107 +147,132 @@ function* deleteManyToDosRequested(action: AsyncAction<number, BodyPayload<Delet
 
   const lastUpdateField = getLastUpdateFieldName(boardId)
 
-  yield put(setLoadingPartAction({
-    boardId,
-    ids: todos,
-    loadingPart: LoadingPart.DELETE_BUTTON,
-  }))
+  try {
+    yield put(setLoadingPartAction({
+      boardId,
+      ids: todos,
+      loadingPart: LoadingPart.DELETE_BUTTON,
+    }))
 
-  const response: DeleteManyResponse = yield api<DeleteManyResponse, DeleteManyBody>({
-    body,
-    endpoint: '/todo/',
-    method: 'DELETE',
-  })
+    const response: DeleteManyResponse = yield api<DeleteManyResponse, DeleteManyBody>({
+      body,
+      endpoint: '/todo/',
+      method: 'DELETE',
+    })
 
-  yield put(setLoadingPartAction({
-    boardId,
-    ids: todos,
-    loadingPart: LoadingPart.NONE,
-  }))
+    yield put(setLoadingPartAction({
+      boardId,
+      ids: todos,
+      loadingPart: LoadingPart.NONE,
+    }))
 
-  if (response.status) {
-    const db: Database = yield connectDB(getDatabaseName(user.id))
+    if (response.status) {
+      const db: Database = yield connectDB(getDatabaseName(user.id))
 
-    const store = db.getStore(getStoreName(boardId))
-    try {
+      const store = db.getStore(getStoreName(boardId))
       yield Promise.all(todos.map((toDoId) => store.delete(toDoId)))
       localStorage.setItem(lastUpdateField, `${response.lastUpdate}`)
 
       next(null, response.lastUpdate)
-    } catch (err) {
-      next(err)
+    } else {
+      next(response.error)
     }
-  } else {
-    next(response.error)
+  } catch (err) {
+    next(err)
   }
 }
 
-function* updateToDoRequested(action: AsyncAction<ToDo, UpdateToDoBody>) {
+function* updateToDoRequested(action: AsyncAction<ToDo, BodyPayload<UpdateToDoBody>>) {
   const {
     payload: {
-      boardId,
-      _id: toDoId,
-      done,
+      body: {
+        id,
+        boardId,
+        done,
+      },
+      body,
+      user,
     },
-    payload,
     next,
   } = action
+  try {
+    yield put(setLoadingPartAction({
+      boardId,
+      ids: [id],
+      loadingPart: done !== undefined ? LoadingPart.CHECKBOX : LoadingPart.DRAG_HANDLER,
+    }))
 
-  yield put(setLoadingPartAction({
-    boardId,
-    ids: [toDoId],
-    loadingPart: done !== undefined ? LoadingPart.CHECKBOX : LoadingPart.DRAG_HANDLER,
-  }))
+    const updateResponse: UpdateToDoResponse = yield api<UpdateToDoResponse, UpdateToDoBody>({
+      body,
+      endpoint: '/todo/',
+      method: 'PATCH',
+    })
 
-  const response: UpdateToDoResponse = yield api<UpdateToDoResponse, UpdateToDoBody>({
-    endpoint: '/todo/',
-    method: 'PATCH',
-    body: payload,
-  })
+    yield put(setLoadingPartAction({
+      boardId,
+      ids: [id],
+      loadingPart: LoadingPart.NONE,
+    }))
 
-  yield put(setLoadingPartAction({
-    boardId,
-    ids: [toDoId],
-    loadingPart: LoadingPart.NONE,
-  }))
+    if (updateResponse.status) {
+      const { result: updatedToDo } = updateResponse
+      const db: Database = yield connectDB(getDatabaseName(user.id))
 
-  if (response.status) {
-    next(null, response.result)
-  } else {
-    next(response.error)
+      const store = db.getStore(getStoreName(boardId))
+      yield store.put(updatedToDo)
+
+      next(null, updatedToDo)
+    } else {
+      next(updateResponse.error)
+    }
+  } catch (err) {
+    next(err)
   }
 }
 
-function* deleteToDoRequested(action: AsyncAction<ToDo, DeleteToDoPayload & BoardPayload>) {
+function* deleteToDoRequested(action: AsyncAction<ToDo, BodyPayload<DeleteToDoPayload>>) {
   const {
     payload: {
-      toDoId,
-      boardId,
+      body: {
+        toDoId,
+        boardId,
+      },
+      user,
     },
     next,
   } = action
 
-  yield put(setLoadingPartAction({
-    boardId,
-    ids: [toDoId],
-    loadingPart: LoadingPart.DELETE_BUTTON,
-  }))
+  try {
+    yield put(setLoadingPartAction({
+      boardId,
+      ids: [toDoId],
+      loadingPart: LoadingPart.DELETE_BUTTON,
+    }))
 
-  const response: DeleteResponse = yield api<DeleteResponse, {}>({
-    endpoint: `/todo/${toDoId}`,
-    method: 'DELETE',
-  })
+    const deleteResponse: DeleteResponse = yield api<DeleteResponse, {}>({
+      endpoint: `/todo/${toDoId}`,
+      method: 'DELETE',
+    })
 
-  yield put(setLoadingPartAction({
-    boardId,
-    ids: [toDoId],
-    loadingPart: LoadingPart.NONE,
-  }))
+    yield put(setLoadingPartAction({
+      boardId,
+      ids: [toDoId],
+      loadingPart: LoadingPart.NONE,
+    }))
 
-  if (response.status) {
-    next(null, response.result)
-  } else {
-    next(response.error)
+    if (deleteResponse.status) {
+      const { result: deletedToDo } = deleteResponse
+      const db: Database = yield connectDB(getDatabaseName(user.id))
+
+      const store = db.getStore(getStoreName(boardId))
+      yield store.delete(deletedToDo.id)
+
+      next(null, deletedToDo)
+    } else {
+      next(deleteResponse.error)
+    }
+  } catch (err) {
+    next(err)
   }
 }
 

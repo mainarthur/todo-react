@@ -44,14 +44,16 @@ const BoardPage: FC = () => {
 
       dispatch(setBoardsAction(loadedBoards))
       setIsBoardsLoaded(true)
+
+      if (isLoadError) {
+        setIsLoadError(false)
+      }
     } catch (err) {
       if (!isLoadError) {
         setIsLoadError(true)
       }
     } finally {
-      if (isLoadError) {
-        setIsLoadError(false)
-      }
+      setIsLoading(false)
     }
   }, [user, dispatch, isLoadError])
 
@@ -59,7 +61,6 @@ const BoardPage: FC = () => {
     if (user && !isLoading && !isBoardsLoaded) {
       setIsLoading(true)
       loadBoards()
-      setIsLoading(false)
     }
   }, [user, isLoading, isBoardsLoaded, loadBoards])
 
@@ -71,7 +72,7 @@ const BoardPage: FC = () => {
             <Paper key={board.id} elevation={3} className={classes.boardCard}>
               <BoardHeader title={board.name} boardId={board.id} />
               <Divider />
-              <ToDoList todos={board.todos ?? []} />
+              <ToDoList boardId={board.id} />
               <Divider className={classes.divider} />
               <BoardFooter boardId={board.id} />
             </Paper>

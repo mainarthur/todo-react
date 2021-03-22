@@ -13,7 +13,7 @@ export default function todosReducer(state = initialState, action: Action): Todo
     newState = newState.concat([{ ...action.payload }])
   }
   if (setTodosAction.match(action)) {
-    newState = [...action.payload]
+    newState = [...action.payload.todos]
   }
   if (setLoadingPartAction.match(action)) {
     const {
