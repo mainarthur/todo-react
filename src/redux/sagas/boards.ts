@@ -1,12 +1,13 @@
-import { takeEvery } from 'redux-saga/effects'
+import { takeEvery, put } from 'redux-saga/effects'
 import { api } from '../../api/api'
 import NewBoardBody from '../../api/bodies/NewBoardBody'
 import BoardsResponse from '../../api/responses/BoardsResponse'
 import NewBoardResponse from '../../api/responses/NewBoardResponse'
-import { connectDB, defaultStoreName, getDatabaseName } from '../../indexeddb/connect'
+import { connectDB, getDatabaseName } from '../../indexeddb/connect'
 import Database from '../../indexeddb/Database'
 import Board from '../../models/Board'
 import User from '../../models/User'
+import { addBoardAction, setBoardsAction } from '../actions/boardsActions'
 import { BoardAction } from '../constants'
 import AsyncAction from '../types/AsyncAction'
 import BodyPayload from '../types/payloads/BodyPayload'
@@ -59,7 +60,7 @@ function* requestBoards(action: AsyncAction<Board[], User>) {
 
       const store = db.getStore()
       const allBoards: Board[] = yield store.getAll()
-
+      yield put(setBoardsAction(allBoards))
       next(null, allBoards)
     } else {
       next(boardsResponse.error)
@@ -95,6 +96,8 @@ function* requestNewBoard(action: AsyncAction<Board, BodyPayload<NewBoardBody>>)
       yield store.put(board)
 
       localStorage.setItem(lastUpdateField, `${board.lastUpdate}`)
+
+      yield put(addBoardAction(board))
 
       next(null, board)
     } else {

@@ -56,11 +56,22 @@ const InputAdd = forwardRef(({
     setInpuText(newText)
   }, [isInvalidText])
 
+  const onAddHandler = useCallback(() => {
+    if (inputText.trim() === '') {
+      if (!isInvalidText) {
+        setIsInvalidText(true)
+      }
+      return
+    }
+
+    onAdd(inputText)
+  }, [inputText, isInvalidText, onAdd])
+
   const handleKeyPress = useCallback((ev: KeyboardEvent<HTMLInputElement>) => {
     if (ev.key === 'Enter') {
-      onAdd(inputText)
+      onAddHandler()
     }
-  }, [inputText, onAdd])
+  }, [onAddHandler])
 
   return (
     <>
@@ -77,7 +88,7 @@ const InputAdd = forwardRef(({
         endAdornment={
           (
             <InputAdornment position="end">
-              <IconButton disabled={disabled} onClick={() => onAdd(inputText)}>
+              <IconButton disabled={disabled} onClick={onAddHandler}>
                 <ComponentProgressBar loading={loading}>
                   <Add className={classes.addIcon} />
                 </ComponentProgressBar>
@@ -91,7 +102,7 @@ const InputAdd = forwardRef(({
         autoHide
         onClose={onSnackBarClose}
       >
-        Text is required
+        Input is required
       </ErrorSnackBar>
     </>
   )

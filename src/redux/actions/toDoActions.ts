@@ -16,7 +16,7 @@ export const setTodosAction = createAction<ToDosPayload & BoardPayload>(ToDoActi
 
 export const newToDoAction = createAction<BodyPayload<NewToDoBody>>(ToDoAction.REQUEST_NEW_TODO)
 
-export const addToDoAction = createAction<ToDo & BoardPayload>(ToDoAction.ADD_TODO)
+export const addToDoAction = createAction<ToDo>(ToDoAction.ADD_TODO)
 
 export const requestTodosAction = createAction<BoardPayload>(ToDoAction.REQUEST_TODOS)
 

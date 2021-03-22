@@ -22,7 +22,7 @@ import Board from '../../models/Board'
 import BoardFooter from '../BoardFooter'
 import { RootState } from '../../redux/reducers'
 import { createAsyncAction } from '../../redux/helpers'
-import { requestBoardsAction, setBoardsAction } from '../../redux/actions/boardsActions'
+import { requestBoardsAction } from '../../redux/actions/boardsActions'
 import ErrorSnackBar from '../../common/ErrorSnackBar'
 import AddNewBoard from '../AddNewBoard'
 
@@ -40,9 +40,8 @@ const BoardPage: FC = () => {
 
   const loadBoards = useCallback(async () => {
     try {
-      const loadedBoards = await createAsyncAction<Board[]>(dispatch, requestBoardsAction(user))
+      await createAsyncAction<Board[]>(dispatch, requestBoardsAction(user))
 
-      dispatch(setBoardsAction(loadedBoards))
       setIsBoardsLoaded(true)
 
       if (isLoadError) {

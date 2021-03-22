@@ -15,7 +15,7 @@ import useStyles from './styles'
 import ToDo from '../../models/ToDo'
 import { RootState } from '../../redux/reducers'
 import { createAsyncAction } from '../../redux/helpers'
-import { requestTodosAction, setTodosAction } from '../../redux/actions/toDoActions'
+import { requestTodosAction } from '../../redux/actions/toDoActions'
 
 type Props = {
   boardId: string
@@ -37,22 +37,17 @@ const ToDoList: FC<Props> = ({ boardId }: Props) => {
 
   const loadToDos = useCallback(async () => {
     try {
-      const loadedTodos = await createAsyncAction<ToDo[]>(dispatch, requestTodosAction({
+      await createAsyncAction<ToDo[]>(dispatch, requestTodosAction({
         boardId,
         user,
       }))
 
-      dispatch(setTodosAction({
-        boardId,
-        todos: loadedTodos,
-      }))
       setIsToDosLoaded(true)
 
       if (isLoadError) {
         setIsLoadError(false)
       }
     } catch (err) {
-      console.log(err)
       if (!isLoadError) {
         setIsLoadError(true)
       }

@@ -2,7 +2,6 @@ import * as React from 'react'
 import { useEffect, FC, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import Toolbar from '@material-ui/core/Toolbar'
 import Box from '@material-ui/core/Box'
 import Grid from '@material-ui/core/Grid'
 import CircularProgress from '@material-ui/core/CircularProgress'
@@ -16,7 +15,7 @@ import { history } from './routing/routerHistory'
 import { RootState } from './redux/reducers'
 
 import { setAccessTokenAction, setRefreshTokenAction } from './redux/actions/tokenActions'
-import { requestUserAction, setUserAction } from './redux/actions/appActions'
+import { requestUserAction } from './redux/actions/appActions'
 import { createAsyncAction } from './redux/helpers'
 import User from './models/User'
 import BoardPage from './boards/BoardPage'
@@ -45,8 +44,7 @@ const App: FC = () => {
         setIsLoading(true);
         (async () => {
           try {
-            const loadedUser = await createAsyncAction<User>(dispatch, requestUserAction())
-            dispatch(setUserAction(loadedUser))
+            await createAsyncAction<User>(dispatch, requestUserAction())
           } finally {
             setIsLoading(false)
           }

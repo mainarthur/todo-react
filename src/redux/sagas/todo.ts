@@ -14,7 +14,7 @@ import ToDoListResponse from '../../api/responses/ToDoListResponse'
 import UpdateToDoResponse from '../../api/responses/UpdateToDoResponse'
 import ToDo from '../../models/ToDo'
 import { LoadingPart } from '../../common/constants'
-import { setLoadingPartAction } from '../actions/toDoActions'
+import { addToDoAction, setLoadingPartAction, setTodosAction } from '../actions/toDoActions'
 import { ToDoAction } from '../constants'
 import AsyncAction from '../types/AsyncAction'
 import BoardPayload from '../types/payloads/BoardPayload'
@@ -82,6 +82,11 @@ function* requestTodos(action: AsyncAction<ToDo[], BoardPayload>) {
       const store = db.getStore()
       const todosRequest = yield store.getAll<ToDo>()
 
+      yield put(setTodosAction({
+        boardId,
+        todos: todosRequest,
+      }))
+
       next(null, todosRequest)
     } else {
       next(todosResponse.error)
@@ -121,6 +126,8 @@ function* newToDoRequested(action: AsyncAction<ToDo, BodyPayload<NewToDoBody>>) 
       yield store.put(newToDoToAdd)
 
       localStorage.setItem(lastUpdateField, `${newToDoToAdd.lastUpdate}`)
+
+      yield put(addToDoAction(newToDoToAdd))
 
       next(null, newToDoToAdd)
     } else {

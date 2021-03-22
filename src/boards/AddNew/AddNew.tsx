@@ -4,6 +4,7 @@ import {
   useState,
   useRef,
   useEffect,
+  useCallback,
 } from 'react'
 
 import CardActionArea from '@material-ui/core/CardActionArea'
@@ -30,17 +31,18 @@ const AddNew: FC<Props> = ({
   const [isInputDisplayed, setIsInputDsiplayed] = useState(false)
   const inputRef = useRef<HTMLDivElement>()
 
-  const handleAddCard = () => {
+  const handleAddCard = useCallback(() => {
     setIsInputDsiplayed(true)
-  }
+  }, [setIsInputDsiplayed])
 
-  const handleOnAdd = (text: string) => {
+  const handleOnAdd = useCallback((text: string) => {
     setIsInputDsiplayed(false)
     onAdd(text)
-  }
-  const handleCloseInput = () => {
+  }, [setIsInputDsiplayed, onAdd])
+
+  const handleCloseInput = useCallback(() => {
     setIsInputDsiplayed(false)
-  }
+  }, [setIsInputDsiplayed])
 
   useEffect(() => {
     if (isInputDisplayed) {
