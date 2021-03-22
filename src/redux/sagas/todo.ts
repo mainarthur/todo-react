@@ -84,11 +84,11 @@ function* requestTodos(action: AsyncAction<ToDo[], BoardPayload>) {
       localStorage.setItem(lastUpdateField, `${maxLastUpdate}`)
 
       const store = db.getStore()
-      const todosRequest = yield store.getAll<ToDo>()
+      const todosRequest: ToDo[] = yield store.getAll<ToDo>()
 
       yield put(setTodosAction({
         boardId,
-        todos: todosRequest,
+        todos: todosRequest.map((toDo) => ({ ...toDo, loadingPart: LoadingPart.NONE })),
       }))
 
       next(null, todosRequest)

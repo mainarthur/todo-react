@@ -42,6 +42,7 @@ const EditToDoDialog: FC<Props> = ({
     text: toDoText,
     id,
     boardId,
+    loadingPart,
   } = toDo
 
   const [isDeleteDialogOpened, setIsDeleteDialogOpened] = useState(false)

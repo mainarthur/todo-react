@@ -1,6 +1,6 @@
 export enum LoadingPart {
-  NONE,
-  CHECKBOX,
-  DELETE_BUTTON,
-  DRAG_HANDLER,
+  NONE = 'LoadingPart.NONE',
+  CHECKBOX = 'LoadingPart.CHECKKBOX',
+  DELETE_BUTTON = 'LoadingPart.DELETE_BUTTON',
+  DRAG_HANDLER = 'LoadingPart.DRAG_HANDLER',
 }
