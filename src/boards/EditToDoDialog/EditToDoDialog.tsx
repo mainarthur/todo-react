@@ -119,6 +119,7 @@ const EditToDoDialog: FC<Props> = ({
             control={(
               <ComponentProgressBar loading={loadingPart === LoadingPart.CHECKBOX}>
                 <Checkbox
+                  disabled={disabled}
                   checked={done}
                   onChange={onStatusChange}
                 />
