@@ -40,7 +40,7 @@ export default function todosReducer(state = initialState, action: Action): Todo
   if (updateToDoAction.match(action)) {
     newState = newState.map((toDo) => {
       if (toDo.id === action.payload.id) {
-        return { ...action.payload, loadingPart: LoadingPart.NONE }1
+        return { ...action.payload, loadingPart: LoadingPart.NONE }
       }
 
       return toDo
