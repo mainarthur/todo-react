@@ -13,6 +13,7 @@ import Checkbox from '@material-ui/core/Checkbox'
 import DialogContent from '@material-ui/core/DialogContent'
 import Button from '@material-ui/core/Button'
 import DialogActions from '@material-ui/core/DialogActions'
+import TextField from '@material-ui/core/TextField'
 
 import DeleteIcon from '@material-ui/icons/Delete'
 import SaveIcon from '@material-ui/icons/Save'
@@ -27,6 +28,7 @@ import { requestDeleteToDosAction, requestUpdateToDoAction } from '../../redux/a
 import { RootState } from '../../redux/reducers'
 import { LoadingPart } from '../../common/constants'
 import ComponentProgressBar from '../../common/ComponentProgressBar'
+import useStyles from './styles'
 
 interface Props {
   toDo: ToDo
@@ -37,7 +39,7 @@ interface Props {
 const EditToDoDialog: FC<Props> = ({
   toDo,
   open,
-  onClose,
+  onClose: onCloseProp,
 }: Props) => {
   const {
     done,
@@ -49,9 +51,11 @@ const EditToDoDialog: FC<Props> = ({
 
   const disabled = loadingPart !== LoadingPart.NONE
 
+  const classes = useStyles()
+
   const [isDeleteDialogOpened, setIsDeleteDialogOpened] = useState(false)
+  const [textFieldValue, setTextFieldValue] = useState(toDoText)
   const [isLoadError, setIsLoadError] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
 
   const { user } = useSelector((state: RootState) => state.app)
   const dispacth = useDispatch()
@@ -63,6 +67,13 @@ const EditToDoDialog: FC<Props> = ({
   const onCancel = useCallback(() => {
     setIsDeleteDialogOpened(false)
   }, [])
+
+  const onTextChange = useCallback(
+    (ev: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setTextFieldValue(ev.target.value)
+    },
+    [setTextFieldValue],
+  )
 
   const onDelete = useCallback(async () => {
     setIsDeleteDialogOpened(false)
@@ -101,6 +112,11 @@ const EditToDoDialog: FC<Props> = ({
     [isLoadError, dispacth, id, user, boardId],
   )
 
+  const onClose = useCallback(() => {
+    onCloseProp()
+    setTextFieldValue(toDoText)
+  }, [onCloseProp, setTextFieldValue, toDoText])
+
   const text = toDoText.length < 60 ? toDoText : `${toDoText.substring(0, 57)}...`
 
   return (
@@ -128,7 +144,13 @@ const EditToDoDialog: FC<Props> = ({
           />
         </DialogTitle>
         <DialogContent dividers>
-          {toDoText}
+          <TextField
+            multiline
+            value={textFieldValue}
+            onChange={onTextChange}
+            disabled={disabled}
+            className={classes.textField}
+          />
         </DialogContent>
         <DialogActions>
           <Button
