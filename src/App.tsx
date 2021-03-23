@@ -19,6 +19,7 @@ import { requestUserAction } from './redux/actions/appActions'
 import { createAsyncAction } from './redux/helpers'
 import User from './models/User'
 import BoardPage from './boards/BoardPage'
+import { initSocket } from './socket.io'
 
 const ENDPOINT = 'http://api.todolist.local'
 
@@ -60,10 +61,16 @@ const App: FC = () => {
       },
     })
 
+    socket.on('connected', () => {
+
+    })
+
+    initSocket(socket, dispatch)
+
     return () => {
       socket.disconnect()
     }
-  }, [accessToken])
+  }, [accessToken, dispatch])
 
   if (!user || isLoading) {
     return (

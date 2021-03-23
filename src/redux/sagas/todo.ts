@@ -26,6 +26,7 @@ import BoardPayload from '../types/payloads/BoardPayload'
 import { connectDB, getDatabaseName } from '../../indexeddb/connect'
 import Database from '../../indexeddb/Database'
 import BodyPayload from '../types/payloads/BodyPayload'
+import { getSocket } from '../../socket.io'
 
 const getLastUpdateFieldName = (boardId: string) => `lastUpdate-todos-${boardId}`
 
@@ -113,8 +114,6 @@ function* newToDoRequested(action: AsyncAction<ToDo, BodyPayload<NewToDoBody>>) 
     },
   } = action
 
-  const lastUpdateField = getLastUpdateFieldName(boardId)
-
   try {
     const toDoResponse: NewToDoResponse = yield api<NewToDoResponse, NewToDoBody>({
       endpoint: '/todo',
@@ -123,6 +122,9 @@ function* newToDoRequested(action: AsyncAction<ToDo, BodyPayload<NewToDoBody>>) 
     })
 
     if (toDoResponse.status) {
+      const socket = getSocket()
+
+      const lastUpdateField = getLastUpdateFieldName(boardId)
       const { result: newToDoToAdd } = toDoResponse
       const db: Database = yield connectDB(getDatabaseName(user.id, boardId))
 
@@ -132,6 +134,10 @@ function* newToDoRequested(action: AsyncAction<ToDo, BodyPayload<NewToDoBody>>) 
       localStorage.setItem(lastUpdateField, `${newToDoToAdd.lastUpdate}`)
 
       yield put(addToDoAction(newToDoToAdd))
+
+      if (socket) {
+        socket.emit('new-todo', newToDoToAdd)
+      }
 
       next(null, newToDoToAdd)
     } else {
@@ -154,6 +160,8 @@ function* deleteManyToDosRequested(action: AsyncAction<number, BodyPayload<Delet
     },
     next,
   } = action
+
+  const socket = getSocket()
 
   const lastUpdateField = getLastUpdateFieldName(boardId)
 
@@ -184,6 +192,10 @@ function* deleteManyToDosRequested(action: AsyncAction<number, BodyPayload<Delet
       localStorage.setItem(lastUpdateField, `${response.lastUpdate}`)
 
       yield put(deleteToDosAction(body))
+
+      if (socket) {
+        socket.emit('delete-todos', body)
+      }
       next(null, response.lastUpdate)
     } else {
       next(response.error)
@@ -209,6 +221,7 @@ function* updateToDoRequested(action: AsyncAction<ToDo, BodyPayload<UpdateToDoBo
   } = action
 
   const lastUpdateField = getLastUpdateFieldName(boardId)
+  const socket = getSocket()
 
   let loadingPart
   if (text !== undefined) {
@@ -248,6 +261,10 @@ function* updateToDoRequested(action: AsyncAction<ToDo, BodyPayload<UpdateToDoBo
       localStorage.setItem(lastUpdateField, `${updatedToDo.lastUpdate}`)
 
       yield put(updateToDoAction(updatedToDo))
+
+      if (socket) {
+        socket.emit('update-todo', updatedToDo)
+      }
 
       next(null, updatedToDo)
     } else {
