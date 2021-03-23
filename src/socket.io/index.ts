@@ -1,13 +1,15 @@
-import { Dispatch } from 'redux'
 import { Socket } from 'socket.io-client'
 import { DefaultEventsMap } from 'socket.io-client/build/typed-events'
 import DeleteManyBody from '../api/bodies/DeleteManyBody'
+import Board from '../models/Board'
 import ToDo from '../models/ToDo'
+import { storeNewBoardAction } from '../redux/actions/boardsActions'
 import {
-  addToDoAction,
-  deleteToDosAction,
-  updateToDoAction,
+  deleteStoredToDosAction,
+  storeNewToDoAction,
+  storeToDoUpdateAction,
 } from '../redux/actions/toDoActions'
+import store from '../redux/store'
 
 export const ENDPOINT = 'http://api.todolist.local'
 
@@ -15,20 +17,56 @@ let socket: Socket<DefaultEventsMap, DefaultEventsMap>
 
 export const initSocket = (
   newSocket: Socket<DefaultEventsMap, DefaultEventsMap>,
-  dispatch: Dispatch<any>,
 ) => {
   socket = newSocket
 
   socket.on('update-todo', (toDo: ToDo) => {
-    dispatch(updateToDoAction(toDo))
+    const {
+      app: {
+        user,
+      },
+    } = store.getState()
+    store.dispatch(storeToDoUpdateAction({
+      user,
+      body: toDo,
+    }))
   })
 
   socket.on('new-todo', (toDo: ToDo) => {
-    dispatch(addToDoAction(toDo))
+    const {
+      app: {
+        user,
+      },
+    } = store.getState()
+    store.dispatch(storeNewToDoAction({
+      user,
+      body: toDo,
+    }))
+  })
+
+  socket.on('new-board', (board: Board) => {
+    const {
+      app: {
+        user,
+      },
+    } = store.getState()
+    socket.emit('join-board', board.id)
+    store.dispatch(storeNewBoardAction({
+      user,
+      body: board,
+    }))
   })
 
   socket.on('delete-todos', (body: DeleteManyBody) => {
-    dispatch(deleteToDosAction(body))
+    const {
+      app: {
+        user,
+      },
+    } = store.getState()
+    store.dispatch(deleteStoredToDosAction({
+      user,
+      body,
+    }))
   })
 }
 

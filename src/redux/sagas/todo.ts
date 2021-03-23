@@ -15,6 +15,8 @@ import ToDo from '../../models/ToDo'
 import { LoadingPart } from '../../common/constants'
 import {
   addToDoAction,
+  deleteStoredToDosAction,
+  DeleteStotredToDosPayload,
   deleteToDosAction,
   setLoadingPartAction,
   setTodosAction,
@@ -111,9 +113,6 @@ function* newToDoRequested(action: AsyncAction<ToDo, BodyPayload<NewToDoBody>>) 
     payload: {
       body,
       user,
-      body: {
-        boardId,
-      },
     },
   } = action
 
@@ -126,11 +125,16 @@ function* newToDoRequested(action: AsyncAction<ToDo, BodyPayload<NewToDoBody>>) 
 
     if (toDoResponse.status) {
       const { result: newToDoToAdd } = toDoResponse
+      const socket = getSocket()
 
       yield put(storeNewToDoAction({
         user,
         body: newToDoToAdd,
       }))
+
+      if (socket) {
+        socket.emit('new-todo', newToDoToAdd)
+      }
 
       next(null, newToDoToAdd)
     } else {
@@ -156,8 +160,6 @@ function* deleteManyToDosRequested(action: AsyncAction<number, BodyPayload<Delet
 
   const socket = getSocket()
 
-  const lastUpdateField = getLastUpdateFieldName(boardId)
-
   try {
     yield put(setLoadingPartAction({
       boardId,
@@ -178,13 +180,10 @@ function* deleteManyToDosRequested(action: AsyncAction<number, BodyPayload<Delet
     }))
 
     if (response.status) {
-      const db: Database = yield connectDB(getDatabaseName(user.id, boardId))
-
-      const store = db.getStore()
-      yield Promise.all(todos.map((toDoId) => store.delete(toDoId)))
-      localStorage.setItem(lastUpdateField, `${response.lastUpdate}`)
-
-      yield put(deleteToDosAction(body))
+      yield put(deleteStoredToDosAction({
+        body: { ...body, lastUpdate: response.lastUpdate },
+        user,
+      }))
 
       if (socket) {
         socket.emit('delete-todos', body)
@@ -243,11 +242,15 @@ function* updateToDoRequested(action: AsyncAction<ToDo, BodyPayload<UpdateToDoBo
 
     if (updateResponse.status) {
       const { result: updatedToDo } = updateResponse
+      const socket = getSocket()
 
       yield put(storeToDoUpdateAction({
         user,
         body: updatedToDo,
       }))
+      if (socket) {
+        socket.emit('update-todo', updatedToDo)
+      }
 
       next(null, updatedToDo)
     } else {
@@ -265,7 +268,6 @@ function* storeNewToDo(action: Action<BodyPayload<ToDo>>) {
       user,
     },
   } = action
-  const socket = getSocket()
 
   const lastUpdateField = getLastUpdateFieldName(toDo.boardId)
   const db: Database = yield connectDB(getDatabaseName(user.id, toDo.boardId))
@@ -276,10 +278,6 @@ function* storeNewToDo(action: Action<BodyPayload<ToDo>>) {
   localStorage.setItem(lastUpdateField, `${toDo.lastUpdate}`)
 
   yield put(addToDoAction(toDo))
-
-  if (socket) {
-    socket.emit('new-todo', toDo)
-  }
 }
 
 function* storeToDoUpdate(action: Action<BodyPayload<ToDo>>) {
@@ -290,7 +288,6 @@ function* storeToDoUpdate(action: Action<BodyPayload<ToDo>>) {
     },
   } = action
   const lastUpdateField = getLastUpdateFieldName(toDo.boardId)
-  const socket = getSocket()
   const db: Database = yield connectDB(getDatabaseName(user.id, toDo.boardId))
 
   const store = db.getStore()
@@ -299,15 +296,36 @@ function* storeToDoUpdate(action: Action<BodyPayload<ToDo>>) {
   localStorage.setItem(lastUpdateField, `${toDo.lastUpdate}`)
 
   yield put(updateToDoAction(toDo))
+}
 
-  if (socket) {
-    socket.emit('update-todo', toDo)
+function* deleteStoredToDos(action: Action<DeleteStotredToDosPayload>) {
+  const {
+    payload: {
+      body: {
+        todos,
+        boardId,
+        lastUpdate,
+      },
+      user,
+      body,
+    },
+  } = action
+  if (lastUpdate !== undefined) {
+    const lastUpdateField = getLastUpdateFieldName(boardId)
+    localStorage.setItem(lastUpdateField, `${lastUpdate}`)
   }
+  const db: Database = yield connectDB(getDatabaseName(user.id, boardId))
+
+  const store = db.getStore()
+  yield Promise.all(todos.map((toDoId) => store.delete(toDoId)))
+
+  yield put(deleteToDosAction(body))
 }
 
 function* watchTodos() {
   yield takeEvery(ToDoAction.STORE_NEW_TODO, storeNewToDo)
   yield takeEvery(ToDoAction.STORE_TODO_UPDATE, storeToDoUpdate)
+  yield takeEvery(ToDoAction.DELETE_STORED_TODOS, deleteStoredToDos)
   yield takeEvery(ToDoAction.REQUEST_NEW_TODO, newToDoRequested)
   yield takeEvery(ToDoAction.REQUEST_TODOS, requestTodos)
   yield takeEvery(ToDoAction.REQUEST_DELETE_MANY_TODOS, deleteManyToDosRequested)

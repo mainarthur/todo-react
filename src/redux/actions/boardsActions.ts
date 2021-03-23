@@ -14,3 +14,5 @@ export const requestNewBoardAction = createAction<BodyPayload<NewBoardBody>>(
 )
 
 export const addBoardAction = createAction<Board>(BoardAction.ADD_BOARD)
+
+export const storeNewBoardAction = createAction<BodyPayload<Board>>(BoardAction.STORE_NEW_BOARD)

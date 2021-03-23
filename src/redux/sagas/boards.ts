@@ -7,8 +7,10 @@ import { connectDB, getDatabaseName } from '../../indexeddb/connect'
 import Database from '../../indexeddb/Database'
 import Board from '../../models/Board'
 import User from '../../models/User'
-import { addBoardAction, setBoardsAction } from '../actions/boardsActions'
+import { getSocket } from '../../socket.io'
+import { addBoardAction, setBoardsAction, storeNewBoardAction } from '../actions/boardsActions'
 import { BoardAction } from '../constants'
+import Action from '../types/Action'
 import AsyncAction from '../types/AsyncAction'
 import BodyPayload from '../types/payloads/BodyPayload'
 
@@ -90,14 +92,15 @@ function* requestNewBoard(action: AsyncAction<Board, BodyPayload<NewBoardBody>>)
     if (boardResponse.status) {
       const { result: board } = boardResponse
 
-      const db: Database = yield connectDB(getDatabaseName(user.id))
+      yield put(storeNewBoardAction({
+        user,
+        body: board,
+      }))
+      const socket = getSocket()
 
-      const store = db.getStore()
-      yield store.put(board)
-
-      localStorage.setItem(lastUpdateField, `${board.lastUpdate}`)
-
-      yield put(addBoardAction(board))
+      if (socket) {
+        socket.emit('new-board', board)
+      }
 
       next(null, board)
     } else {
@@ -108,7 +111,25 @@ function* requestNewBoard(action: AsyncAction<Board, BodyPayload<NewBoardBody>>)
   }
 }
 
+function* storeNewBoard(action: Action<BodyPayload<Board>>) {
+  const {
+    payload: {
+      body: board,
+      user,
+    },
+  } = action
+  const db: Database = yield connectDB(getDatabaseName(user.id))
+
+  const store = db.getStore()
+  yield store.put(board)
+
+  localStorage.setItem(lastUpdateField, `${board.lastUpdate}`)
+
+  yield put(addBoardAction(board))
+}
+
 function* watchBoards() {
+  yield takeEvery(BoardAction.STORE_NEW_BOARD, storeNewBoard)
   yield takeEvery(BoardAction.REQUEST_BOARDS, requestBoards)
   yield takeEvery(BoardAction.REQUEST_NEW_BOARD, requestNewBoard)
 }

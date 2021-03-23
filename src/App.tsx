@@ -65,12 +65,12 @@ const App: FC = () => {
 
     })
 
-    initSocket(socket, dispatch)
+    initSocket(socket)
 
     return () => {
       socket.disconnect()
     }
-  }, [accessToken, dispatch])
+  }, [accessToken])
 
   if (!user || isLoading) {
     return (

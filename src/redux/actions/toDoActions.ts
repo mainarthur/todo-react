@@ -11,6 +11,8 @@ import NewToDoBody from '../../api/bodies/NewToDoBody'
 import DeleteManyBody from '../../api/bodies/DeleteManyBody'
 import ToDosPayload from '../types/payloads/ToDosPayload'
 
+export type DeleteStotredToDosPayload = BodyPayload<DeleteManyBody & { lastUpdate?: number }>
+
 export const setTodosAction = createAction<ToDosPayload & BoardPayload>(ToDoAction.SET_TODOS)
 export const addToDoAction = createAction<ToDo>(ToDoAction.ADD_TODO)
 export const updateToDoAction = createAction<ToDo>(ToDoAction.UPDATE_TODO)
@@ -38,6 +40,6 @@ export const storeNewToDoAction = createAction<BodyPayload<ToDo>>(
   ToDoAction.STORE_NEW_TODO,
 )
 
-export const deleteStoredToDosAction = createAction<BodyPayload<DeleteManyBody>>(
+export const deleteStoredToDosAction = createAction<DeleteStotredToDosPayload>(
   ToDoAction.DELETE_STORED_TODOS,
 )
