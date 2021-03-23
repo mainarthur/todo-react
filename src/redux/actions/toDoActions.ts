@@ -30,10 +30,14 @@ export const requestDeleteToDosAction = createAction<BodyPayload<DeleteManyBody>
   ToDoAction.REQUEST_DELETE_MANY_TODOS,
 )
 
-export const dbUpdateToDoAction = createAction<BodyPayload<ToDo>>(
-  ToDoAction.DB_UPDATE_TODO,
+export const storeToDoUpdateAction = createAction<BodyPayload<ToDo>>(
+  ToDoAction.STORE_TODO_UPDATE,
 )
 
-export const dbNewToDoAction = createAction<BodyPayload<ToDo>>(
-  ToDoAction.DB_NEW_TODO,
+export const storeNewToDoAction = createAction<BodyPayload<ToDo>>(
+  ToDoAction.STORE_NEW_TODO,
+)
+
+export const deleteStoredToDosAction = createAction<BodyPayload<DeleteManyBody>>(
+  ToDoAction.DELETE_STORED_TODOS,
 )
