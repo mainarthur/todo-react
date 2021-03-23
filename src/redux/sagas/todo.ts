@@ -200,17 +200,30 @@ function* updateToDoRequested(action: AsyncAction<ToDo, BodyPayload<UpdateToDoBo
         id,
         boardId,
         done,
+        text,
       },
       body,
       user,
     },
     next,
   } = action
+
+  const lastUpdateField = getLastUpdateFieldName(boardId)
+
+  let loadingPart
+  if (text !== undefined) {
+    loadingPart = LoadingPart.TEXT
+  } else if (done !== undefined) {
+    loadingPart = LoadingPart.CHECKBOX
+  } else {
+    loadingPart = LoadingPart.DRAG_HANDLER
+  }
+
   try {
     yield put(setLoadingPartAction({
       boardId,
       ids: [id],
-      loadingPart: done !== undefined ? LoadingPart.CHECKBOX : LoadingPart.DRAG_HANDLER,
+      loadingPart,
     }))
 
     const updateResponse: UpdateToDoResponse = yield api<UpdateToDoResponse, UpdateToDoBody>({
@@ -231,6 +244,8 @@ function* updateToDoRequested(action: AsyncAction<ToDo, BodyPayload<UpdateToDoBo
 
       const store = db.getStore()
       yield store.put(updatedToDo)
+
+      localStorage.setItem(lastUpdateField, `${updatedToDo.lastUpdate}`)
 
       yield put(updateToDoAction(updatedToDo))
 

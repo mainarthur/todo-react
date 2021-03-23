@@ -14,17 +14,20 @@ import { RootState } from '../../redux/reducers'
 
 import { history } from '../../routing/routerHistory'
 import useStyle from './styles'
+import { getDatabaseName } from '../../indexeddb/connect'
 
 const ToDoAppBar: FC = () => {
   const classes = useStyle()
   const { accessToken } = useSelector((state: RootState) => state.tokens)
+  const { user } = useSelector((state: RootState) => state.app)
   const dispatch = useDispatch()
 
   const onLogOutClick = useCallback(() => {
+    indexedDB.deleteDatabase(getDatabaseName(user.id))
     dispatch(deleteTokensAction())
     localStorage.clear()
     history.push('/login')
-  }, [dispatch])
+  }, [dispatch, user])
 
   return (
     <AppBar>

@@ -60,7 +60,29 @@ const EditToDoDialog: FC<Props> = ({
   const { user } = useSelector((state: RootState) => state.app)
   const dispacth = useDispatch()
 
-  const onOpenDeleteDialog = useCallback(() => {
+  const onSaveClick = useCallback(
+    async () => {
+      if (textFieldValue.trim() !== toDoText) {
+        try {
+          await createAsyncAction(dispacth, requestUpdateToDoAction({
+            user,
+            body: {
+              id,
+              boardId,
+              text: textFieldValue.trim(),
+            },
+          }))
+        } catch (err) {
+          if (!isLoadError) {
+            setIsLoadError(true)
+          }
+        }
+      }
+    },
+    [isLoadError, dispacth, id, user, boardId, textFieldValue, toDoText],
+  )
+
+  const onDeleteClick = useCallback(() => {
     setIsDeleteDialogOpened(true)
   }, [])
 
@@ -162,7 +184,7 @@ const EditToDoDialog: FC<Props> = ({
             variant="outlined"
             color="secondary"
             disabled={disabled}
-            onClick={onOpenDeleteDialog}
+            onClick={onDeleteClick}
           >
             Delete
           </Button>
@@ -175,6 +197,7 @@ const EditToDoDialog: FC<Props> = ({
             variant="contained"
             color="primary"
             disabled={disabled}
+            onClick={onSaveClick}
           >
             Save
           </Button>
