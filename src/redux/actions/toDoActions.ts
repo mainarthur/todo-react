@@ -29,3 +29,11 @@ export const requestUpdateToDoAction = createAction<BodyPayload<UpdateToDoBody>>
 export const requestDeleteToDosAction = createAction<BodyPayload<DeleteManyBody>>(
   ToDoAction.REQUEST_DELETE_MANY_TODOS,
 )
+
+export const dbUpdateToDoAction = createAction<BodyPayload<ToDo>>(
+  ToDoAction.DB_UPDATE_TODO,
+)
+
+export const dbNewToDoAction = createAction<BodyPayload<ToDo>>(
+  ToDoAction.DB_NEW_TODO,
+)

@@ -220,8 +220,6 @@ function* updateToDoRequested(action: AsyncAction<ToDo, BodyPayload<UpdateToDoBo
     next,
   } = action
 
-  const lastUpdateField = getLastUpdateFieldName(boardId)
-  const socket = getSocket()
 
   let loadingPart
   if (text !== undefined) {
@@ -231,6 +229,8 @@ function* updateToDoRequested(action: AsyncAction<ToDo, BodyPayload<UpdateToDoBo
   } else {
     loadingPart = LoadingPart.DRAG_HANDLER
   }
+  const lastUpdateField = getLastUpdateFieldName(boardId)
+  const socket = getSocket()
 
   try {
     yield put(setLoadingPartAction({
