@@ -220,7 +220,6 @@ function* updateToDoRequested(action: AsyncAction<ToDo, BodyPayload<UpdateToDoBo
     next,
   } = action
 
-
   let loadingPart
   if (text !== undefined) {
     loadingPart = LoadingPart.TEXT
