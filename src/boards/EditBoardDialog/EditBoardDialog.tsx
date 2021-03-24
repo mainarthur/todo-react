@@ -25,6 +25,7 @@ import { RootState } from '../../redux/reducers'
 import ComponentProgressBar from '../../common/ComponentProgressBar'
 import useStyles from './styles'
 import Board from '../../models/Board'
+import { requestDeleteBoard } from '../../redux/actions/boardsActions'
 
 interface Props {
   board: Board
@@ -39,14 +40,16 @@ const EditBoardDialog: FC<Props> = ({
 }: Props) => {
   const {
     name,
-    users,
+    id: boardId,
   } = board
-  const disabled = false
 
   const classes = useStyles()
+  const [isLoading, setIsLoading] = useState(false)
   const [textFieldValue, setTextFieldValue] = useState(name)
   const [isDeleteDialogOpened, setIsDeleteDialogOpened] = useState(false)
   const [isLoadError, setIsLoadError] = useState(false)
+
+  const disabled = isLoading
 
   const { user } = useSelector((state: RootState) => state.app)
   const dispacth = useDispatch()
@@ -54,13 +57,22 @@ const EditBoardDialog: FC<Props> = ({
   const onDelete = useCallback(async () => {
     setIsDeleteDialogOpened(false)
     try {
-
+      if (!isLoading) {
+        setIsLoading(true)
+        await createAsyncAction(dispacth, requestDeleteBoard({
+          user,
+          body: {
+            boardId,
+          },
+        }))
+        setIsLoading(false)
+      }
     } catch (err) {
       if (!isLoadError) {
         setIsLoadError(true)
       }
     }
-  }, [dispacth, user, isLoadError])
+  }, [dispacth, user, isLoadError, isLoading, boardId])
 
   const onDeleteClick = useCallback(() => {
     setIsDeleteDialogOpened(true)

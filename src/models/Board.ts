@@ -6,4 +6,5 @@ export default interface Board {
   lastUpdate: number
   position: number
   deleted: boolean
+  invitedUsersEmails: string[]
 }

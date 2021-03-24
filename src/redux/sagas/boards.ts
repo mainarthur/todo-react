@@ -1,14 +1,23 @@
 import { takeEvery, put } from 'redux-saga/effects'
 import { api } from '../../api/api'
+import DeleteBoardBody from '../../api/bodies/DeleteBoardBody'
 import NewBoardBody from '../../api/bodies/NewBoardBody'
+import Response from '../../api/Response'
 import BoardsResponse from '../../api/responses/BoardsResponse'
+import DeleteBoardResponse from '../../api/responses/DeleteBoardResponse'
 import NewBoardResponse from '../../api/responses/NewBoardResponse'
 import { connectDB, getDatabaseName } from '../../indexeddb/connect'
 import Database from '../../indexeddb/Database'
 import Board from '../../models/Board'
 import User from '../../models/User'
 import { getSocket } from '../../socket.io'
-import { addBoardAction, setBoardsAction, storeNewBoardAction } from '../actions/boardsActions'
+import {
+  addBoardAction,
+  deleteBoardAction,
+  deleteStoredBoardAction,
+  setBoardsAction,
+  storeNewBoardAction,
+} from '../actions/boardsActions'
 import { BoardAction } from '../constants'
 import Action from '../types/Action'
 import AsyncAction from '../types/AsyncAction'
@@ -111,6 +120,44 @@ function* requestNewBoard(action: AsyncAction<Board, BodyPayload<NewBoardBody>>)
   }
 }
 
+function* requestDeleteBoard(action: AsyncAction<Board, BodyPayload<DeleteBoardBody>>) {
+  const {
+    next,
+    payload: {
+      body,
+      user,
+    },
+  } = action
+
+  try {
+    const deleteResponse: DeleteBoardResponse = yield api<Response, DeleteBoardBody>({
+      body,
+      endpoint: '/board',
+      method: 'DELETE',
+    })
+
+    if (deleteResponse.status) {
+      const { result: board } = deleteResponse
+      const socket = getSocket()
+
+      yield put(deleteStoredBoardAction({
+        user,
+        body: board,
+      }))
+
+      if (socket) {
+        socket.emit('delete-board', board)
+      }
+
+      next(null, board)
+    } else {
+      next(deleteResponse.error)
+    }
+  } catch (err) {
+    next(err)
+  }
+}
+
 function* storeNewBoard(action: Action<BodyPayload<Board>>) {
   const {
     payload: {
@@ -128,9 +175,29 @@ function* storeNewBoard(action: Action<BodyPayload<Board>>) {
   yield put(addBoardAction(board))
 }
 
+function* deleteStoredBoard(action: Action<BodyPayload<Board>>) {
+  const {
+    payload: {
+      body: board,
+      user,
+    },
+  } = action
+
+  const db: Database = yield connectDB(getDatabaseName(user.id))
+
+  const store = db.getStore()
+  yield store.delete(board.id)
+
+  localStorage.setItem(lastUpdateField, `${board.lastUpdate}`)
+
+  yield put(deleteBoardAction(board))
+}
+
 function* watchBoards() {
+  yield takeEvery(BoardAction.DELETE_STORED_BOARD, deleteStoredBoard)
   yield takeEvery(BoardAction.STORE_NEW_BOARD, storeNewBoard)
   yield takeEvery(BoardAction.REQUEST_BOARDS, requestBoards)
+  yield takeEvery(BoardAction.REQUEST_DELETE_BOARD, requestDeleteBoard)
   yield takeEvery(BoardAction.REQUEST_NEW_BOARD, requestNewBoard)
 }
 

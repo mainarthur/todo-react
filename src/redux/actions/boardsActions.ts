@@ -19,4 +19,6 @@ export const requestDeleteBoard = createAction<BodyPayload<DeleteBoardBody>>(
 )
 
 export const storeNewBoardAction = createAction<BodyPayload<Board>>(BoardAction.STORE_NEW_BOARD)
-export const deleteStoredBoard = createAction<BodyPayload<Board>>(BoardAction.DELETE_STORED_BOARD)
+export const deleteStoredBoardAction = createAction<BodyPayload<Board>>(
+  BoardAction.DELETE_STORED_BOARD,
+)
