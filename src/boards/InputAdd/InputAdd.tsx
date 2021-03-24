@@ -65,7 +65,7 @@ const InputAdd = forwardRef(({
       }
       return
     }
-
+    setInpuText('')
     onAdd(inputText)
   }, [inputText, isInvalidText, onAdd])
 

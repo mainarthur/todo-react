@@ -29,6 +29,8 @@ import useStyles from './styles'
 import Board from '../../models/Board'
 import { requestDeleteBoard } from '../../redux/actions/boardsActions'
 import UserListItem from '../UserListItem'
+import InputAdd from '../InputAdd'
+import ErrorSnackBar from '../../common/ErrorSnackBar'
 
 interface Props {
   board: Board
@@ -57,6 +59,14 @@ const EditBoardDialog: FC<Props> = ({
 
   const { user } = useSelector((state: RootState) => state.app)
   const dispacth = useDispatch()
+
+  const onAddUser = useCallback(async (email: string) => {
+
+  }, [])
+
+  const onSnackBarClose = useCallback(() => {
+    setIsLoadError(false)
+  }, [setIsLoadError])
 
   const onDelete = useCallback(async () => {
     setIsDeleteDialogOpened(false)
@@ -127,6 +137,12 @@ const EditBoardDialog: FC<Props> = ({
           <List>
             {users.map((userId) => <UserListItem key={userId} userId={userId} />)}
           </List>
+          <InputAdd
+            placeholder="User email"
+            onAdd={onAddUser}
+            disabled={isLoading}
+            loading={isLoading}
+          />
         </DialogContent>
         <DialogActions>
           <Button
@@ -158,6 +174,9 @@ const EditBoardDialog: FC<Props> = ({
         </DialogActions>
       </Dialog>
       <DeleteConfirmDialog open={isDeleteDialogOpened} onCancel={onCancel} onDelete={onDelete} />
+      <ErrorSnackBar open={isLoadError} autoHide onClose={onSnackBarClose}>
+        Error!
+      </ErrorSnackBar>
     </>
   )
 }

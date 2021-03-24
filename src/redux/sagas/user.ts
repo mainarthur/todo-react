@@ -9,18 +9,20 @@ import User from '../../models/User'
 import { setUserAction } from '../actions/appActions'
 import { AppAction } from '../constants'
 import AsyncAction from '../types/AsyncAction'
+import UserPayload from '../types/payloads/UserPayload'
 
-function* userRequested(action: AsyncAction<User>) {
+function* userRequested(action: AsyncAction<User, UserPayload>) {
+  const { payload, next } = action
   const userResponse: UserResponse = yield api<UserResponse, {}>({
-    endpoint: '/user',
+    endpoint: `/user${payload ? `?id=${payload.id}` : ''}`,
   })
 
   if (userResponse.status) {
     const { result: user } = userResponse
-    yield put(setUserAction(user))
-    action.next(null, userResponse.result)
+
+    next(null, user)
   } else {
-    action.next(userResponse.error)
+    next(userResponse.error)
   }
 }
 

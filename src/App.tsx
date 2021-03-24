@@ -15,7 +15,7 @@ import { history } from './routing/routerHistory'
 import { RootState } from './redux/reducers'
 
 import { setAccessTokenAction, setRefreshTokenAction } from './redux/actions/tokenActions'
-import { requestUserAction } from './redux/actions/appActions'
+import { requestUserAction, setUserAction } from './redux/actions/appActions'
 import { createAsyncAction } from './redux/helpers'
 import User from './models/User'
 import BoardPage from './boards/BoardPage'
@@ -45,7 +45,8 @@ const App: FC = () => {
         setIsLoading(true);
         (async () => {
           try {
-            await createAsyncAction<User>(dispatch, requestUserAction())
+            const loadedUser = await createAsyncAction<User>(dispatch, requestUserAction())
+            dispatch(setUserAction(loadedUser))
           } finally {
             setIsLoading(false)
           }
