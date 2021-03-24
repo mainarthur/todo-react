@@ -12,6 +12,8 @@ import DialogContent from '@material-ui/core/DialogContent'
 import Button from '@material-ui/core/Button'
 import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
+import Typography from '@material-ui/core/Typography'
+import List from '@material-ui/core/List'
 
 import DeleteIcon from '@material-ui/icons/Delete'
 import CancelIcon from '@material-ui/icons/Cancel'
@@ -26,6 +28,7 @@ import ComponentProgressBar from '../../common/ComponentProgressBar'
 import useStyles from './styles'
 import Board from '../../models/Board'
 import { requestDeleteBoard } from '../../redux/actions/boardsActions'
+import UserListItem from '../UserListItem'
 
 interface Props {
   board: Board
@@ -40,6 +43,7 @@ const EditBoardDialog: FC<Props> = ({
 }: Props) => {
   const {
     name,
+    users,
     id: boardId,
   } = board
 
@@ -117,7 +121,12 @@ const EditBoardDialog: FC<Props> = ({
           />
         </DialogTitle>
         <DialogContent dividers>
-
+          <Typography variant="h6">
+            Users
+          </Typography>
+          <List>
+            {users.map((userId) => <UserListItem key={userId} userId={userId} />)}
+          </List>
         </DialogContent>
         <DialogActions>
           <Button

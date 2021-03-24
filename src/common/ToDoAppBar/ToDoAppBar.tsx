@@ -42,7 +42,7 @@ const ToDoAppBar: FC = () => {
         </Typography>
         {accessToken !== '' ? (
           <IconButton onClick={onLogOutClick}>
-            <ExitToAppIcon style={{ fill: user?.avatarColor }} className={classes.logOutIcon} />
+            <ExitToAppIcon className={classes.logOutIcon} />
           </IconButton>
         ) : null}
       </Toolbar>
