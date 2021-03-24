@@ -39,7 +39,7 @@ export default function boardsReducer(state = initialState, action: Action): Boa
   if (updateBoardAction.match(action)) {
     newState = newState.map((board) => {
       if (board.id === action.payload.id) {
-        return { ...action.payload, todos: board.todos }
+        return { ...action.payload, todos: board.todos ?? [] }
       }
       return board
     })
