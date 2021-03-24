@@ -9,7 +9,7 @@ import {
 } from '../actions/toDoActions'
 import Board from '../../models/Board'
 import todosReducer from './todosReducer'
-import { addBoardAction, setBoardsAction } from '../actions/boardsActions'
+import { addBoardAction, deleteBoardAction, setBoardsAction } from '../actions/boardsActions'
 
 export type BoardsState = Array<Board & { todos?: ToDo[] }>
 
@@ -25,6 +25,10 @@ export default function boardsReducer(state = initialState, action: Action): Boa
   if (setBoardsAction.match(action)) {
     newState = [...action.payload]
     newState = newState.map((board) => ({ ...board, todos: board.todos ?? [] }))
+  }
+
+  if (deleteBoardAction.match(action)) {
+    newState = newState.filter((board) => board.id !== action.payload.id)
   }
 
   if (

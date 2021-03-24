@@ -21,7 +21,7 @@ const AddNewBoard: FC = () => {
       user,
     }))
   }
-  return <AddNew placeholder="New Board" addText="Add board" onAdd={onAdd} />
+  return <AddNew placeholder="New Board" addText="Add board" onAdd={onAdd} inputMaxLength={26} />
 }
 
 export default AddNewBoard

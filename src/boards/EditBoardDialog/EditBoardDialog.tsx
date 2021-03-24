@@ -8,25 +8,20 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 
 import Dialog from '@material-ui/core/Dialog'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Checkbox from '@material-ui/core/Checkbox'
 import DialogContent from '@material-ui/core/DialogContent'
 import Button from '@material-ui/core/Button'
 import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
 
 import DeleteIcon from '@material-ui/icons/Delete'
-import SaveIcon from '@material-ui/icons/Save'
+import CancelIcon from '@material-ui/icons/Cancel'
 
 import DialogTitle from '../../common/DialogTitle'
 
 import DeleteConfirmDialog from '../DeleteConfirmDialog'
-import ToDo from '../../models/ToDo'
 
 import { createAsyncAction } from '../../redux/helpers'
-import { requestDeleteToDosAction, requestUpdateToDoAction } from '../../redux/actions/toDoActions'
 import { RootState } from '../../redux/reducers'
-import { LoadingPart } from '../../common/constants'
 import ComponentProgressBar from '../../common/ComponentProgressBar'
 import useStyles from './styles'
 import Board from '../../models/Board'
@@ -65,7 +60,7 @@ const EditBoardDialog: FC<Props> = ({
         setIsLoadError(true)
       }
     }
-  }, [dispacth, id, user, isLoadError])
+  }, [dispacth, user, isLoadError])
 
   const onDeleteClick = useCallback(() => {
     setIsDeleteDialogOpened(true)
@@ -100,7 +95,9 @@ const EditBoardDialog: FC<Props> = ({
           onClose={onClose}
         >
           <TextField
-            multiline
+            inputProps={{
+              maxLength: 26,
+            }}
             value={textFieldValue}
             onChange={onTextChange}
             disabled={disabled}
@@ -127,14 +124,15 @@ const EditBoardDialog: FC<Props> = ({
           <Button
             startIcon={(
               <ComponentProgressBar loading={disabled}>
-                <SaveIcon />
+                <CancelIcon />
               </ComponentProgressBar>
             )}
             variant="contained"
             color="primary"
             disabled={disabled}
+            onClick={onClose}
           >
-            Save
+            Cancel
           </Button>
         </DialogActions>
       </Dialog>
@@ -142,3 +140,5 @@ const EditBoardDialog: FC<Props> = ({
     </>
   )
 }
+
+export default EditBoardDialog

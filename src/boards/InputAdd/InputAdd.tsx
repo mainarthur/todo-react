@@ -25,6 +25,7 @@ type Props = {
   onAdd(text: string): void
   placeholder?: string
   onBlur?: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>
+  maxLength?: number
 }
 
 const InputAdd = forwardRef(({
@@ -33,6 +34,7 @@ const InputAdd = forwardRef(({
   onAdd,
   placeholder,
   onBlur,
+  maxLength,
 }: Props, ref) => {
   const classes = useStyle()
   const [inputText, setInpuText] = useState('')
@@ -85,6 +87,7 @@ const InputAdd = forwardRef(({
         placeholder={placeholder}
         disabled={disabled}
         onBlur={onBlur}
+        inputProps={{ maxLength }}
         endAdornment={
           (
             <InputAdornment position="end">
@@ -113,6 +116,7 @@ InputAdd.defaultProps = {
   placeholder: 'New task',
   disabled: false,
   onBlur: null,
+  maxLength: null,
 }
 
 export default InputAdd

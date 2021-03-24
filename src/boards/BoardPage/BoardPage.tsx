@@ -69,7 +69,7 @@ const BoardPage: FC = () => {
         <Grid className={classes.boardsContent}>
           {boards && boards.map((board) => (
             <Paper key={board.id} elevation={3} className={classes.boardCard}>
-              <BoardHeader title={board.name} boardId={board.id} />
+              <BoardHeader title={board.name} board={board} />
               <Divider />
               <ToDoList boardId={board.id} />
               <Divider className={classes.divider} />

@@ -19,12 +19,14 @@ type Props = {
   onAdd: (text: string) => void
   placeholder: string
   addText: string
+  inputMaxLength?: number
 }
 
 const AddNew: FC<Props> = ({
   onAdd,
   placeholder,
   addText,
+  inputMaxLength,
 }: Props) => {
   const classes = useStyles()
 
@@ -74,9 +76,14 @@ const AddNew: FC<Props> = ({
         ref={inputRef}
         onAdd={handleOnAdd}
         onBlur={handleCloseInput}
+        maxLength={inputMaxLength}
       />
     </Box>
   )
+}
+
+AddNew.defaultProps = {
+  inputMaxLength: null,
 }
 
 export default AddNew
