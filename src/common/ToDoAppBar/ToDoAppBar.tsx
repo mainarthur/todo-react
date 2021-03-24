@@ -24,6 +24,11 @@ const ToDoAppBar: FC = () => {
 
   const onLogOutClick = useCallback(() => {
     indexedDB.deleteDatabase(getDatabaseName(user.id))
+    Object.keys(localStorage).forEach((key) => {
+      if (key.indexOf('lastUpdate-todos-') === 0) {
+        indexedDB.deleteDatabase(getDatabaseName(user.id, key.substring('lastUpdate-todos-'.length)))
+      }
+    })
     dispatch(deleteTokensAction())
     localStorage.clear()
     history.push('/login')
@@ -37,7 +42,7 @@ const ToDoAppBar: FC = () => {
         </Typography>
         {accessToken !== '' ? (
           <IconButton onClick={onLogOutClick}>
-            <ExitToAppIcon className={classes.logOutIcon} />
+            <ExitToAppIcon style={{ fill: user?.avatarColor }} className={classes.logOutIcon} />
           </IconButton>
         ) : null}
       </Toolbar>
