@@ -55,21 +55,20 @@ export const initSocket = (
     }))
   })
 
-  socket.on('join-board', (boardId: string) => {
-    socket.emit('join-board', boardId)
-  })
-
   socket.on('new-board', (board: Board) => {
     const {
       app: {
         user,
       },
+      boards,
     } = store.getState()
-    socket.emit('join-board', board.id)
-    store.dispatch(storeNewBoardAction({
-      user,
-      body: board,
-    }))
+    if (!boards.find((b) => b.id === board.id)) {
+      socket.emit('join-board', board.id)
+      store.dispatch(storeNewBoardAction({
+        user,
+        body: board,
+      }))
+    }
   })
 
   socket.on('delete-board', (board: Board) => {

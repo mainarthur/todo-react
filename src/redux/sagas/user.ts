@@ -1,12 +1,10 @@
 import {
   takeEvery,
-  put,
 } from 'redux-saga/effects'
 
 import { api } from '../../api/api'
 import UserResponse from '../../api/responses/UserResponse'
 import User from '../../models/User'
-import { setUserAction } from '../actions/appActions'
 import { AppAction } from '../constants'
 import AsyncAction from '../types/AsyncAction'
 import UserPayload from '../types/payloads/UserPayload'
