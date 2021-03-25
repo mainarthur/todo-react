@@ -2,7 +2,7 @@ import { createUseStyles } from 'react-jss'
 
 const useStyles = createUseStyles({
   avatar: {
-    fill: (props: any) => props?.avatarColor ?? '#000',
+    backgroundColor: (props: any) => [[props.avatarColor], '!important'],
   },
 })
 

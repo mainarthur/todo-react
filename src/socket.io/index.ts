@@ -3,7 +3,7 @@ import { DefaultEventsMap } from 'socket.io-client/build/typed-events'
 import DeleteManyBody from '../api/bodies/DeleteManyBody'
 import Board from '../models/Board'
 import ToDo from '../models/ToDo'
-import { deleteStoredBoardAction, storeNewBoardAction } from '../redux/actions/boardsActions'
+import { deleteStoredBoardAction, storeNewBoardAction, storeUpdatedBoardAction } from '../redux/actions/boardsActions'
 import {
   deleteStoredToDosAction,
   storeNewToDoAction,
@@ -42,6 +42,21 @@ export const initSocket = (
       user,
       body: toDo,
     }))
+  })
+  socket.on('update-board', (board: Board) => {
+    const {
+      app: {
+        user,
+      },
+    } = store.getState()
+    store.dispatch(storeUpdatedBoardAction({
+      user,
+      body: board,
+    }))
+  })
+
+  socket.on('join-board', (boardId: string) => {
+    socket.emit('join-board', boardId)
   })
 
   socket.on('new-board', (board: Board) => {

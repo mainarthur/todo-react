@@ -29,7 +29,7 @@ const UserListItem: FC<Props> = ({ userId }: Props) => {
 
   const dispatch = useDispatch()
 
-  const classes = useStyles(user as any)
+  const classes = useStyles((user || { avatarColor: '#000' }) as any)
 
   useEffect(() => {
     if (!user && !isLoading) {
@@ -54,8 +54,8 @@ const UserListItem: FC<Props> = ({ userId }: Props) => {
   return (
     <ListItem>
       <ListItemAvatar>
-        <Avatar>
-          <PersonIcon className={classes.avatar} />
+        <Avatar className={classes.avatar}>
+          <PersonIcon />
         </Avatar>
       </ListItemAvatar>
       <ListItemText primary={user?.name} secondary={user?.email} />

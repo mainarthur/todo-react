@@ -20,17 +20,17 @@ export const requestBoardsAction = createAction<User>(BoardAction.REQUEST_BOARDS
 export const requestDeleteBoard = createAction<BodyPayload<DeleteBoardBody>>(
   BoardAction.REQUEST_DELETE_BOARD,
 )
-export const requestUpdateBoard = createAction<BodyPayload<UpdateBoardBody>>(
+export const requestUpdateBoardAction = createAction<BodyPayload<UpdateBoardBody>>(
   BoardAction.REQUEST_UPDATE_BOARD,
 )
 
-export const requestAddUserToBoard = createAction<BodyPayload<AddUserToBoardBody>>(
+export const requestAddUserToBoardAction = createAction<BodyPayload<AddUserToBoardBody>>(
   BoardAction.REQUEST_ADD_USER_TO_BOARD,
 )
 
 export const storeNewBoardAction = createAction<BodyPayload<Board>>(BoardAction.STORE_NEW_BOARD)
 export const storeUpdatedBoardAction = createAction<BodyPayload<Board>>(
-  BoardAction.STORE_UPDATED_BOARD_BOARD,
+  BoardAction.STORE_UPDATED_BOARD,
 )
 export const deleteStoredBoardAction = createAction<BodyPayload<Board>>(
   BoardAction.DELETE_STORED_BOARD,

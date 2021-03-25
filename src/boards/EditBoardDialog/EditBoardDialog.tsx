@@ -4,6 +4,7 @@ import {
   useState,
   useCallback,
   ChangeEvent,
+  useRef,
 } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -27,7 +28,7 @@ import { RootState } from '../../redux/reducers'
 import ComponentProgressBar from '../../common/ComponentProgressBar'
 import useStyles from './styles'
 import Board from '../../models/Board'
-import { requestDeleteBoard } from '../../redux/actions/boardsActions'
+import { requestAddUserToBoardAction, requestDeleteBoard, requestUpdateBoardAction } from '../../redux/actions/boardsActions'
 import UserListItem from '../UserListItem'
 import InputAdd from '../InputAdd'
 import ErrorSnackBar from '../../common/ErrorSnackBar'
@@ -55,14 +56,22 @@ const EditBoardDialog: FC<Props> = ({
   const [isDeleteDialogOpened, setIsDeleteDialogOpened] = useState(false)
   const [isLoadError, setIsLoadError] = useState(false)
 
+  const timerId = useRef<ReturnType<typeof setTimeout>>()
+
   const disabled = isLoading
 
   const { user } = useSelector((state: RootState) => state.app)
   const dispacth = useDispatch()
 
   const onAddUser = useCallback(async (email: string) => {
-
-  }, [])
+    await createAsyncAction(dispacth, requestAddUserToBoardAction({
+      user,
+      body: {
+        email,
+        boardId,
+      },
+    }))
+  }, [dispacth, user, boardId])
 
   const onSnackBarClose = useCallback(() => {
     setIsLoadError(false)
@@ -99,8 +108,18 @@ const EditBoardDialog: FC<Props> = ({
   const onTextChange = useCallback(
     (ev: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setTextFieldValue(ev.target.value)
+      clearTimeout(timerId.current)
+      timerId.current = setTimeout(async () => {
+        await createAsyncAction(dispacth, requestUpdateBoardAction({
+          user,
+          body: {
+            name: ev.target.value,
+            id: boardId,
+          },
+        }))
+      }, 1000)
     },
-    [setTextFieldValue],
+    [setTextFieldValue, timerId, dispacth, user, boardId],
   )
 
   const onClose = useCallback(() => {
