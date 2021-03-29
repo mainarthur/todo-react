@@ -114,7 +114,7 @@ function* requestNewBoard(action: AsyncAction<Board, BodyPayload<NewBoardBody>>)
       const socket = getSocket()
 
       if (socket) {
-        socket.emit('join-board', board.id)
+        socket.emit('new-board', board)
       }
 
       next(null, board)
