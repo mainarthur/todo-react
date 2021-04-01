@@ -24,6 +24,7 @@ const useStyle = makeStyles((theme: Theme) => ({
     width: '100%',
     maxWidth: '133.75px',
     boxSizing: 'border-box',
+    textAlign: 'center',
   },
   progressBar: {
     marginLeft: theme.spacing(0.5),

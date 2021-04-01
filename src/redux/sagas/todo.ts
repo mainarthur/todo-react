@@ -32,8 +32,11 @@ import Database from '../../indexeddb/Database'
 import BodyPayload from '../types/payloads/BodyPayload'
 import { getSocket } from '../../socket.io'
 import Action from '../types/Action'
+import * as R from 'ramda'
 
 const getLastUpdateFieldName = (boardId: string) => `lastUpdate-todos-${boardId}`
+
+const mapToDosToAdd = R.map(R.assoc('loadingPart', LoadingPart.NONE))
 
 function* requestTodos(action: AsyncAction<ToDo[], BoardPayload>) {
   const {
@@ -94,7 +97,7 @@ function* requestTodos(action: AsyncAction<ToDo[], BoardPayload>) {
 
       yield put(setTodosAction({
         boardId,
-        todos: todosRequest.map((toDo) => ({ ...toDo, loadingPart: LoadingPart.NONE })),
+        todos: mapToDosToAdd(todosRequest),
       }))
 
       next(null, todosRequest)
