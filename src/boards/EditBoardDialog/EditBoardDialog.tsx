@@ -6,7 +6,7 @@ import {
   ChangeEvent,
   useRef,
 } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'
@@ -24,7 +24,6 @@ import DialogTitle from '../../common/DialogTitle'
 import DeleteConfirmDialog from '../DeleteConfirmDialog'
 
 import { createAsyncAction } from '../../redux/helpers'
-import { RootState } from '../../redux/reducers'
 import ComponentProgressBar from '../../common/ComponentProgressBar'
 import useStyles from './styles'
 import Board from '../../models/Board'
@@ -32,6 +31,7 @@ import { requestAddUserToBoardAction, requestDeleteBoard, requestUpdateBoardActi
 import UserListItem from '../UserListItem'
 import InputAdd from '../InputAdd'
 import ErrorSnackBar from '../../common/ErrorSnackBar'
+import useUser from '../../hooks/useUser'
 
 interface Props {
   board: Board
@@ -60,7 +60,7 @@ const EditBoardDialog: FC<Props> = ({
 
   const disabled = isLoading
 
-  const { user } = useSelector((state: RootState) => state.app)
+  const user = useUser()
   const dispacth = useDispatch()
 
   const onAddUser = useCallback(async (email: string) => {

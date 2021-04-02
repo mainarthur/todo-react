@@ -5,7 +5,7 @@ import {
   useEffect,
   useCallback,
 } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import Grid from '@material-ui/core/Grid'
 
@@ -13,9 +13,10 @@ import ToDoElement from '../ToDoElement'
 
 import useStyles from './styles'
 import ToDo from '../../models/ToDo'
-import { RootState } from '../../redux/reducers'
 import { createAsyncAction } from '../../redux/helpers'
 import { requestTodosAction } from '../../redux/actions/toDoActions'
+import useToDos from '../../hooks/useToDos'
+import useUser from '../../hooks/useUser'
 
 type Props = {
   boardId: string
@@ -28,10 +29,9 @@ const ToDoList: FC<Props> = ({ boardId }: Props) => {
   const [isToDosLoaded, setIsToDosLoaded] = useState(false)
   const [isLoadError, setIsLoadError] = useState(false)
 
-  const { todos } = useSelector(
-    (state: RootState) => state.boards.find((board) => board.id === boardId),
-  )
-  const { user } = useSelector((state: RootState) => state.app)
+  const todos = useToDos(boardId)
+
+  const user = useUser()
 
   const dispatch = useDispatch()
 
@@ -54,7 +54,7 @@ const ToDoList: FC<Props> = ({ boardId }: Props) => {
     } finally {
       setIsLoading(false)
     }
-  }, [dispatch, boardId, user, isLoadError])
+  }, [dispatch, boardId, user, isLoadError, setIsToDosLoaded])
 
   useEffect(() => {
     if (user && !isLoading && !isToDosLoaded) {

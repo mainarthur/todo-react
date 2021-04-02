@@ -5,7 +5,7 @@ import {
   useCallback,
   ChangeEvent,
 } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import Dialog from '@material-ui/core/Dialog'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
@@ -25,10 +25,10 @@ import ToDo from '../../models/ToDo'
 
 import { createAsyncAction } from '../../redux/helpers'
 import { requestDeleteToDosAction, requestUpdateToDoAction } from '../../redux/actions/toDoActions'
-import { RootState } from '../../redux/reducers'
 import { LoadingPart } from '../../common/constants'
 import ComponentProgressBar from '../../common/ComponentProgressBar'
 import useStyles from './styles'
+import useUser from '../../hooks/useUser'
 
 interface Props {
   toDo: ToDo
@@ -57,7 +57,7 @@ const EditToDoDialog: FC<Props> = ({
   const [textFieldValue, setTextFieldValue] = useState(toDoText)
   const [isLoadError, setIsLoadError] = useState(false)
 
-  const { user } = useSelector((state: RootState) => state.app)
+  const user = useUser()
   const dispacth = useDispatch()
 
   const onSaveClick = useCallback(

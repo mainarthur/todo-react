@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useEffect, FC, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import Box from '@material-ui/core/Box'
 import Grid from '@material-ui/core/Grid'
@@ -12,14 +12,14 @@ import useStyle from './styles'
 
 import { history } from './routing/routerHistory'
 
-import { RootState } from './redux/reducers'
-
 import { setAccessTokenAction, setRefreshTokenAction } from './redux/actions/tokenActions'
 import { requestUserAction, setUserAction } from './redux/actions/appActions'
 import { createAsyncAction } from './redux/helpers'
 import User from './models/User'
 import BoardPage from './boards/BoardPage'
 import { initSocket } from './socket.io'
+import useUser from './hooks/useUser'
+import useAuthTokens from './hooks/useAuthTokens'
 
 const ENDPOINT = 'http://api.todolist.local'
 
@@ -28,8 +28,8 @@ const App: FC = () => {
 
   const [isLoading, setIsLoading] = useState(false)
 
-  const { user } = useSelector((state: RootState) => state.app)
-  const { refreshToken, accessToken } = useSelector((state: RootState) => state.tokens)
+  const user = useUser()
+  const { refreshToken, accessToken } = useAuthTokens()
 
   const dispatch = useDispatch()
 

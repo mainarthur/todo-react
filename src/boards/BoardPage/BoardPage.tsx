@@ -5,7 +5,7 @@ import {
   useState,
   useCallback,
 } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import Divider from '@material-ui/core/Divider'
 import Grid from '@material-ui/core/Grid'
@@ -20,11 +20,12 @@ import useStyles from './styles'
 
 import Board from '../../models/Board'
 import BoardFooter from '../BoardFooter'
-import { RootState } from '../../redux/reducers'
 import { createAsyncAction } from '../../redux/helpers'
 import { requestBoardsAction } from '../../redux/actions/boardsActions'
 import ErrorSnackBar from '../../common/ErrorSnackBar'
 import AddNewBoard from '../AddNewBoard'
+import useUser from '../../hooks/useUser'
+import useBoards from '../../hooks/useBoards'
 
 const BoardPage: FC = () => {
   const classes = useStyles()
@@ -33,8 +34,8 @@ const BoardPage: FC = () => {
   const [isBoardsLoaded, setIsBoardsLoaded] = useState(false)
   const [isLoadError, setIsLoadError] = useState(false)
 
-  const boards = useSelector((state: RootState) => state.boards)
-  const { user } = useSelector((state: RootState) => state.app)
+  const boards = useBoards()
+  const user = useUser()
 
   const dispatch = useDispatch()
 

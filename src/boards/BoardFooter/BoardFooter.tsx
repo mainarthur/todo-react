@@ -3,11 +3,11 @@ import {
   FC,
   useCallback,
 } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
+import useUser from '../../hooks/useUser'
 import ToDo from '../../models/ToDo'
 import { requestNewToDoAction } from '../../redux/actions/toDoActions'
 import { createAsyncAction } from '../../redux/helpers'
-import { RootState } from '../../redux/reducers'
 import AddNew from '../AddNew'
 
 type Props = {
@@ -15,7 +15,7 @@ type Props = {
 }
 
 const BoardFooter: FC<Props> = ({ boardId }: Props) => {
-  const { user } = useSelector((state: RootState) => state.app)
+  const user = useUser()
 
   const dispatch = useDispatch()
 
