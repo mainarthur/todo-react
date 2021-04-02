@@ -21,11 +21,27 @@ export type BoardsState = Array<Board & { todos?: ToDo[] }>
 
 const initialState: BoardsState = []
 
-const deleteBoard = (boards: BoardsState, id: string) => R.filter(R.pipe(R.propEq('id', id), R.not))(boards)
+const deleteBoard = (boards: BoardsState, id: string) => R.filter(
+  R.pipe(R.propEq('id', id), R.not)
+)(boards)
 const addBoard = (
   boards: BoardsState,
   boardToAdd: Board,
 ) => R.append(boardToAdd)(boards)
+const setBoards = R.map(
+  R.ifElse(
+    R.pipe(R.has('todos'), R.not),
+    R.assoc('todos', []),
+    R.identity
+  )
+)
+const updateBoard = (boards: BoardsState, board: Board) => R.map(
+  R.ifElse(
+    R.propEq('id', board.id),
+    R.mergeLeft(board),
+    R.identity
+  )
+)(boards)
 
 
 
@@ -37,7 +53,7 @@ export default function boardsReducer(state = initialState, action: Action): Boa
   }
 
   if (setBoardsAction.match(action)) {
-    newState = newState.map((board) => ({ ...board, todos: board.todos ?? [] }))
+    newState = setBoards(action.payload)
   }
 
   if (deleteBoardAction.match(action)) {
@@ -45,12 +61,7 @@ export default function boardsReducer(state = initialState, action: Action): Boa
   }
 
   if (updateBoardAction.match(action)) {
-    newState = newState.map((board) => {
-      if (board.id === action.payload.id) {
-        return { ...action.payload, todos: board.todos ?? [] }
-      }
-      return board
-    })
+    newState = updateBoard(newState, action.payload)
   }
 
   if (
