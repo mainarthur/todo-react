@@ -15,25 +15,33 @@ import {
   setBoardsAction,
   updateBoardAction,
 } from '../actions/boardsActions'
+import * as R from 'ramda'
 
 export type BoardsState = Array<Board & { todos?: ToDo[] }>
 
 const initialState: BoardsState = []
 
+const deleteBoard = (boards: BoardsState, id: string) => R.filter(R.pipe(R.propEq('id', id), R.not))(boards)
+const addBoard = (
+  boards: BoardsState,
+  boardToAdd: Board,
+) => R.append(boardToAdd)(boards)
+
+
+
 export default function boardsReducer(state = initialState, action: Action): BoardsState {
   let newState = [...state]
 
   if (addBoardAction.match(action)) {
-    newState = newState.concat([{ ...action.payload, todos: [] }])
+    newState = addBoard(newState, action.payload)
   }
 
   if (setBoardsAction.match(action)) {
-    newState = [...action.payload]
     newState = newState.map((board) => ({ ...board, todos: board.todos ?? [] }))
   }
 
   if (deleteBoardAction.match(action)) {
-    newState = newState.filter((board) => board.id !== action.payload.id)
+    newState = deleteBoard(newState, action.payload.id)
   }
 
   if (updateBoardAction.match(action)) {

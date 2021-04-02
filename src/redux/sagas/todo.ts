@@ -2,6 +2,7 @@ import {
   put,
   takeEvery,
 } from 'redux-saga/effects'
+import * as R from 'ramda'
 
 import { api } from '../../api/api'
 import DeleteManyBody from '../../api/bodies/DeleteManyBody'
@@ -32,7 +33,6 @@ import Database from '../../indexeddb/Database'
 import BodyPayload from '../types/payloads/BodyPayload'
 import { getSocket } from '../../socket.io'
 import Action from '../types/Action'
-import * as R from 'ramda'
 
 const getLastUpdateFieldName = (boardId: string) => `lastUpdate-todos-${boardId}`
 
